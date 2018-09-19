@@ -15,6 +15,7 @@ module MixinBot
             }
           ]
         }
+        # TODO: not finished yet.
       end
 
       def unique_conversation_id(user_id)
