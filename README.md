@@ -19,6 +19,7 @@ Check it in this toy project:
 ## Example
 
 - [investing_mistakes](https://github.com/an-lee/investing_mistakes)
+- [prsdigg.com](https://prsdigg.com)
 
 ## References
 
