@@ -1,6 +1,6 @@
 # MixinBot
 
-An API wrapper for [Mixin Nexwork](https://developers.mixin.one/api)
+An API wrapper for [Mixin Network](https://developers.mixin.one/api)
 
 ## Installation
 
@@ -23,7 +23,7 @@ Check it in this toy project:
 
 ## References
 
-- [Mixin Nexwork Document](https://developers.mixin.one/api)
+- [Mixin Network Document](https://developers.mixin.one/api)
 - [mixin_client_demo (python)](https://github.com/myrual/mixin_client_demo)
 - [mixin-node (node)](https://github.com/virushuo/mixin-node)
 
