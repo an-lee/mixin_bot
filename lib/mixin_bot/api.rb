@@ -1,7 +1,9 @@
 require_relative './client'
 require_relative './errors'
 require_relative './api/auth'
+require_relative './api/conversation'
 require_relative './api/me'
+require_relative './api/message'
 require_relative './api/payment'
 require_relative './api/pin'
 require_relative './api/transfer'
@@ -23,7 +25,9 @@ module MixinBot
     end
 
     include MixinBot::API::Auth
+    include MixinBot::API::Conversation
     include MixinBot::API::Me
+    include MixinBot::API::Message
     include MixinBot::API::Payment
     include MixinBot::API::Pin
     include MixinBot::API::Transfer
