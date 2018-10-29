@@ -11,7 +11,7 @@ require_relative './api/user'
 
 module MixinBot
   class API
-    attr_reader :client_id, :client_secret, :session_id, :pin_token, :private_key, :scope
+    attr_reader :client_id, :client_secret, :session_id, :pin_token, :private_key
     attr_reader :client
 
     def initialize(options={})
@@ -20,7 +20,6 @@ module MixinBot
       @session_id = options[:session_id] || MixinBot.session_id
       @pin_token = Base64.decode64 options[:pin_token] || MixinBot.pin_token
       @private_key = OpenSSL::PKey::RSA.new options[:private_key] || MixinBot.private_key
-      @scope = options[:scope] || MixinBot.scope || 'PROFILE:READ+PHONE:READ+ASSETS:READ'
       @client = Client.new
     end
 
