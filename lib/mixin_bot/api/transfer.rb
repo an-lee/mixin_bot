@@ -2,13 +2,6 @@ module MixinBot
   class API
     module Transfer
       def create_transfer(pin, options)
-        # data for test:
-        # asset_id = '965e5c6e-434c-3fa9-b780-c50f43cd955c'
-        # opponent_id = '7ed9292d-7c95-4333-aa48-a8c640064186'
-        # amount = '1'
-        # encrypted_pin = MixinBot.api_pin.encrypted_pin
-        # memo = 'test'
-
         options = options.with_indifferent_access
 
         asset_id = options.fetch('asset_id')

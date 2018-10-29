@@ -32,8 +32,25 @@ module MixinBot
         # TODO:
       end
 
-      def app_button_group_message
-        # TODO: 
+      def app_button_group_message(conversation_id, recipient_id, options={})
+        options = options.with_indifferent_access
+        label = options[:label] || ''
+        color = options[:color] || '#467fcf'
+        action = options[:action] || ''
+
+        data = [{ label: label, color: color, action: action }]
+        encoded_data = Base64.encode64 data.to_json
+
+        params = {
+          "conversation_id": conversation_id,
+          'recipient_id': recipient_id,
+          "category": "APP_BUTTON_GROUP",
+          "status": "SENT",
+          "message_id": SecureRandom.uuid,
+          "data": encoded_data
+        }
+
+        write_message("CREATE_MESSAGE", params)
       end
 
       def read_message(data)
