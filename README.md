@@ -2,12 +2,14 @@
 
 An API wrapper for [Mixin Network](https://developers.mixin.one/api)
 
+> Notice: this project is ongoing.
+
 ## Installation
 
 Add to gemfile, and `bundle install`
 
 ```
-gem 'mixin_bot'
+gem 'mixin_bot', github: 'an-lee/mixin_bot', branch: 'master'
 ```
 
 ## Usage
@@ -25,7 +27,7 @@ Check it in this toy project:
 
 - [Mixin Network Document](https://developers.mixin.one/api)
 - [mixin_client_demo (python)](https://github.com/myrual/mixin_client_demo)
-- [mixin-node (node)](https://github.com/virushuo/mixin-node)
+- [mixin-node (nodejs)](https://github.com/virushuo/mixin-node)
 
 ## License
 
