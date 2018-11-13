@@ -11,8 +11,8 @@ module MixinBot
       def update_me(full_name, avatar_base64, access_token=nil)
         path = '/me'
         payload = {
-          "full_name": full_name,
-          "avatar_base64": avatar_base64
+          full_name: full_name,
+          avatar_base64: avatar_base64
         }
         access_token ||= self.access_token('POST', path, payload.to_json)
         authorization = format('Bearer %s', access_token)

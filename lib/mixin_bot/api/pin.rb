@@ -17,7 +17,7 @@ module MixinBot
         iv = msg[0..15]
         cipher = msg[16..47]
         aes_key = JOSE::JWA::PKCS1::rsaes_oaep_decrypt('SHA256', pin_token, private_key, session_id)
-        alg = "AES-256-CBC"
+        alg = 'AES-256-CBC'
         decode_cipher = OpenSSL::Cipher.new(alg)
         decode_cipher.decrypt
         decode_cipher.iv = iv
@@ -42,7 +42,7 @@ module MixinBot
           padded_content = encrypt_content
         end
 
-        alg = "AES-256-CBC"
+        alg = 'AES-256-CBC'
         aes = OpenSSL::Cipher.new(alg)
         iv = OpenSSL::Cipher.new(alg).random_iv
         aes.encrypt

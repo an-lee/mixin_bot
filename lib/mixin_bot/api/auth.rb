@@ -7,12 +7,12 @@ module MixinBot
         exp = (Time.now.utc + exp_in).to_i
         jti = SecureRandom.uuid
         payload = {
-          'uid': client_id,
-          'sid': session_id,
-          'iat': iat,
-          'exp': exp,
-          'jti': jti,
-          'sig': sig
+          uid: client_id,
+          sid: session_id,
+          iat: iat,
+          exp: exp,
+          jti: jti,
+          sig: sig
         }
         JWT.encode payload, private_key, 'RS512'
       end

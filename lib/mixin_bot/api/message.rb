@@ -7,8 +7,8 @@ module MixinBot
 
       def acknowledge_message_receipt(message_id)
         params = {
-          'message_id': message_id,
-          'status': 'READ'
+          message_id: message_id,
+          status: 'READ'
         }
         write_message('ACKNOWLEDGE_MESSAGE_RECEIPT', params)
       end
@@ -17,15 +17,15 @@ module MixinBot
         encoded_text = Base64.encode64 text
 
         params = {
-          "conversation_id": conversation_id,
-          'recipient_id': recipient_id,
-          "category": "PLAIN_TEXT",
-          "status": "SENT",
-          "message_id": SecureRandom.uuid,
-          "data": encoded_text
+          conversation_id: conversation_id,
+          recipient_id: recipient_id,
+          category: 'PLAIN_TEXT',
+          status: 'SENT',
+          message_id: SecureRandom.uuid,
+          data: encoded_text
         }
 
-        write_message("CREATE_MESSAGE", params)
+        write_message('CREATE_MESSAGE', params)
       end
 
       def app_card_message
@@ -42,15 +42,15 @@ module MixinBot
         encoded_data = Base64.encode64 data.to_json
 
         params = {
-          "conversation_id": conversation_id,
-          'recipient_id': recipient_id,
-          "category": "APP_BUTTON_GROUP",
-          "status": "SENT",
-          "message_id": SecureRandom.uuid,
-          "data": encoded_data
+          conversation_id: conversation_id,
+          recipient_id: recipient_id,
+          category: 'APP_BUTTON_GROUP',
+          status: 'SENT',
+          message_id: SecureRandom.uuid,
+          data: encoded_data
         }
 
-        write_message("CREATE_MESSAGE", params)
+        write_message('CREATE_MESSAGE', params)
       end
 
       def read_message(data)
@@ -63,9 +63,9 @@ module MixinBot
 
       def write_message(action, params)
         msg = {
-          "id": SecureRandom.uuid,
-          "action":  action,
-          "params": params
+          id: SecureRandom.uuid,
+          action:  action,
+          params: params
         }.to_json
 
         io = StringIO.new 'wb'
