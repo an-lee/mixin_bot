@@ -8,18 +8,18 @@ module MixinBot
         asset = options['asset']
         order = options['order']
 
-        path = 'snapshots'
+        path = 'network/snapshots'
         payload = {
           limit: limit,
           offset: offset,
           asset: asset,
           order: order
         }
-        client.get(path, json: payload)
+        client.get(path, params: payload)
       end
 
       def read_snapshot(snapshot_id)
-        path = format('snapshots/%s', snapshot_id)
+        path = format('network/snapshots/%s', snapshot_id)
         client.get(path)
       end
     end
