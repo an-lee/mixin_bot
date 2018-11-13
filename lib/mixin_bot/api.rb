@@ -6,6 +6,7 @@ require_relative './api/me'
 require_relative './api/message'
 require_relative './api/payment'
 require_relative './api/pin'
+require_relative './api/snapshot'
 require_relative './api/transfer'
 require_relative './api/user'
 
@@ -29,6 +30,7 @@ module MixinBot
     include MixinBot::API::Message
     include MixinBot::API::Payment
     include MixinBot::API::Pin
+    include MixinBot::API::Snapshot
     include MixinBot::API::Transfer
     include MixinBot::API::User
   end
