@@ -13,12 +13,11 @@ module MixinBot
         write_message('ACKNOWLEDGE_MESSAGE_RECEIPT', params)
       end
 
-      def plain_text_message(conversation_id, recipient_id, text)
+      def plain_text_message(conversation_id, text)
         encoded_text = Base64.encode64 text
 
         params = {
           conversation_id: conversation_id,
-          recipient_id: recipient_id,
           category: 'PLAIN_TEXT',
           status: 'SENT',
           message_id: SecureRandom.uuid,
