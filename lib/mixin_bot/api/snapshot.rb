@@ -3,23 +3,23 @@ module MixinBot
     module Snapshot
       def read_snapshots(options)
         options = options.with_indifferent_access
-        limit = options.fetch('limit')
-        offset = options.fetch('offset')
-        asset = options.fetch('asset')
-        order = options.fetch('order')
+        limit = options['limit']
+        offset = options['offset']
+        asset = options['asset']
+        order = options['order']
 
-        order = 'snapshots'
+        path = 'network/snapshots'
         payload = {
           limit: limit,
           offset: offset,
           asset: asset,
           order: order
         }
-        client.get(path, json: payload)
+        client.get(path, params: payload)
       end
 
       def read_snapshot(snapshot_id)
-        path = format('snapshots/%s', snapshot_id)
+        path = format('network/snapshots/%s', snapshot_id)
         client.get(path)
       end
     end
