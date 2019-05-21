@@ -67,7 +67,7 @@ module MixinBot
         authorization = format('Bearer %s', access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
-      
+
       def del_withdraw_address(address, pin)
         path = '/addresses/' + address + "/delete"
         enPin = encrypt_pin(pin)
@@ -79,6 +79,21 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
+      def withdrawals(address_id,pin,amount,trace_id,memo)
+        path = '/withdrawals'
+        enPin = encrypt_pin(pin)
+
+        payload = {
+          address_id: address_id,
+          amount: amount,
+          trace_id: account_tag,
+          memo: memo,
+          pin: enPin
+        }
+        access_token = self.access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %s', access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
     end
   end
 end
