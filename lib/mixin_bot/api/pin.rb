@@ -12,6 +12,18 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
+      def update_pin(old_pincode,new_pincode)
+        path = '/pin/update'
+        payload = {
+          old_pin: old_pincode == ''? '':encrypt_pin(old_pincode),
+          pin: encrypt_pin(new_pincode)
+        }
+        p payload.to_json
+        access_token = self.access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %s', access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
+
       def decrypt_pin(msg)
         msg = Base64.strict_decode64 msg
         iv = msg[0..15]

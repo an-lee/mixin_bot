@@ -9,6 +9,16 @@ module MixinBot
         client.get(path, headers: { 'Authorization': authorization })
       end
 
+      def create_user(full_name, session_secret)
+        payload = {
+          session_secret: session_secret,
+          full_name:full_name
+        }
+        access_token = self.access_token('POST', "/users", payload.to_json)
+        authorization = format('Bearer %s', access_token)
+        client.post("/users", headers: { 'Authorization': authorization }, json: payload)
+      end
+
       def search_user(q, access_token=nil)
         # q: Mixin Id or Phone Number
         path = format('/search/%s', q)
