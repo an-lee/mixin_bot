@@ -60,6 +60,13 @@ module MixinBot
         authorization = format('Bearer %s', access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
+
+      def get_withdraw_address(address)
+        path = '/addresses/' + address
+        access_token = self.access_token('GET', path, '')
+        authorization = format('Bearer %s', access_token)
+        client.get(path, headers: { 'Authorization': authorization })
+      end
     end
   end
 end
