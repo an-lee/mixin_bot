@@ -36,6 +36,30 @@ module MixinBot
         authorization = format('Bearer %s', access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
+
+      def create_withdraw_address(asset_id,pin,public_key,account_name,account_tag,label)
+        path = '/addresses'
+        enPin = encrypt_pin(pin)
+        if public_key == ""
+          payload = {
+            asset_id: asset_id,
+            account_name: account_name,
+            account_tag: account_tag,
+            label: label,
+            pin: enPin
+          }
+        else
+          payload = {
+            asset_id: asset_id,
+            public_key: public_key,
+            label: label,
+            pin: enPin
+          }
+        end
+        access_token ||= self.access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %s', access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
     end
   end
 end
