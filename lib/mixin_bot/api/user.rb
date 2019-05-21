@@ -67,6 +67,18 @@ module MixinBot
         authorization = format('Bearer %s', access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
+      
+      def del_withdraw_address(address, pin)
+        path = '/addresses/' + address + "/delete"
+        enPin = encrypt_pin(pin)
+        payload = {
+          pin: enPin
+        }
+        access_token = self.access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %s', access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
+
     end
   end
 end
