@@ -14,4 +14,9 @@ module MixinBot
   def self.api
     @api ||= MixinBot::API.new(options={})
   end
+
+  def self.new(options)
+    @api = MixinBot::API.new(options)
+  end
+
 end
