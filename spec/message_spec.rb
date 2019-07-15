@@ -2,26 +2,19 @@ require 'spec_helper'
 
 describe "Message" do
   before do
+    @conversation_id = MixinBot.api.unique_conversation_id(TEST_UID)
   end
 
   describe 'message' do
     it "should write msg" do
-      conversation_id = MixinBot.api.unique_conversation_id(TEST_UID)
-      msg = MixinBot.api.plain_text_message(conversation_id, 'test')
+      msg = MixinBot.api.plain_text_message(@conversation_id, 'test')
       msg.wont_be_nil
     end
 
-    it "should send msg" do
-      conversation_id = MixinBot.api.unique_conversation_id(TEST_UID)
-      params = {
-        conversation_id: conversation_id,
-        category: 'PLAIN_TEXT',
-        status: 'SENT',
-        message_id: SecureRandom.uuid,
-        data: Base64.encode64('test')
-      }
-      res = MixinBot.api.send(params.to_json)
-      res.wont_be_nil
+    it "should send text msg" do
+      res = MixinBot.api.send_text_message(@conversation_id, 'test')
+      res['data'].wont_be_nil
+      res['data']['type'].must_equal 'message'
     end
   end
 end

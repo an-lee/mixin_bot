@@ -25,8 +25,6 @@ module MixinBot
       begin
         response = HTTP.timeout(connect: 5, write: 5, read: 5).request(verb, uri, options)
       rescue HTTP::Error => ex
-        Rails.logger.error format('%s (%s):', ex.class.name, ex.message)
-        Rails.logger.error ex.backtrace.join("\n")
         raise Errors::HttpError, ex.message
       end
 

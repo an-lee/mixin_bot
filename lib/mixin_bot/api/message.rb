@@ -1,11 +1,22 @@
 module MixinBot
   class API
     module Message
-      def send(msg)
+      def send_text_message(conversation_id, text, message_id: nil)
+        payload = {
+          conversation_id: conversation_id,
+          category: 'PLAIN_TEXT',
+          status: 'SENT',
+          message_id: message_id || SecureRandom.uuid,
+          data: Base64.encode64(text)
+        }
+        send_message payload
+      end
+
+      def send_message(payload)
         path = '/messages'
-        _access_token ||= self.access_token('POST', path, msg)
+        _access_token ||= self.access_token('POST', path, payload.to_json)
         authorization = format('Bearer %s', _access_token)
-        client.post(path, headers: { 'Authorization': authorization })
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
       
       def list_pending_message
