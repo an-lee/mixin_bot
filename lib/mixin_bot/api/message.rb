@@ -1,6 +1,13 @@
 module MixinBot
   class API
     module Message
+      def send(msg)
+        path = '/messages'
+        _access_token ||= self.access_token('POST', path, msg)
+        authorization = format('Bearer %s', _access_token)
+        client.post(path, headers: { 'Authorization': authorization })
+      end
+      
       def list_pending_message
         write_message('LIST_PENDING_MESSAGES', {})
       end
@@ -41,13 +48,6 @@ module MixinBot
       end
 
       def app_button_group_message(conversation_id, recipient_id, options)
-        # options = options.with_indifferent_access
-        # label = options[:label] || ''
-        # color = options[:color] || '#467fcf'
-        # action = options[:action] || ''
-        #
-        # data = [{ label: label, color: color, action: action }]
-        # p data
         encoded_data = Base64.encode64 options.to_json
 
         params = {
