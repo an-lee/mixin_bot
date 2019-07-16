@@ -1,11 +1,24 @@
-require 'rake/testtask'
+# frozen_string_literal: true
 
-Rake::TestTask.new do |t|
-  t.libs << "spec"
-  # t.libs << "lib"
-  t.test_files = FileList['spec/*_spec.rb']
-  t.warning = false
+require 'bundler'
+require 'bundler/gem_tasks'
+begin
+  Bundler.setup(:default, :development)
+rescue Bundler::BundlerError => e
+  warn e.message
+  warn 'Run `bundle install` to install missing gems'
+  exit e.status_code
 end
 
-desc "Run tests"
-task :default => :test
+require 'rake'
+require "rspec/core/rake_task"
+
+begin
+  require 'rspec/core/rake_task'
+
+  RSpec::Core::RakeTask.new(:spec)
+
+  task :default => :spec
+rescue LoadError
+  # no rspec available
+end

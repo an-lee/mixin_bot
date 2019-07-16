@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/all'
 require 'http'
 require 'base64'
@@ -12,11 +14,6 @@ module MixinBot
   end
 
   def self.api
-    @api ||= MixinBot::API.new(options={})
+    @api ||= MixinBot::API.new
   end
-
-  def self.new(options)
-    @api = MixinBot::API.new(options)
-  end
-
 end

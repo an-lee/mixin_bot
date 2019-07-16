@@ -1,3 +1,5 @@
+# frozen_string_literal: false
+
 module MixinBot
   class API
     module Message
@@ -14,11 +16,11 @@ module MixinBot
 
       def send_message(payload)
         path = '/messages'
-        _access_token ||= self.access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %s', _access_token)
+        access_token ||= access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
-      
+
       def list_pending_message
         write_message('LIST_PENDING_MESSAGES', {})
       end
@@ -78,13 +80,14 @@ module MixinBot
         gzip = Zlib::GzipReader.new io
         msg = gzip.read
         gzip.close
-        return msg
+
+        msg
       end
 
       def write_message(action, params)
         msg = {
           id: SecureRandom.uuid,
-          action:  action,
+          action: action,
           params: params
         }.to_json
 
@@ -92,7 +95,7 @@ module MixinBot
         gzip = Zlib::GzipWriter.new io
         gzip.write msg
         gzip.close
-        data = io.string.unpack('c*')
+        io.string.unpack('c*')
       end
     end
   end

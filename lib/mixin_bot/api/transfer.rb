@@ -1,14 +1,14 @@
+# frozen_string_literal: true
+
 module MixinBot
   class API
     module Transfer
       def create_transfer(pin, options)
-        options = options.with_indifferent_access
-
-        asset_id = options.fetch('asset_id')
-        opponent_id = options.fetch('opponent_id')
-        amount = options.fetch('amount')
-        memo = options.fetch('memo')
-        trace_id = options.fetch('trace_id')
+        asset_id = options[:asset_id]
+        opponent_id = options[:opponent_id]
+        amount = options[:amount]
+        memo = options[:memo]
+        trace_id = options[:trace_id]
         trace_id ||= SecureRandom.uuid
 
         path = '/transfers'
@@ -21,15 +21,15 @@ module MixinBot
           memo: memo
         }
 
-        access_token ||= self.access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %s', access_token)
+        access_token ||= access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
       def read_transfer(trace_id)
-        path = format('/transfers/trace/%s', trace_id)
-        access_token ||= self.access_token('GET', path, '')
-        authorization = format('Bearer %s', access_token)
+        path = format('/transfers/trace/%<trace_id>s', trace_id: trace_id)
+        access_token ||= access_token('GET', path, '')
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
     end

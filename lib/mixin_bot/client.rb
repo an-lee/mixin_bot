@@ -36,6 +36,7 @@ module MixinBot
         case parse_as
         when :json
           break result if result[:errcode].blank? || result[:errcode].zero?
+
           raise Errors::APIError.new(result[:errcode], result[:errmsg])
         else
           result
@@ -56,9 +57,9 @@ module MixinBot
       content_type = response.headers[:content_type]
       parse_as = {
         %r{^application\/json} => :json,
-        %r{^image\/.*}         => :file,
-        %r{^text\/html}        => :xml,
-        %r{^text\/plain}       => :plain
+        %r{^image\/.*} => :file,
+        %r{^text\/html} => :xml,
+        %r{^text\/plain} => :plain
       }.each_with_object([]) { |match, memo| memo << match[1] if content_type =~ match[0] }.first || :plain
 
       if parse_as == :plain

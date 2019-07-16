@@ -1,29 +1,28 @@
+# frozen_string_literal: true
+
 module MixinBot
   class API
     module Payment
       def pay_url(options)
-        options = options.with_indifferent_access
-        recipient_id = options.fetch('recipient_id')
-        asset_id = options.fetch('asset_id')
-        amount = options.fetch('amount')
-        memo = options.fetch('memo')
-        trace = options.fetch('trace')
-        url = format('https://mixin.one/pay?recipient=%s&asset=%s&amount=%s&trace=%s&memo=%s', recipient_id, asset_id, amount, trace, memo)
+        format(
+          'https://mixin.one/pay?recipient=%<recipient_id>s&asset=%<asset>s&amount=%<amount>s&trace=%<trace>s&memo=%<memo>s',
+          recipient_id: options[:recipient_id],
+          asset: options[:asset_id],
+          amount: options[:amount],
+          trace: options[:trace],
+          memo: options[:memo]
+        )
       end
 
       def verify_payment(options)
-        options = options.with_indifferent_access
-        recipient_id = options.fetch('recipient_id')
-        asset_id = options.fetch('asset_id')
-        amount = options.fetch('amount')
-        trace = options.fetch('trace')
         path = 'payments'
         payload = {
-          asset_id: asset_id,
-          opponent_id: recipient_id,
-          amount: amount,
-          trace_id: trace,
+          asset_id: options[:asset_id],
+          opponent_id: options[:recipient_id],
+          amount: options[:amount],
+          trace_id: options[:trace]
         }
+
         client.post(path, json: payload)
       end
     end

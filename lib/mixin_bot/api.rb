@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './client'
 require_relative './errors'
 require_relative './api/auth'
@@ -15,8 +17,8 @@ module MixinBot
     attr_reader :client_id, :client_secret, :session_id, :pin_token, :private_key
     attr_reader :client
 
-    def initialize(options={})
-      @client_id = options[:client_id]  || MixinBot.client_id
+    def initialize(options = {})
+      @client_id = options[:client_id] || MixinBot.client_id
       @client_secret = options[:client_secret] || MixinBot.client_secret
       @session_id = options[:session_id] || MixinBot.session_id
       @pin_token = Base64.decode64 options[:pin_token] || MixinBot.pin_token

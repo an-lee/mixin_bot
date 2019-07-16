@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MixinBot
   module Errors
     # 通用异常
@@ -14,7 +16,7 @@ module MixinBot
         @errcode = errcode
         @errmsg = errmsg
 
-        super(format('[%s]: %s', @errcode, @errmsg))
+        super(format('[%<errcode>s]: %<errmsg>s', errcode: @errcode, errmsg: @errmsg))
       end
     end
   end
