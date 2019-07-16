@@ -16,7 +16,6 @@ Gem::Specification.new do |s|
   s.files         = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE']
   s.require_paths = ['lib']
 
-  s.add_dependency 'activesupport'
   s.add_dependency 'bcrypt'
   s.add_dependency 'http'
   s.add_dependency 'jose'

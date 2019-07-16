@@ -16,11 +16,10 @@ module MixinBot
     private
 
     def request(verb, path, options = {})
-      uri = uri_for(path)
-      options = options.with_indifferent_access
+      uri = uri_for path
 
-      options['headers'] ||= {}
-      options['headers']['Content-Type'] ||= 'application/json'
+      options[:headers] ||= {}
+      options[:headers]['Content-Type'] ||= 'application/json'
 
       begin
         response = HTTP.timeout(connect: 5, write: 5, read: 5).request(verb, uri, options)
@@ -33,7 +32,7 @@ module MixinBot
       parse_response(response) do |parse_as, result|
         case parse_as
         when :json
-          break result if result[:errcode].blank? || result[:errcode].zero?
+          break result if result[:errcode].nil? || result[:errcode].zero?
 
           raise Errors::APIError.new(result[:errcode], result[:errmsg])
         else
@@ -61,7 +60,7 @@ module MixinBot
       }.each_with_object([]) { |match, memo| memo << match[1] if content_type =~ match[0] }.first || :plain
 
       if parse_as == :plain
-        result = ActiveSupport::JSON.decode(response.body.to_s).with_indifferent_access rescue nil
+        result = JSON.parse(response&.body&.to_s)
         result && yield(:json, result)
 
         yield(:plain, response.body)
@@ -69,18 +68,18 @@ module MixinBot
 
       case parse_as
       when :json
-        result = ActiveSupport::JSON.decode(response.body.to_s).with_indifferent_access
+        result = JSON.parse(response.body.to_s)
       when :file
-        if response.headers[:content_type] =~ %r{^image\/.*}
-          extension =
+        extension =
+          if response.headers[:content_type] =~ %r{^image\/.*}
             case response.headers['content-type']
             when 'image/gif'  then '.gif'
             when 'image/jpeg' then '.jpg'
             when 'image/png'  then '.png'
             end
-        else
-          extension = ''
-        end
+          else
+            ''
+          end
 
         begin
           file = Tempfile.new(['mixin-file-', extension])

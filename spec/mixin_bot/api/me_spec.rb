@@ -5,7 +5,7 @@ require 'spec_helper'
 describe MixinBot::API::Me do
   it 'can read me' do
     res = MixinBot.api.read_me
-    expect(res['data']&.[](:user_id)).to eq(MixinBot.api.client_id)
+    expect(res['data']&.[]('user_id')).to eq(MixinBot.api.client_id)
   end
 
   it 'can read assets' do
@@ -15,7 +15,7 @@ describe MixinBot::API::Me do
 
   it 'can read asset' do
     res = MixinBot.api.read_asset(CNB_ASSET_ID)
-    expect(res['data']&.[](:symbol)).to eq('CNB')
+    expect(res['data']&.[]('symbol')).to eq('CNB')
   end
 
   it 'can read friends' do
