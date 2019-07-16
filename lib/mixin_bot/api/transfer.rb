@@ -8,15 +8,14 @@ module MixinBot
         opponent_id = options[:opponent_id]
         amount = options[:amount]
         memo = options[:memo]
-        trace_id = options[:trace_id]
-        trace_id ||= SecureRandom.uuid
+        trace_id = options[:trace_id] || SecureRandom.uuid
 
         path = '/transfers'
         payload = {
           asset_id: asset_id,
           opponent_id: opponent_id,
           pin: pin,
-          amount: amount,
+          amount: amount.to_s,
           trace_id: trace_id,
           memo: memo
         }
