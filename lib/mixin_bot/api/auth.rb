@@ -30,7 +30,7 @@ module MixinBot
 
         raise r.inspect if r['error'].present?
 
-        r['data']['access_token']
+        r['data']&.[]('access_token')
       end
 
       def request_oauth(scope = nil)

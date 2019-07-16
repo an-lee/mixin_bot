@@ -3,22 +3,11 @@
 module MixinBot
   class API
     module Pin
-      def verify_pin(pin_code, access_token = nil)
+      # https://developers.mixin.one/api/alpha-mixin-network/verify-pin/
+      def verify_pin(pin_code)
         path = '/pin/verify'
         payload = {
           pin: encrypt_pin(pin_code)
-        }
-
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
-      end
-
-      def update_pin(old_pincode, new_pincode)
-        path = '/pin/update'
-        payload = {
-          old_pin: old_pincode.nil? ? '' : encrypt_pin(old_pincode),
-          pin: encrypt_pin(new_pincode)
         }
 
         access_token = access_token('POST', path, payload.to_json)
@@ -26,6 +15,22 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
+      # not verified yet
+      # https://developers.mixin.one/api/alpha-mixin-network/create-pin/
+      def update_pin(old_pin:, new_pin:)
+        path = '/pin/update'
+        timestamp = Time.now.utc.to_i
+        payload = {
+          old_pin: old_pin.nil? ? '' : encrypt_pin(old_pin, timestamp: timestamp),
+          pin: encrypt_pin(new_pin, timestamp: timestamp)
+        }
+
+        access_token = access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
+
+      # decrypt the encrpted pin, just for test
       def decrypt_pin(msg)
         msg = Base64.strict_decode64 msg
         iv = msg[0..15]
@@ -40,13 +45,15 @@ module MixinBot
         decoded[0..5]
       end
 
-      def encrypt_pin(pin_code)
+      # https://developers.mixin.one/api/alpha-mixin-network/encrypted-pin/
+      # use timestamp(timestamp) for iterator as default: must be bigger than the previous, the first time must be greater than 0. After a new session created, it will be reset to 0.
+      def encrypt_pin(pin_code, timestamp: nil)
         aes_key = JOSE::JWA::PKCS1.rsaes_oaep_decrypt('SHA256', pin_token, private_key, session_id)
-        ts = Time.now.utc.to_i
-        tszero = ts % 0x100
-        tsone = (ts % 0x10000) >> 8
-        tstwo = (ts % 0x1000000) >> 16
-        tsthree = (ts % 0x100000000) >> 24
+        timestamp ||= Time.now.utc.to_i
+        tszero = timestamp % 0x100
+        tsone = (timestamp % 0x10000) >> 8
+        tstwo = (timestamp % 0x1000000) >> 16
+        tsthree = (timestamp % 0x100000000) >> 24
         tsstring = tszero.chr + tsone.chr + tstwo.chr + tsthree.chr + "\0\0\0\0"
         encrypt_content = pin_code + tsstring + tsstring
         pad_count = 16 - encrypt_content.length % 16

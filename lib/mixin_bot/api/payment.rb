@@ -14,6 +14,7 @@ module MixinBot
         )
       end
 
+      # https://developers.mixin.one/api/alpha-mixin-network/verify-payment/
       def verify_payment(options)
         path = 'payments'
         payload = {

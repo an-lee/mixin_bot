@@ -3,23 +3,31 @@
 require 'spec_helper'
 
 describe MixinBot::API::Me do
-  it 'can read me' do
+  it 'read me' do
     res = MixinBot.api.read_me
     expect(res['data']&.[]('user_id')).to eq(MixinBot.api.client_id)
   end
 
-  it 'can read assets' do
+  it 'read assets' do
     res = MixinBot.api.read_assets
     expect(res['data']).not_to be_nil
   end
 
-  it 'can read asset' do
+  it 'read asset' do
     res = MixinBot.api.read_asset(CNB_ASSET_ID)
     expect(res['data']&.[]('symbol')).to eq('CNB')
   end
 
-  it 'can read friends' do
+  it 'read friends' do
     res = MixinBot.api.read_friends
     expect(res['data']).not_to be_nil
+  end
+
+  it 'update me' do
+    res = MixinBot.api.update_me(full_name: 'updatedMe')
+    expect(res['data']&.[]('full_name')).to eq('updatedMe')
+
+    # rollback the update
+    MixinBot.api.update_me(full_name: 'BotForDebug')
   end
 end
