@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module MixinBot
   class Client
-    SERVER_SCHEME = 'https'.freeze
-    SERVER_HOST = 'api.mixin.one'.freeze
+    SERVER_SCHEME = 'https'
+    SERVER_HOST = 'api.mixin.one'
 
     def get(path, options = {})
       request(:get, path, options)
@@ -18,19 +20,15 @@ module MixinBot
       options = options.with_indifferent_access
 
       options['headers'] ||= {}
-      if options['headers']['Content-Type'].blank?
-        options['headers']['Content-Type'] = 'application/json'
-      end
+      options['headers']['Content-Type'] ||= 'application/json'
 
       begin
         response = HTTP.timeout(connect: 5, write: 5, read: 5).request(verb, uri, options)
-      rescue HTTP::Error => ex
-        raise Errors::HttpError, ex.message
+      rescue HTTP::Error => e
+        raise Errors::HttpError, e.message
       end
 
-      unless response.status.success?
-        raise Errors::APIError.new(nil, response.to_s)
-      end
+      raise Errors::APIError.new(nil, response.to_s) unless response.status.success?
 
       parse_response(response) do |parse_as, result|
         case parse_as
@@ -64,11 +62,9 @@ module MixinBot
 
       if parse_as == :plain
         result = ActiveSupport::JSON.decode(response.body.to_s).with_indifferent_access rescue nil
-        if result
-          return yield(:json, result)
-        else
-          return yield(:plain, response.body)
-        end
+        result && yield(:json, result)
+
+        yield(:plain, response.body)
       end
 
       case parse_as

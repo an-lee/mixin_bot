@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MixinBot
   class API
     module Auth
@@ -28,12 +30,16 @@ module MixinBot
 
         raise r.inspect if r['error'].present?
 
-        return r['data']['access_token']
+        r['data']['access_token']
       end
 
       def request_oauth(scope = nil)
         scope ||= (MixinBot.scope || 'PROFILE:READ+PHONE:READ')
-        format('https://mixin.one/oauth/authorize?client_id=%s&scope=%s', client_id, scope)
+        format(
+          'https://mixin.one/oauth/authorize?client_id=%<client_id>s&scope=%<scope>s',
+          client_id: client_id,
+          scope: scope
+        )
       end
     end
   end
