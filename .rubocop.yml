@@ -49,3 +49,6 @@ Style/EmptyMethod:
 
 Style/NumericLiterals:
   Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
