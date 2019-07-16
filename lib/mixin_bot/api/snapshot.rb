@@ -3,7 +3,7 @@
 module MixinBot
   class API
     module Snapshot
-      def read_snapshots(options)
+      def read_snapshots(options = {})
         path = format(
           '/network/snapshots?limit=%<limit>s&offset=%<offset>s&asset=%<asset>s&order=%<order>s',
           limit: options[:limit],
@@ -11,10 +11,17 @@ module MixinBot
           asset: options[:asset],
           order: options[:order]
         )
-        access_token = access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(reqForAuthToken, headers: { 'Authorization': authorization })
-        # client.get(path, params: payload)
+
+        if options[:private]
+          # TODO:
+          # read private snapshots
+          access_token = access_token('GET', path)
+          authorization = format('Bearer %<access_token>s', access_token: access_token)
+          client.get(path, headers: { 'Authorization': authorization, 'Content-length': 0 })
+        else
+          # read public snapshots as default
+          client.get(path)
+        end
       end
 
       def read_snapshot(snapshot_id)

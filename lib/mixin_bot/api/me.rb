@@ -12,7 +12,7 @@ module MixinBot
       end
 
       # https://developers.mixin.one/api/beta-mixin-message/update-profile/
-      # avatar_base64: 
+      # avatar_base64:
       # String: Base64 of image, supports format png, jpeg and gif, base64 image size > 1024.
       def update_me(full_name:, avatar_base64: nil)
         path = '/me'

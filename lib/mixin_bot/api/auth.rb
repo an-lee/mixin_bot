@@ -3,7 +3,7 @@
 module MixinBot
   class API
     module Auth
-      def access_token(method, uri, body, exp_in = 600)
+      def access_token(method, uri, body = '', exp_in = 600)
         sig = Digest::SHA256.hexdigest(method + uri + body)
         iat = Time.now.utc.to_i
         exp = (Time.now.utc + exp_in).to_i
