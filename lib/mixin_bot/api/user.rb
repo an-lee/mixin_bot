@@ -3,10 +3,11 @@
 module MixinBot
   class API
     module User
-      def read_user(user_id, access_token = nil)
-        # user_id: Mixin User Id
+      # https://developers.mixin.one/api/beta-mixin-message/read-user/
+      def read_user(user_id)
+        # user_id: Mixin User UUID
         path = format('/users/%<user_id>s', user_id: user_id)
-        access_token ||= access_token('GET', path, '')
+        access_token = access_token('GET', path, '')
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
@@ -40,22 +41,22 @@ module MixinBot
       
       # https://developers.mixin.one/api/beta-mixin-message/search-user/
       # search by Mixin Id or Phone Number
-      def search_user(query, access_token = nil)
+      def search_user(query)
         path = format('/search/%<query>s', query: query)
 
-        access_token ||= access_token('GET', path, '')
+        access_token = access_token('GET', path, '')
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
 
       # https://developers.mixin.one/api/beta-mixin-message/read-users/
-      def fetch_users(user_ids, access_token = nil)
+      def fetch_users(user_ids)
         # user_ids: a array of user_ids
         path = '/users/fetch'
         user_ids = [user_ids] if user_ids.is_a? String
         payload = user_ids
 
-        access_token ||= access_token('POST', path, payload.to_json)
+        access_token = access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
