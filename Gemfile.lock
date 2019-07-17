@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mixin_bot (0.0.1.4)
+    mixin_bot (0.1.0)
       bcrypt
       http
       jose
