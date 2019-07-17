@@ -8,7 +8,7 @@ module MixinBot
           'https://mixin.one/pay?recipient=%<recipient_id>s&asset=%<asset>s&amount=%<amount>s&trace=%<trace>s&memo=%<memo>s',
           recipient_id: options[:recipient_id],
           asset: options[:asset_id],
-          amount: options[:amount],
+          amount: options[:amount].to_s,
           trace: options[:trace],
           memo: options[:memo]
         )
@@ -19,8 +19,8 @@ module MixinBot
         path = 'payments'
         payload = {
           asset_id: options[:asset_id],
-          opponent_id: options[:recipient_id],
-          amount: options[:amount],
+          opponent_id: options[:opponent_id],
+          amount: options[:amount].to_s,
           trace_id: options[:trace]
         }
 
