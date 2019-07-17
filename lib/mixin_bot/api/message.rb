@@ -204,10 +204,20 @@ module MixinBot
       end
 
       # base format of message params
-      def base_message_params(conversation_id:, category:, data:, quote_message_id: nil, message_id: nil)
+      def base_message_params(
+        conversation_id:, 
+        category:, 
+        data:, 
+        quote_message_id: nil, 
+        message_id: nil, 
+        recipient_id: nil, 
+        representative_id: nil
+      )
         data = data.is_a?(String) ? data : data.to_json
         {
           conversation_id: conversation_id,
+          recipient_id: recipient_id,
+          representative_id: representative_id,
           category: category,
           status: 'SENT',
           quote_message_id: quote_message_id,
