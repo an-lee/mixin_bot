@@ -33,10 +33,11 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      def unique_conversation_id(user_id)
+      def unique_conversation_id(user_id, opponent_id = nil)
+        opponent_id ||= client_id
         md5 = Digest::MD5.new
-        md5 << [user_id, client_id].min
-        md5 << [user_id, client_id].max
+        md5 << [user_id, opponent_id].min
+        md5 << [user_id, opponent_id].max
         digest = md5.digest
         digest6 = (digest[6].ord & 0x0f | 0x30).chr
         digest8 = (digest[8].ord & 0x3f | 0x80).chr
