@@ -76,4 +76,27 @@ describe MixinBot::API::Message do
     )
     expect(res['data']&.[]('conversation_id')).to eq(conversation_id)
   end
+
+  it 'send a batch of messages' do
+    messages = [
+      MixinBot.api.plain_text(
+        conversation_id: conversation_id,
+        recipient_id: TEST_UID,
+        data: 'test from MixinBot (1/3)'
+      ),
+      MixinBot.api.plain_text(
+        conversation_id: conversation_id,
+        recipient_id: TEST_UID,
+        data: 'test from MixinBot (2/3)'
+      ),
+      MixinBot.api.plain_text(
+        conversation_id: conversation_id,
+        recipient_id: TEST_UID,
+        data: 'test from MixinBot (3/3)'
+      ),
+    ]
+    res = MixinBot.api.send_message(messages)
+
+    expect(res).to eq({})
+  end
 end

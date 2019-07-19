@@ -286,9 +286,8 @@ module MixinBot
       #     ]
       #   }
       # }
-      # not verified yet
       def send_plain_messages(messages)
-        send_message(messages: messages)
+        send_message messages
       end
 
       # http post request
