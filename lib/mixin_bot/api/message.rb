@@ -203,6 +203,17 @@ module MixinBot
         base_message_params(options)
       end
 
+      # TODO:
+      def recall_message_params(message_id, options)
+        options.merge!(
+          category: 'MESSAGE_RECALL',
+          data: {
+            message_id: message_id
+          }
+        )
+        base_message_params(options)
+      end
+
       # base format of message params
       def base_message_params(
         conversation_id:, 
@@ -268,6 +279,10 @@ module MixinBot
         send_message app_button_group(options)
       end
 
+      def recall_message(message_id, options)
+        send_message recall_message_params(message_id, options)
+      end
+      
       # {
       #   "id": "UUID",
       #   "action": "CREATE_PLAIN_MESSAGES",
