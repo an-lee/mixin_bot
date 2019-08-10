@@ -14,7 +14,7 @@ module MixinBot
         payload = {
           asset_id: asset_id,
           opponent_id: opponent_id,
-          pin: pin,
+          pin: encrypt_pin(pin),
           amount: amount.to_s,
           trace_id: trace_id,
           memo: memo
