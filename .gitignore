@@ -2,3 +2,5 @@
 *.gem
 *.log
 *.key
+
+/spec/config.yml
