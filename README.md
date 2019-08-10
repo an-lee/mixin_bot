@@ -29,9 +29,22 @@ Check it in this toy project:
 
 ## Test
 
+Clone the project:
+
 ```shell
 git clone https://github.com/an-lee/mixin_bot
+```
+
+Update the spec config.yml to your own Mixin App(create in [developers.mixin.one](https://developers.mixin.one/dashboard)).
+
+```shell
 cd mixin_bot
+mv spec/config.yml.example spec/config.yml
+```
+
+Run the test.
+
+```shell
 rake
 ```
 
