@@ -203,8 +203,9 @@ module MixinBot
         base_message_params(options)
       end
 
-      # TODO:
       def recall_message_params(message_id, options)
+        raise 'recipient_id is required!' if options[:recipient_id].nil?
+        
         options.merge!(
           category: 'MESSAGE_RECALL',
           data: {
@@ -280,7 +281,7 @@ module MixinBot
       end
 
       def recall_message(message_id, options)
-        send_message recall_message_params(message_id, options)
+        send_message [recall_message_params(message_id, options)]
       end
       
       # {
