@@ -100,7 +100,6 @@ describe MixinBot::API::Message do
     expect(res).to eq({})
   end
 
-  # TODO:
   it 'recall message' do
     message_id = SecureRandom.uuid
     MixinBot.api.send_text_message(
@@ -110,11 +109,11 @@ describe MixinBot::API::Message do
     )
     
     res = MixinBot.api.recall_message(message_id,
+      recipient_id: TEST_UID,
       conversation_id: conversation_id
     )
 
-    # puts res
-    expect(res['data']&.[]('conversation_id')).to eq(conversation_id)
+    expect(res['error']).to be_nil
   end
   
 end
