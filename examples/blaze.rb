@@ -14,16 +14,16 @@ EM.run {
     ws = MixinBot.blaze
 
     ws.on :open do |event|
-      puts [Time.current, :open]
+      puts [Time.now, :open]
       ws.send MixinBot.api.list_pending_message
     end
 
     ws.on :message do |event|
       raw = JSON.parse MixinBot.api.read_ws_message(event.data)
-      puts [Time.current, :message, raw&.[]('action')]
+      puts [Time.now, :message, raw&.[]('action')]
 
       data = raw['data']
-      next if data.blank?
+      next if data.nil?
 
       # send receipt
       ws.send MixinBot.api.acknowledge_message_receipt(data['message_id'])
@@ -35,7 +35,7 @@ EM.run {
           recipient_id: data['user_id'],
           data: Base64.decode64(data['data'])
         )
-        ws.send MixinBot.api.write_ws_message(reply)
+        ws.send MixinBot.api.write_ws_message(params: reply)
       end
     end
 
@@ -44,7 +44,7 @@ EM.run {
     end
 
     ws.on :close do |event|
-      p [Time.current, :close, event.code, event.reason]
+      p [Time.now, :close, event.code, event.reason]
       start_connect
     end
   end

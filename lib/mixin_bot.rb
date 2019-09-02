@@ -18,7 +18,7 @@ module MixinBot
   end
 
   def self.blaze
-    access_token = MixinBot.api.access_token('GET', '/', '')
+    access_token = self.api.access_token('GET', '/', '')
     authorization = format('Bearer %<access_token>s', access_token: access_token)
     @blaze ||= Faye::WebSocket::Client.new(
       'wss://blaze.mixin.one/',
