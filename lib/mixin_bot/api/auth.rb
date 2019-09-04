@@ -34,7 +34,7 @@ module MixinBot
       end
 
       def request_oauth(scope = nil)
-        scope ||= (MixinBot.scope || 'PROFILE:READ+PHONE:READ')
+        scope ||= (MixinBot.scope || 'PROFILE:READ')
         format(
           'https://mixin.one/oauth/authorize?client_id=%<client_id>s&scope=%<scope>s',
           client_id: client_id,
