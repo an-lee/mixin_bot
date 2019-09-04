@@ -24,8 +24,9 @@ Check it in this toy project:
 
 ## Example
 
-- [investing_mistakes](https://github.com/an-lee/investing_mistakes)
-- [prsdigg.com](https://prsdigg.com)
+See in the `Spec` files.
+
+For WebSocket use case, see in `examples/blaze.rb`.
 
 ## Test
 

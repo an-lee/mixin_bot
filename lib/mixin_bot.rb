@@ -2,6 +2,7 @@
 
 require 'http'
 require 'base64'
+require 'faye/websocket'
 require 'openssl'
 require 'jwt'
 require 'jose'
@@ -14,5 +15,16 @@ module MixinBot
 
   def self.api
     @api ||= MixinBot::API.new
+  end
+
+  def self.blaze
+    access_token = self.api.access_token('GET', '/', '')
+    authorization = format('Bearer %<access_token>s', access_token: access_token)
+    @blaze ||= Faye::WebSocket::Client.new(
+      'wss://blaze.mixin.one/',
+      ["Mixin-Blaze-1"],
+      :headers => { 'Authorization' => authorization },
+      ping: 60
+    )
   end
 end

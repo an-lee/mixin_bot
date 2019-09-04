@@ -16,13 +16,14 @@ Gem::Specification.new do |s|
   s.files         = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE']
   s.require_paths = ['lib']
 
-  s.add_dependency 'bcrypt'
-  s.add_dependency 'http'
-  s.add_dependency 'jose'
-  s.add_dependency 'jwt'
+  s.add_dependency 'bcrypt', '~> 3.1'
+  s.add_dependency 'faye-websocket', '~> 0.10'
+  s.add_dependency 'http', '~> 4.1'
+  s.add_dependency 'jose', '~> 1.1'
+  s.add_dependency 'jwt', '~> 2.2'
 
-  s.add_development_dependency 'rake'
-  s.add_development_dependency 'rspec'
-  s.add_development_dependency 'rubocop'
-  s.add_development_dependency 'rubocop-rspec'
+  s.add_development_dependency 'rake', '~> 12.3'
+  s.add_development_dependency 'rspec', '~> 3.8'
+  s.add_development_dependency 'rubocop', '~> 0.72'
+  s.add_development_dependency 'rubocop-rspec', '~> 1.33'
 end

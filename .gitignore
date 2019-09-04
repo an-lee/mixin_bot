@@ -3,4 +3,4 @@
 *.log
 *.key
 
-/spec/config.yml
+config.yml

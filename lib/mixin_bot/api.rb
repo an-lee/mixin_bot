@@ -2,6 +2,7 @@
 
 require_relative './client'
 require_relative './errors'
+require_relative './api/attachment'
 require_relative './api/auth'
 require_relative './api/conversation'
 require_relative './api/me'
@@ -27,6 +28,7 @@ module MixinBot
       @client = Client.new
     end
 
+    include MixinBot::API::Attachment
     include MixinBot::API::Auth
     include MixinBot::API::Conversation
     include MixinBot::API::Me
