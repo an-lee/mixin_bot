@@ -13,11 +13,11 @@ MixinBot.private_key = CONFIG['private_key']
 
 # default connect
 # EM.run {
-#   MixinBot.api.start_blaze_connnect
+#   MixinBot.api.start_blaze_connect
 # }
 
 EM.run do
-  MixinBot.api.start_blaze_connnect do
+  MixinBot.api.start_blaze_connect do
     def on_open(blaze, _event)
       p [Time.now.to_s, :on_open]
       blaze.send list_pending_message
