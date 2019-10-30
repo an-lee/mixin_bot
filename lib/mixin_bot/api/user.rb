@@ -38,7 +38,7 @@ module MixinBot
           public_key: rsa_key.public_key.to_pem
         }
       end
-      
+
       # https://developers.mixin.one/api/beta-mixin-message/search-user/
       # search by Mixin Id or Phone Number
       def search_user(query)

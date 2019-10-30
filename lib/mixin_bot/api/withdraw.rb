@@ -7,7 +7,7 @@ module MixinBot
       def create_withdraw_address(options)
         path = '/addresses'
         encrypted_pin = encrypt_pin(options[:pin])
-        payload = 
+        payload =
           # for EOS withdraw, account_name & account_tag must be valid
           if options[:public_key].nil?
             {

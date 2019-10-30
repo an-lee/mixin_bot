@@ -93,7 +93,7 @@ describe MixinBot::API::Message do
         conversation_id: conversation_id,
         recipient_id: TEST_UID,
         data: 'test from MixinBot (3/3)'
-      ),
+      )
     ]
     res = MixinBot.api.send_message(messages)
 
@@ -107,13 +107,11 @@ describe MixinBot::API::Message do
       data: 'test from MixinBot',
       message_id: message_id
     )
-    
+
     res = MixinBot.api.recall_message(message_id,
-      recipient_id: TEST_UID,
-      conversation_id: conversation_id
-    )
+                                      recipient_id: TEST_UID,
+                                      conversation_id: conversation_id)
 
     expect(res['error']).to be_nil
   end
-  
 end

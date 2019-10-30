@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './lib/mixin_bot'
 require 'base64'
 require 'yaml'
@@ -14,7 +16,7 @@ MixinBot.private_key = CONFIG['private_key']
 #   MixinBot.api.start_blaze_connnect
 # }
 
-EM.run {
+EM.run do
   MixinBot.api.start_blaze_connnect do
     def on_open(blaze, _event)
       p [Time.now.to_s, :on_open]
@@ -36,4 +38,4 @@ EM.run {
     #   p [Time.now.to_s, :on_close, event.code, event.reason]
     # end
   end
-}
+end
