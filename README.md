@@ -73,7 +73,7 @@ With MixinBot, doing this is super easy.
 ```ruby
 # run it in a EventMachine
 EM.run {
-  MixinBot.api.start_blaze_connnect do
+  MixinBot.api.start_blaze_connect do
     # do something when the websocket connected
     def on_open(blaze, _event)
       p [Time.now.to_s, :on_open]
