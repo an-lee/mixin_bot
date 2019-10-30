@@ -1,4 +1,4 @@
-require 'mixin_bot'
+require './lib/mixin_bot'
 require 'base64'
 require 'yaml'
 
@@ -9,45 +9,31 @@ MixinBot.session_id = CONFIG['session_id']
 MixinBot.pin_token = CONFIG['pin_token']
 MixinBot.private_key = CONFIG['private_key']
 
+# default connect
+# EM.run {
+#   MixinBot.api.start_blaze_connnect
+# }
+
 EM.run {
-  def start_connect
-    ws = MixinBot.blaze
-
-    ws.on :open do |event|
-      puts [Time.now, :open]
-      ws.send MixinBot.api.list_pending_message
+  MixinBot.api.start_blaze_connnect do
+    def on_open(blaze, _event)
+      p [Time.now.to_s, :on_open]
+      blaze.send list_pending_message
     end
 
-    ws.on :message do |event|
-      raw = JSON.parse MixinBot.api.read_ws_message(event.data)
-      puts [Time.now, :message, raw&.[]('action')]
+    def on_message(blaze, event)
+      raw = JSON.parse read_ws_message(event.data)
+      p [Time.now.to_s, :on_message, raw&.[]('action')]
 
-      data = raw['data']
-      next if data.nil?
-
-      # send receipt
-      ws.send MixinBot.api.acknowledge_message_receipt(data['message_id'])
-
-      # send reply
-      if data['category'] == 'PLAIN_TEXT'
-        reply = MixinBot.api.plain_text(
-          conversation_id: data['conversation_id'],
-          recipient_id: data['user_id'],
-          data: Base64.decode64(data['data'])
-        )
-        ws.send MixinBot.api.write_ws_message(params: reply)
-      end
+      blaze.send acknowledge_message_receipt(raw['data']['message_id']) unless raw&.[]('data')&.[]('message_id').nil?
     end
 
-    ws.on :error do |event|
-      p [:error]
-    end
+    # def on_error(blaze, event)
+    #   p [Time.now.to_s, :on_error]
+    # end
 
-    ws.on :close do |event|
-      p [Time.now, :close, event.code, event.reason]
-      start_connect
-    end
+    # def on_close(blaze, event)
+    #   p [Time.now.to_s, :on_close, event.code, event.reason]
+    # end
   end
-  
-  start_connect
 }
