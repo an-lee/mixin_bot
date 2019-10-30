@@ -19,7 +19,7 @@ module MixinBot
           '/snapshots?limit=%<limit>s&offset=%<offset>s&asset=%<asset>s',
           limit: options[:limit],
           offset: options[:offset],
-          asset: options[:asset],
+          asset: options[:asset]
         )
 
         access_token = access_token('GET', path)

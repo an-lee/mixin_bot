@@ -25,7 +25,7 @@ describe MixinBot::API::Withdraw do
 
     expect(res['data']&.[]('account_name')).to eq(WITHDRAW_EOS_ACCOUNT_NAME)
   end
-  
+
   it 'get withdraw address' do
     address = MixinBot.api.create_withdraw_address(
       asset_id: ETH_ASSET_ID,
@@ -38,7 +38,7 @@ describe MixinBot::API::Withdraw do
     res = MixinBot.api.get_withdraw_address(address_id)
     expect(res['data']&.[]('public_key')&.downcase).to eq(WITHDRAW_ETH_ADDRESS.downcase)
   end
-  
+
   it 'delete withdraw address' do
     address = MixinBot.api.create_withdraw_address(
       asset_id: ETH_ASSET_ID,
