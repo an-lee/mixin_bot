@@ -10,7 +10,7 @@ require_relative './mixin_bot/api'
 
 module MixinBot
   class<< self
-    attr_accessor :client_id, :client_secret, :session_id, :pin_token, :private_key, :scope
+    attr_accessor :client_id, :client_secret, :session_id, :pin_token, :private_key, :scope, :api_host, :blaze_host
   end
 
   def self.api

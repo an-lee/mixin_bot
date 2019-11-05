@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'mixin_bot'
+require './lib/mixin_bot'
 require 'yaml'
 
 CONFIG = YAML.load_file("#{File.dirname __FILE__}/config.yml")
@@ -19,3 +19,5 @@ MixinBot.client_secret = CONFIG['client_secret']
 MixinBot.session_id = CONFIG['session_id']
 MixinBot.pin_token = CONFIG['pin_token']
 MixinBot.private_key = CONFIG['private_key']
+MixinBot.api_host = 'mixin-api.zeromesh.net'
+MixinBot.blaze_host = 'mixin-blaze.zeromesh.net'

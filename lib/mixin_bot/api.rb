@@ -18,7 +18,7 @@ require_relative './api/withdraw'
 module MixinBot
   class API
     attr_reader :client_id, :client_secret, :session_id, :pin_token, :private_key
-    attr_reader :client
+    attr_reader :client, :blaze_host
 
     def initialize(options = {})
       @client_id = options[:client_id] || MixinBot.client_id
@@ -26,7 +26,8 @@ module MixinBot
       @session_id = options[:session_id] || MixinBot.session_id
       @pin_token = Base64.decode64 options[:pin_token] || MixinBot.pin_token
       @private_key = OpenSSL::PKey::RSA.new options[:private_key] || MixinBot.private_key
-      @client = Client.new
+      @client = Client.new(MixinBot.api_host)
+      @blaze_host = MixinBot.blaze_host || 'blaze.mixin.one'
     end
 
     include MixinBot::API::Attachment

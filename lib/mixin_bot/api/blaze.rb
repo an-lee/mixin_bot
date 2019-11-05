@@ -7,7 +7,7 @@ module MixinBot
         access_token = access_token('GET', '/', '')
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         Faye::WebSocket::Client.new(
-          'wss://blaze.mixin.one/',
+          format('wss://%<host>s/', host: blaze_host),
           ['Mixin-Blaze-1'],
           headers: { 'Authorization' => authorization },
           ping: 60
