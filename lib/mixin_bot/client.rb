@@ -3,7 +3,12 @@
 module MixinBot
   class Client
     SERVER_SCHEME = 'https'
-    SERVER_HOST = 'api.mixin.one'
+
+    attr_reader :host
+
+    def initialize(host = 'api.mixin.one')
+      @host = host
+    end
 
     def get(path, options = {})
       request(:get, path, options)
@@ -44,7 +49,7 @@ module MixinBot
     def uri_for(path)
       uri_options = {
         scheme: SERVER_SCHEME,
-        host: SERVER_HOST,
+        host: host,
         path: path
       }
       Addressable::URI.new(uri_options)
