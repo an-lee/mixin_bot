@@ -15,13 +15,14 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      # TODO:
       # https://developers.mixin.one/api/alpha-mixin-network/create-pin/
-      def update_pin(old_pin:, new_pin:)
+      def update_pin(old_pin:, pin:)
         path = '/pin/update'
+        encrypted_old_pin = old_pin.nil? ? '' : encrypt_pin(old_pin, iterator: Time.now.utc.to_i)
+        encrypted_pin = encrypt_pin(pin, iterator: Time.now.utc.to_i + 1)
         payload = {
-          old_pin: old_pin.nil? ? '' : encrypt_pin(old_pin),
-          pin: encrypt_pin(new_pin)
+          old_pin: encrypted_old_pin,
+          pin: encrypted_pin
         }
 
         access_token = access_token('POST', path, payload.to_json)
