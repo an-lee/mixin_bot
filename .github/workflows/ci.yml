@@ -19,11 +19,11 @@ jobs:
         uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6.x
+      - name: Build
+        run: |
+          sudo apt-get -yqq install libpq-dev
+          gem install bundler
+          bundle install --jobs 4 --retry 3
       - name: Lint with Rubocop
-        run: bin/rubocop
-      # - name: Build and run tests
-      #   run: |
-      #     sudo apt-get -yqq install libpq-dev
-      #     gem install bundler
-      #     bundle install --jobs 4 --retry 3
-      #     bundle exec rake spec
+        run: |
+          bin/rubocop
