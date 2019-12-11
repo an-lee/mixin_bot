@@ -216,24 +216,16 @@ module MixinBot
       end
 
       # base format of message params
-      def base_message_params(
-        conversation_id:,
-        category:,
-        data:,
-        quote_message_id: nil,
-        message_id: nil,
-        recipient_id: nil,
-        representative_id: nil
-      )
-        data = data.is_a?(String) ? data : data.to_json
+      def base_message_params(options)
+        data = options[:data].is_a?(String) ? options[:data] : options[:data].to_json
         {
-          conversation_id: conversation_id,
-          recipient_id: recipient_id,
-          representative_id: representative_id,
-          category: category,
+          conversation_id: options[:conversation_id],
+          recipient_id: options[:recipient_id],
+          representative_id: options[:representative_id],
+          category: options[:category],
           status: 'SENT',
-          quote_message_id: quote_message_id,
-          message_id: message_id || SecureRandom.uuid,
+          quote_message_id: options[:quote_message_id],
+          message_id: options[:message_id] || SecureRandom.uuid,
           data: Base64.encode64(data)
         }
       end
