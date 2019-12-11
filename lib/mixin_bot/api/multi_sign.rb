@@ -28,7 +28,7 @@ module MixinBot
       #     "signed_tx":""
       #   }
       # ]}
-      def get_multisigs(limit:, offset:)
+      def get_multisigs(limit: 10, offset: nil)
         path = format('/multisigs?limit=%<limit>s&offset=%<offset>s', limit: limit, offset: offset)
         access_token ||= access_token('GET', path, '')
         authorization = format('Bearer %<access_token>s', access_token: access_token)
