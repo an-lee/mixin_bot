@@ -6,6 +6,7 @@ require 'faye/websocket'
 require 'openssl'
 require 'jwt'
 require 'jose'
+require 'schmooze'
 require_relative './mixin_bot/api'
 
 module MixinBot

@@ -7,6 +7,7 @@ PATH
       http (~> 4.1)
       jose (~> 1.1)
       jwt (~> 2.2)
+      schmooze (~> 0.2)
 
 GEM
   remote: https://rubygems.org/
@@ -24,7 +25,7 @@ GEM
     faye-websocket (0.10.9)
       eventmachine (>= 0.12.0)
       websocket-driver (>= 0.5.1)
-    ffi (1.11.2)
+    ffi (1.11.3)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
       rake
@@ -74,6 +75,7 @@ GEM
     rubocop-rspec (1.36.0)
       rubocop (>= 0.68.1)
     ruby-progressbar (1.10.1)
+    schmooze (0.2.0)
     simplecov (0.17.1)
       docile (~> 1.1)
       json (>= 1.8, < 3)
