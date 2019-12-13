@@ -2,6 +2,7 @@
 
 require_relative './client'
 require_relative './errors'
+require_relative './schmoozer'
 require_relative './api/attachment'
 require_relative './api/auth'
 require_relative './api/blaze'
@@ -20,6 +21,7 @@ module MixinBot
   class API
     attr_reader :client_id, :client_secret, :session_id, :pin_token, :private_key
     attr_reader :client, :blaze_host
+    attr_reader :schmoozer
 
     def initialize(options = {})
       @client_id = options[:client_id] || MixinBot.client_id
@@ -29,6 +31,7 @@ module MixinBot
       @private_key = OpenSSL::PKey::RSA.new options[:private_key] || MixinBot.private_key
       @client = Client.new(MixinBot.api_host)
       @blaze_host = MixinBot.blaze_host || 'blaze.mixin.one'
+      @schmoozer = Schmoozer.new(File.join(__dir__, 'js'))
     end
 
     include MixinBot::API::Attachment

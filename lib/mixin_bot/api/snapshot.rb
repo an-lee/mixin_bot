@@ -14,7 +14,7 @@ module MixinBot
         client.get(path)
       end
 
-      def read_snapshots(options = {})
+      def read_snapshots(options = {}, access_token: nil)
         path = format(
           '/snapshots?limit=%<limit>s&offset=%<offset>s&asset=%<asset>s',
           limit: options[:limit],
@@ -22,7 +22,7 @@ module MixinBot
           asset: options[:asset]
         )
 
-        access_token = access_token('GET', path)
+        access_token ||= access_token('GET', path)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
