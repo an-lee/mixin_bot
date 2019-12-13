@@ -10,9 +10,9 @@ describe MixinBot::API::MultiSign do
     expect(res['data']).not_to be_nil
   end
 
-  it 'read outputs' do
+  it 'create output' do
     # {"data"=>{"keys"=>["ae1077c010c9615259dd530534d80e353c4cb7f5ec909c6526fd62f46cf53b98", "b14f14a47a5556fa8577a81b90dd5a4df8bd4a23d3af95b6e7fe760d8d4c89cb", "039dae8bac5a456e3b9f62cd21bd65f18bd5082cbf09b9b43bf7075f3f7448c5"], "mask"=>"fb2f6332821bba06c54b5316475cd0dbbbf1a0bea03d8b2cce380b050922beed"}}
-    res = MixinBot.api.outputs(receivers: MULTI_SIGN_MEMBERS, index: 0)
+    res = MixinBot.api.create_output(receivers: MULTI_SIGN_MEMBERS, index: 0)
 
     expect(res['data']).not_to be_nil
   end

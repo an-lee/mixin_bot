@@ -46,7 +46,7 @@ module MixinBot
         end
       end
 
-      def create_outputs(receivers:, index:, access_token: nil)
+      def create_output(receivers:, index:, access_token: nil)
         path = '/outputs'
         payload = {
           receivers: receivers,
@@ -149,13 +149,13 @@ module MixinBot
         inputs = utxos.map(&->(utx) { { hash: utx['transaction_hash'], index: utx['output_index'] } })
 
         outputs = []
-        output_0 = create_outputs(receivers: receivers, index: 0)['data']
+        output_0 = create_output(receivers: receivers, index: 0)['data']
         output_0['amount'] = '%.8f' % amount
         output_0['script'] = build_threshold_script(receivers.length)
         outputs << output_0
 
         if input_amount > amount
-          output_1 = create_outputs(receivers: payers, index: 1)['data']
+          output_1 = create_output(receivers: payers, index: 1)['data']
           output_1['amount'] = '%.8f' % (input_amount - amount)
           output_1['script'] = build_threshold_script(utxos[0]['threshold'].to_i)
           outputs << output_1

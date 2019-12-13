@@ -3,7 +3,7 @@
 module MixinBot
   class API
     module Transfer
-      def create_transfer(pin, options)
+      def create_transfer(pin, options, access_token: nil)
         asset_id = options[:asset_id]
         opponent_id = options[:opponent_id]
         amount = options[:amount]
@@ -25,7 +25,7 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      def read_transfer(trace_id)
+      def read_transfer(trace_id, access_token: nil)
         path = format('/transfers/trace/%<trace_id>s', trace_id: trace_id)
         access_token ||= access_token('GET', path, '')
         authorization = format('Bearer %<access_token>s', access_token: access_token)

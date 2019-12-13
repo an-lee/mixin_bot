@@ -4,7 +4,7 @@ module MixinBot
   class API
     module Withdraw
       # https://developers.mixin.one/api/alpha-mixin-network/create-address/
-      def create_withdraw_address(options)
+      def create_withdraw_address(options, access_token: nil)
         path = '/addresses'
         encrypted_pin = encrypt_pin(options[:pin])
         payload =
@@ -27,33 +27,33 @@ module MixinBot
             }
           end
 
-        access_token = access_token('POST', path, payload.to_json)
+        access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/read-address/
-      def get_withdraw_address(address)
+      def get_withdraw_address(address, access_token: nil)
         path = format('/addresses/%<address>s', address: address)
-        access_token = access_token('GET', path, '')
+        access_token ||= access_token('GET', path, '')
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/delete-address/
-      def delete_withdraw_address(address, pin)
+      def delete_withdraw_address(address, pin, access_token: nil)
         path = format('/addresses/%<address>s/delete', address: address)
         payload = {
           pin: encrypt_pin(pin)
         }
 
-        access_token = access_token('POST', path, payload.to_json)
+        access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/withdrawal-addresses/
-      def withdrawals(options)
+      def withdrawals(options, access_token: nil)
         address_id = options[:address_id]
         pin = options[:pin]
         amount = options[:amount]
@@ -69,7 +69,7 @@ module MixinBot
           pin: encrypt_pin(pin)
         }
 
-        access_token = access_token('POST', path, payload.to_json)
+        access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
