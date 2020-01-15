@@ -83,7 +83,7 @@ module MixinBot
       end
 
       # used for create multisig payment code_id
-      def create_multisig_payment(params, access_token: nil)
+      def create_multisig_payment(params)
         path = '/payments'
         payload = {
           asset_id: params[:asset_id],
@@ -95,6 +95,7 @@ module MixinBot
             threshold: params[:threshold]
           }
         }
+        access_token = params[:access_token]
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
@@ -121,15 +122,15 @@ module MixinBot
         schmoozer.build_transaction transaction
       end
 
-      def build_transaction_raw(options, access_token: nil)
+      def build_transaction_raw(options)
         payers       = options[:payers]
         receivers    = options[:receivers]
         asset        = options[:asset]
         amount       = options[:amount]
-        offset       = options[:offset]
         memo         = options[:memo]
+        access_token = options[:access_token]
 
-        utxos = get_all_multisigs(offset: offset, access_token: access_token)
+        utxos = get_all_multisigs(access_token: access_token)
         utxos = utxos.filter(&->(utx) { utx['members'] == payers.sort })
         input_amount = utxos.map(&->(utx) { utx['amount'].to_f }).sum
         amount = amount.to_f.round(8)
