@@ -225,7 +225,7 @@ module MixinBot
           struc = prototype.dup
           struc['Type'] = str_to_bin output['type']
           struc['Amount'] = str_to_bin output['amount']
-          struc['Keys'] = output['keys'].map(&->(key){ str_to_bin(key) })
+          struc['Keys'] = output['keys'].map(&->(key) { str_to_bin(key) })
           struc['Script'] = str_to_bin output['script']
           struc['Mask'] = str_to_bin output['mask']
           res << struc
