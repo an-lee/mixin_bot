@@ -159,7 +159,7 @@ module MixinBot
 
         raise format('not enough amount! %<input_amount>s < %<amount>s', input_amount: input_amount, amount: amount) if input_amount < amount
 
-        inputs = utxos.map(&->(utx) { { 'hash': utx['transaction_hash'], 'index': utx['output_index'] } })
+        inputs = utxos.map(&->(utx) { { 'hash' => utx['transaction_hash'], 'index' => utx['output_index'] } })
 
         outputs = []
         output0 = create_output(receivers: receivers, index: 0)['data']
