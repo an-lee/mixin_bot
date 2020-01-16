@@ -22,7 +22,8 @@ describe MixinBot::API::Multisig do
     raw = MixinBot.api.build_transaction_raw(
       payers: MULTI_SIGN_MEMBERS.sort,
       receivers: [TEST_UID],
-      asset: CNB_MIXIN_ID,
+      asset_id: CNB_ASSET_ID,
+      asset_mixin_id: CNB_MIXIN_ID,
       amount: 0.000_000_02,
       memo: 'test of sign request'
     )
