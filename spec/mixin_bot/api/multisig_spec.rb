@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe MixinBot::API::MultiSign do
+describe MixinBot::API::Multisig do
   it 'read multisigs' do
     # {"data"=>[{"type"=>"multisig_utxo", "user_id"=>"0508a116-1239-4e28-b150-85a8e3e6b400", "utxo_id"=>"684ac1de-cdc5-36f3-9034-ef3b74de0338", "asset_id"=>"965e5c6e-434c-3fa9-b780-c50f43cd955c", "transaction_hash"=>"ed567043fbeab439105570bd77e57fb717dfd24eeef83476f5e0837bb53805cb", "output_index"=>0, "amount"=>"1", "threshold"=>2, "members"=>["0508a116-1239-4e28-b150-85a8e3e6b400", "7ed9292d-7c95-4333-aa48-a8c640064186", "a67c6e87-1c9e-4a1c-b81c-47a9f4f1bff1"], "memo"=>"test for multi sign", "state"=>"unspent", "created_at"=>"2019-12-11T07:32:42.606383Z", "signed_by"=>"", "signed_tx"=>""}]}
     res = MixinBot.api.get_multisigs
@@ -27,7 +27,7 @@ describe MixinBot::API::MultiSign do
       memo: 'test of sign request'
     )
 
-    res = MixinBot.api.sign_multisigs(raw, access_token: nil)
+    res = MixinBot.api.create_sign_multisig_request(raw, access_token: nil)
 
     expect(res['data']).not_to be_nil
   end
@@ -51,7 +51,7 @@ describe MixinBot::API::MultiSign do
 
   it 'verify payment' do
     # {"data"=>{"type"=>"payment", "trace_id"=>"652415c4-9152-4e28-8028-3c4f48f7f718", "asset_id"=>"965e5c6e-434c-3fa9-b780-c50f43cd955c", "amount"=>"1", "threshold"=>2, "receivers"=>["0508a116-1239-4e28-b150-85a8e3e6b400", "7ed9292d-7c95-4333-aa48-a8c640064186", "a67c6e87-1c9e-4a1c-b81c-47a9f4f1bff1"], "memo"=>"test for multi sign", "created_at"=>"2019-12-11T07:30:57.309776807Z", "status"=>"paid", "code_id"=>"4e4c7f9e-ef12-46d4-a552-4c173f2bb1ca"}}
-    res = MixinBot.api.verify_multi_payment MULTI_SIGN_CODE_ID
+    res = MixinBot.api.verify_multisig MULTI_SIGN_CODE_ID
 
     expect(res['data']&.[]('code_id')).to eq(MULTI_SIGN_CODE_ID)
   end

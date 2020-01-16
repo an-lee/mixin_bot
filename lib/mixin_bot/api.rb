@@ -9,7 +9,7 @@ require_relative './api/blaze'
 require_relative './api/conversation'
 require_relative './api/me'
 require_relative './api/message'
-require_relative './api/multi_sign'
+require_relative './api/multisig'
 require_relative './api/payment'
 require_relative './api/pin'
 require_relative './api/snapshot'
@@ -40,7 +40,7 @@ module MixinBot
     include MixinBot::API::Conversation
     include MixinBot::API::Me
     include MixinBot::API::Message
-    include MixinBot::API::MultiSign
+    include MixinBot::API::Multisig
     include MixinBot::API::Payment
     include MixinBot::API::Pin
     include MixinBot::API::Snapshot
