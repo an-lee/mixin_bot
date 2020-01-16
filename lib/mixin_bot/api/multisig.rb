@@ -153,8 +153,8 @@ module MixinBot
         access_token   = options[:access_token]
 
         utxos = get_all_multisigs(access_token: access_token)
-        utxos = utxos.filter(&->(utx) { utx['members'] == payers.sort && utx['asset_id'] == asset_id })
-        input_amount = utxos.map(&->(utx) { utx['amount'].to_f }).sum
+        utxos = utxos.filter(&->(utx) { utx['members'].sort == payers.sort && utx['asset_id'] == asset_id })
+        input_amount = utxos.map(&->(utx) { utx['amount'].to_f }).sum.round(8)
         amount = amount.to_f.round(8)
 
         raise format('not enough amount! %<input_amount>s < %<amount>s', input_amount: input_amount, amount: amount) if input_amount < amount
