@@ -7,6 +7,8 @@ require 'openssl'
 require 'jwt'
 require 'jose'
 require 'schmooze'
+require 'msgpack'
+require 'digest'
 require_relative './mixin_bot/api'
 
 module MixinBot

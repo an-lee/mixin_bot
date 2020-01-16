@@ -159,7 +159,7 @@ module MixinBot
 
         raise format('not enough amount! %<input_amount>s < %<amount>s', input_amount: input_amount, amount: amount) if input_amount < amount
 
-        inputs = utxos.map(&->(utx) { { hash: utx['transaction_hash'], index: utx['output_index'] } })
+        inputs = utxos.map(&->(utx) { { 'hash': utx['transaction_hash'], 'index': utx['output_index'] } })
 
         outputs = []
         output0 = create_output(receivers: receivers, index: 0)['data']
@@ -174,17 +174,64 @@ module MixinBot
           outputs << output1
         end
 
-        extra = memo.to_s.each_byte.map { |b| b.to_s(16) }.join
-
+        extra = Digest.hexencode memo
         tx = {
-          version: 1,
-          asset: asset_mixin_id,
-          inputs: inputs,
-          outputs: outputs,
-          extra: extra
+          'Version' => 1,
+          'Asset' => str_to_bin(asset_mixin_id),
+          'Inputs' => build_inputs(inputs),
+          'Outputs' => build_outputs(outputs),
+          'Extra' => str_to_bin(extra),
+          'Signatures' => nil
         }
 
-        build_transaction tx
+        Digest.hexencode tx.to_msgpack
+      end
+
+      def str_to_bin(str)
+        return if str.nil?
+
+        str.scan(/../).map(&:hex).pack('c*')
+      end
+
+      def build_inputs(inputs)
+        res = []
+        prototype = {
+          'Hash' => nil,
+          'Index' => nil,
+          'Genesis' => nil,
+          'Deposit' => nil,
+          'Mint' => nil
+        }
+        inputs.each do |input|
+          struc = prototype.dup
+          struc['Hash'] = str_to_bin input['hash']
+          struc['Index'] = input['index']
+          res << struc
+        end
+
+        res
+      end
+
+      def build_outputs(outputs)
+        res = []
+        prototype = {
+          'Type' => 0,
+          'Amount' => nil,
+          'Keys' => nil,
+          'Script' => nil,
+          'Mask' => nil
+        }
+        outputs.each do |output|
+          struc = prototype.dup
+          struc['Type'] = str_to_bin output['type']
+          struc['Amount'] = str_to_bin output['amount']
+          struc['Keys'] = output['keys'].map(&->(key){ str_to_bin(key) })
+          struc['Script'] = str_to_bin output['script']
+          struc['Mask'] = str_to_bin output['mask']
+          res << struc
+        end
+
+        res
       end
     end
   end
