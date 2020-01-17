@@ -176,15 +176,14 @@ module MixinBot
 
         extra = Digest.hexencode memo
         tx = {
-          'Version' => 1,
-          'Asset' => str_to_bin(asset_mixin_id),
-          'Inputs' => build_inputs(inputs),
-          'Outputs' => build_outputs(outputs),
-          'Extra' => str_to_bin(extra),
-          'Signatures' => nil
+          version: 1,
+          asset: asset_mixin_id,
+          inputs: inputs,
+          outputs: outputs,
+          extra: extra
         }
 
-        Digest.hexencode tx.to_msgpack
+        build_transaction tx
       end
 
       def str_to_bin(str)
