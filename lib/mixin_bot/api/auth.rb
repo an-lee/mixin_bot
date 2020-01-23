@@ -15,7 +15,7 @@ module MixinBot
           exp: exp,
           jti: jti,
           sig: sig,
-	  scp: scp
+          scp: scp
         }
         JWT.encode payload, private_key, 'RS512'
       end
