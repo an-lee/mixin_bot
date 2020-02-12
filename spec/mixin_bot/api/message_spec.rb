@@ -19,6 +19,38 @@ describe MixinBot::API::Message do
     expect(res['data']&.[]('conversation_id')).to eq(conversation_id)
   end
 
+  it 'send post msg via HTTP post request' do
+    res = MixinBot.api.send_post_message(
+      conversation_id: conversation_id,
+      data: <<~POST
+        # H1
+        ## H2
+        ### H3
+
+        Hello World in text.
+
+        ![hello world in image](https://developers.mixin.one/assets/f13631293a7e272401e5d500eb1e4d9c.png)
+
+        [hello world in link](https://ohmy.xin)
+
+        ```ts
+        console.log('hello world in ts')
+        ```
+
+        ```ruby
+        puts 'hello world in Ruby'
+        ```
+
+        ```mermaid
+        A[module A] --> |call| B{module B}
+        B --> |failed| C(throw error)
+        B --> |success| D(return)
+        ```
+      POST
+    )
+    expect(res['data']&.[]('conversation_id')).to eq(conversation_id)
+  end
+
   it 'quote a message' do
     res = MixinBot.api.send_text_message(
       conversation_id: conversation_id,
