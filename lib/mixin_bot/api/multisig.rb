@@ -174,7 +174,7 @@ module MixinBot
           outputs << output1
         end
 
-        extra = Digest.hexencode memo
+        extra = Digest.hexencode memo.to_s
         tx = {
           version: 1,
           asset: asset_mixin_id,
