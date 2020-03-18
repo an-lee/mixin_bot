@@ -143,23 +143,62 @@ module MixinBot
         schmoozer.build_transaction transaction
       end
 
-      def build_raw_transaction(options)
-        payers         = options[:payers]
-        receivers      = options[:receivers]
-        asset_id       = options[:asset_id]
-        asset_mixin_id = options[:asset_mixin_id]
-        amount         = options[:amount]
-        memo           = options[:memo]
-        access_token   = options[:access_token]
+      # filter utxo by members, asset_id and threshold
+      def filter_utxos(params)
+        utxos = get_all_multisigs(access_token: params[:access_token])
+        utxos.filter(
+          &lambda { |utxo|
+            utxo['members'].sort == params[:members].sort &&
+            utxo['asset_id'] == params[:asset_id] &&
+            utxo['threshold'] == params[:threshold]
+          }
+        )
+      end
 
-        utxos = get_all_multisigs(access_token: access_token)
-        utxos = utxos.filter(&->(utx) { utx['members'].sort == payers.sort && utx['asset_id'] == asset_id })
-        input_amount = utxos.map(&->(utx) { utx['amount'].to_f }).sum.round(8)
+      # params:
+      # {
+      #   senders: [ uuid ],
+      #   receivers: [ uuid ],
+      #   asset_id: uuid,
+      #   amount: string / float,
+      #   memo: string,
+      # }
+      def build_raw_transaction(params)
+        senders        = params[:senders]
+        receivers      = params[:receivers]
+        asset_mixin_id = params[:asset_mixin_id]
+        amount         = params[:amount]
+        memo           = params[:memo]
+        threshold      = params[:threshold]
+
+        utxos = filter_utxos(
+          members: senders,
+          asset_id: asset_id,
+          threshold: threshold
+        )
         amount = amount.to_f.round(8)
+        input_amount = utxos.map(
+          &lambda { |utxo|
+            utxo['amount'].to_f
+          }
+        ).sum.round(8)
 
-        raise format('not enough amount! %<input_amount>s < %<amount>s', input_amount: input_amount, amount: amount) if input_amount < amount
+        if input_amount < amount
+          raise format(
+            'not enough amount! %<input_amount>s < %<amount>s',
+            input_amount: input_amount,
+            amount: amount
+          )
+        end
 
-        inputs = utxos.map(&->(utx) { { 'hash' => utx['transaction_hash'], 'index' => utx['output_index'] } })
+        inputs = utxos.map(
+          &lambda { |utx|
+            {
+              'hash' => utx['transaction_hash'],
+              'index' => utx['output_index']
+            }
+          }
+        )
 
         outputs = []
         output0 = create_output(receivers: receivers, index: 0)['data']
@@ -168,7 +207,7 @@ module MixinBot
         outputs << output0
 
         if input_amount > amount
-          output1 = create_output(receivers: payers, index: 1)['data']
+          output1 = create_output(receivers: senders, index: 1)['data']
           output1['amount'] = format('%<amount>.8f', amount: input_amount - amount)
           output1['script'] = build_threshold_script(utxos[0]['threshold'].to_i)
           outputs << output1
