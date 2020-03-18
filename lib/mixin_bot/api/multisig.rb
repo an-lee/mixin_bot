@@ -178,13 +178,16 @@ module MixinBot
       # {
       #   senders: [ uuid ],
       #   receivers: [ uuid ],
+      #   threshold: integer,
       #   asset_id: uuid,
+      #   asset_mixin_id: string,
       #   amount: string / float,
       #   memo: string,
       # }
       def build_raw_transaction(params)
         senders        = params[:senders]
         receivers      = params[:receivers]
+        asset_id       = params[:asset_id]
         asset_mixin_id = params[:asset_mixin_id]
         amount         = params[:amount]
         memo           = params[:memo]
@@ -232,7 +235,7 @@ module MixinBot
           outputs << output1
         end
 
-        extra = Digest.hexencode memo.to_s
+        extra = Digest.hexencode memo.to_s.slice(0, 140)
         tx = {
           version: 1,
           asset: asset_mixin_id,
