@@ -115,7 +115,7 @@ module MixinBot
       end
 
       # send a signed transaction to main net
-      def send_transaction_raw(raw, access_token: nil)
+      def send_raw_transaction(raw, access_token: nil)
         path = '/external/proxy'
         payload = {
           method: 'sendrawtransaction',
@@ -143,7 +143,7 @@ module MixinBot
         schmoozer.build_transaction transaction
       end
 
-      def build_transaction_raw(options)
+      def build_raw_transaction(options)
         payers         = options[:payers]
         receivers      = options[:receivers]
         asset_id       = options[:asset_id]
@@ -174,7 +174,7 @@ module MixinBot
           outputs << output1
         end
 
-        extra = Digest.hexencode memo
+        extra = Digest.hexencode memo.to_s
         tx = {
           version: 1,
           asset: asset_mixin_id,
