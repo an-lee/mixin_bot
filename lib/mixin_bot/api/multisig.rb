@@ -147,15 +147,15 @@ module MixinBot
       def filter_utxos(params)
         utxos = get_all_multisigs(access_token: params[:access_token])
 
-        if params[:members].present?
+        unless params[:members].nil?
           utxos = utxos.filter(
             &lambda { |utxo|
-              utxo['member'].sort == params[:members].sort
+              utxo['members'].sort == params[:members].sort
             }
           )
         end
 
-        if params[:asset_id].present?
+        unless params[:asset_id].nil?
           utxos = utxos.filter(
             &lambda { |utxo|
               utxo['asset_id'] == params[:asset_id]
@@ -163,7 +163,7 @@ module MixinBot
           )
         end
 
-        if params[:threshold].present?
+        unless params[:threshold].nil?
           utxos = utxos.filter(
             &lambda { |utxo|
               utxo['threshold'] == params[:threshold]
