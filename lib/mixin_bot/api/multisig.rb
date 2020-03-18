@@ -192,11 +192,15 @@ module MixinBot
         amount         = params[:amount]
         memo           = params[:memo]
         threshold      = params[:threshold]
+        access_token   = params[:access_token]
+
+        raise 'access_token required!' if access_token.nil? && !senders.include?(client_id)
 
         utxos = filter_utxos(
           members: senders,
           asset_id: asset_id,
-          threshold: threshold
+          threshold: threshold,
+          access_token: access_token
         )
         amount = amount.to_f.round(8)
         input_amount = utxos.map(
