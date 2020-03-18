@@ -146,13 +146,32 @@ module MixinBot
       # filter utxo by members, asset_id and threshold
       def filter_utxos(params)
         utxos = get_all_multisigs(access_token: params[:access_token])
-        utxos.filter(
-          &lambda { |utxo|
-            utxo['members'].sort == params[:members].sort &&
-            utxo['asset_id'] == params[:asset_id] &&
-            utxo['threshold'] == params[:threshold]
-          }
-        )
+
+        if params[:members].present?
+          utxos = utxos.filter(
+            &lambda { |utxo|
+              utxo['member'].sort == params[:members].sort
+            }
+          )
+        end
+
+        if params[:asset_id].present?
+          utxos = utxos.filter(
+            &lambda { |utxo|
+              utxo['asset_id'] == params[:asset_id]
+            }
+          )
+        end
+
+        if params[:threshold].present?
+          utxos = utxos.filter(
+            &lambda { |utxo|
+              utxo['threshold'] == params[:threshold]
+            }
+          )
+        end
+
+        utxos
       end
 
       # params:
