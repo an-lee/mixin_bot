@@ -33,9 +33,9 @@ module MixinBot
     end
 
     # Use a golang cli to implement transaction build
-    def build_transaction(tx)
+    def build_transaction(json)
       builder = File.join(__dir__, 'golang/buildTransaction')
-      command = format("%<builder>s '%<arg>s'", builder: builder, arg: tx)
+      command = format("%<builder>s '%<arg>s'", builder: builder, arg: json)
 
       output, error = Open3.capture3(command)
       raise error unless error.empty?

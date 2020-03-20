@@ -6,7 +6,7 @@ module MixinBot
     def listallnodes
       return unless ensure_mixin_command_exist
 
-      o, e, s = Open3.capture3('mixin -n 35.188.235.212:8239 listallnodes')
+      o, e, _s = Open3.capture3('mixin -n 35.188.235.212:8239 listallnodes')
       puts e unless e.empty?
       puts o
     end

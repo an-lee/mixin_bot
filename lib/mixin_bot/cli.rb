@@ -33,23 +33,24 @@ module MixinBot
             puts e.inspect
           end
       end
-      if @config
-        MixinBot.api_host = options[:apihost]
-        @api ||=
-          begin
-            MixinBot::API.new(
-              client_id: @config['client_id'],
-              client_secret: @config['client_secret'],
-              session_id: @config['session_id'],
-              pin_token: @config['pin_token'],
-              private_key: @config['private_key'],
-              pin_code: @config['pin_code']
-            )
-          rescue StandardError => e
-            puts 'Failed to initialize api, maybe your config is incorrect.'
-            puts e.inspect
-          end
-      end
+
+      return unless @config
+
+      MixinBot.api_host = options[:apihost]
+      @api ||=
+        begin
+          MixinBot::API.new(
+            client_id: @config['client_id'],
+            client_secret: @config['client_secret'],
+            session_id: @config['session_id'],
+            pin_token: @config['pin_token'],
+            private_key: @config['private_key'],
+            pin_code: @config['pin_code']
+          )
+        rescue StandardError => e
+          puts 'Failed to initialize api, maybe your config is incorrect.'
+          puts e.inspect
+        end
     end
 
     desc 'node', 'mixin node commands helper'
