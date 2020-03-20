@@ -15,14 +15,14 @@ module MixinBot
 
     def ensure_mixin_command_exist
       return true if command?('mixin')
-      
+
       puts '`mixin` command is not valid!'
       puts 'Please install mixin software and provide a executable `mixin` command'
     end
 
     def command?(name)
       `which #{name}`
-      $?.success?
+      $CHILD_STATUS.success?
     end
   end
 end

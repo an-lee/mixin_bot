@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mixin_bot (0.2.0)
+    mixin_bot (0.1.4)
       bcrypt (~> 3.1)
       faye-websocket (~> 0.10)
       http (~> 4.1)

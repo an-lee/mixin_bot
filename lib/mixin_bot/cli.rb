@@ -16,7 +16,7 @@ module MixinBot
     def initialize(*args)
       super
       if File.directory? options[:config]
-        @config = 
+        @config =
           begin
             YAML.load_file options[:config]
           rescue StandardError => e
@@ -25,7 +25,7 @@ module MixinBot
             puts e.inspect
           end
       elsif options[:config]
-        @confg = 
+        @confg =
           begin
             JSON.parse options[:config]
           rescue StandardError => e
@@ -35,7 +35,7 @@ module MixinBot
       end
       if @config
         MixinBot.api_host = options[:apihost]
-        @api ||= 
+        @api ||=
           begin
             MixinBot::API.new(
               client_id: @config['client_id'],
@@ -43,7 +43,7 @@ module MixinBot
               session_id: @config['session_id'],
               pin_token: @config['pin_token'],
               private_key: @config['private_key'],
-              pin_code: @config['pin_code'],
+              pin_code: @config['pin_code']
             )
           rescue StandardError => e
             puts 'Failed to initialize api, maybe your config is incorrect.'
@@ -52,7 +52,7 @@ module MixinBot
       end
     end
 
-    desc 'node', 'useful mixin node commands'
+    desc 'node', 'mixin node commands helper'
     subcommand 'node', MixinBot::NodeCLI
 
     desc 'read_me', 'fetch mixin bot profile'
@@ -90,7 +90,7 @@ module MixinBot
     end
 
     private
-    
+
     def api_method(method)
       if api.nil?
         puts 'MixinBot api not initialized!'
