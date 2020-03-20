@@ -2,7 +2,6 @@
 
 require_relative './client'
 require_relative './errors'
-require_relative './schmoozer'
 require_relative './api/attachment'
 require_relative './api/auth'
 require_relative './api/blaze'
@@ -31,7 +30,6 @@ module MixinBot
       @private_key = OpenSSL::PKey::RSA.new options[:private_key] || MixinBot.private_key
       @client = Client.new(MixinBot.api_host || 'api.mixin.one')
       @blaze_host = MixinBot.blaze_host || 'blaze.mixin.one'
-      @schmoozer = Schmoozer.new(File.join(__dir__, 'js'))
     end
 
     # Use a golang cli to implement transaction build

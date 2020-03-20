@@ -19,12 +19,10 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'bcrypt', '~> 3.1'
   s.add_dependency 'faye-websocket', '~> 0.10'
-  s.add_dependency 'ffi', '~> 1.12'
   s.add_dependency 'http', '~> 4.1'
   s.add_dependency 'jose', '~> 1.1'
   s.add_dependency 'jwt', '~> 2.2'
   s.add_dependency 'msgpack', '~> 1.3'
-  s.add_dependency 'schmooze', '~> 0.2'
   s.add_dependency 'thor', '~> 1.0'
 
   s.add_development_dependency 'rake', '~> 13.0'

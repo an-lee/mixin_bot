@@ -1,15 +1,14 @@
 # frozen_string_literal: true
 
-require 'http'
 require 'base64'
-require 'faye/websocket'
-require 'ffi'
-require 'openssl'
-require 'jwt'
-require 'jose'
-require 'schmooze'
-require 'msgpack'
 require 'digest'
+require 'faye/websocket'
+require 'http'
+require 'jose'
+require 'jwt'
+require 'msgpack'
+require 'open3'
+require 'openssl'
 require_relative './mixin_bot/api'
 require_relative './mixin_bot/cli'
 require_relative './mixin_bot/version'
@@ -22,5 +21,4 @@ module MixinBot
   def self.api
     @api ||= MixinBot::API.new
   end
-
 end
