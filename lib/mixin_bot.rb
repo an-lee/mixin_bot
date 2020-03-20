@@ -10,6 +10,8 @@ require 'schmooze'
 require 'msgpack'
 require 'digest'
 require_relative './mixin_bot/api'
+require_relative './mixin_bot/cli'
+require_relative './mixin_bot/version'
 
 module MixinBot
   class<< self
