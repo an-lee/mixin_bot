@@ -40,7 +40,7 @@ module MixinBot
       output, error = Open3.capture3(command)
       raise error unless error.empty?
 
-      output
+      output.chomp
     end
 
     include MixinBot::API::Attachment
