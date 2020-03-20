@@ -15,7 +15,7 @@ module MixinBot
 
     def initialize(*args)
       super
-      if File.directory? options[:config]
+      if File.exist? options[:config]
         @config =
           begin
             YAML.load_file options[:config]
@@ -98,7 +98,7 @@ module MixinBot
       end
 
       res = api&.public_send method
-      puts res.inspect if res&.[]('error')
+      puts res.inspect
 
       [res, res && res['error'].nil?]
     end

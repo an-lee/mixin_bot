@@ -3,6 +3,7 @@
 require 'http'
 require 'base64'
 require 'faye/websocket'
+require 'ffi'
 require 'openssl'
 require 'jwt'
 require 'jose'
@@ -21,4 +22,5 @@ module MixinBot
   def self.api
     @api ||= MixinBot::API.new
   end
+
 end

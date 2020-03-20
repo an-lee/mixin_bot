@@ -135,14 +135,6 @@ module MixinBot
         'fffe' + s
       end
 
-      # FIXME
-      # use a huge js method to implement for now
-      def build_transaction(transaction)
-        transaction = transaction.is_a?(String) ? transaction : transaction.to_json
-
-        schmoozer.build_transaction transaction
-      end
-
       # filter utxo by members, asset_id and threshold
       def filter_utxos(params)
         utxos = get_all_multisigs(access_token: params[:access_token])
@@ -248,7 +240,7 @@ module MixinBot
           extra: extra
         }
 
-        build_transaction tx
+        build_transaction tx.to_json
       end
 
       def str_to_bin(str)

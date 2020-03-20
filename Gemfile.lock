@@ -4,6 +4,7 @@ PATH
     mixin_bot (0.1.4)
       bcrypt (~> 3.1)
       faye-websocket (~> 0.10)
+      ffi (~> 1.12)
       http (~> 4.1)
       jose (~> 1.1)
       jwt (~> 2.2)
