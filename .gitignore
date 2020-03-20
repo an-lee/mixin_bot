@@ -4,5 +4,6 @@
 *.key
 
 config.yml
+playground.rb
 
 coverage
