@@ -32,10 +32,10 @@ module MixinBot
       @blaze_host = MixinBot.blaze_host || 'blaze.mixin.one'
     end
 
-    # Use a golang cli to implement transaction build
+    # Use a mixin software to implement transaction build
     def build_transaction(json)
-      builder = File.join(__dir__, 'golang/buildTransaction')
-      command = format("%<builder>s '%<arg>s'", builder: builder, arg: json)
+      ensure_mixin_command_exist
+      command = format("mixin signrawtransaction --raw '%<arg>s'", arg: json)
 
       output, error = Open3.capture3(command)
       raise error unless error.empty?
@@ -56,5 +56,18 @@ module MixinBot
     include MixinBot::API::Transfer
     include MixinBot::API::User
     include MixinBot::API::Withdraw
+
+    private
+
+    def ensure_mixin_command_exist
+      return if command?('mixin')
+
+      raise '`mixin` command is not valid!'
+    end
+
+    def command?(name)
+      `which #{name}`
+      $CHILD_STATUS.success?
+    end
   end
 end
