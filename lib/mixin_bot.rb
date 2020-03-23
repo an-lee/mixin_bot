@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'English'
 require 'base64'
 require 'digest'
 require 'faye/websocket'
