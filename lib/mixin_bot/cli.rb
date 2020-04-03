@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'cli/ui'
 require 'thor'
 require 'yaml'
 require 'json'
@@ -9,7 +10,9 @@ require_relative './cli/multisig.rb'
 
 module MixinBot
   class CLI < Thor
-    class_option :config, type: :string, aliases: '-c', desc: 'Specify mixin bot config'
+    # https://github.com/Shopify/cli-ui
+    UI = ::CLI::UI
+
     class_option :apihost, type: :string, aliases: '-a', desc: 'Specify mixin api host, default as api.mixin.one'
 
     attr_reader :config, :api
@@ -21,17 +24,30 @@ module MixinBot
           begin
             YAML.load_file options[:config]
           rescue StandardError => e
-            puts 'Failed to read CONFIG'
-            puts format('%<file>s is not a valid .yml file', file: options[:config])
-            puts e.inspect
+            puts UI.fmt(
+              format(
+                '{{x}} %<file>s is not a valid .yml file', 
+                file: options[:config]
+              )
+            )
+            UI::Frame.open('{{x}}', color: :red) do
+              puts e.inspect
+            end
           end
       elsif options[:config]
         @confg =
           begin
             JSON.parse options[:config]
           rescue StandardError => e
-            puts `Failed to parse #{options[:config]}`
-            puts e.inspect
+            puts UI.fmt(
+              format(
+                '{{x}} Failed to parse %<config>s', 
+                config: options[:config]
+              )
+            )
+            UI::Frame.open('{{x}}', color: :red) do
+              puts e.inspect
+            end
           end
       end
 
@@ -49,8 +65,10 @@ module MixinBot
             pin_code: @config['pin_code']
           )
         rescue StandardError => e
-          puts 'Failed to initialize api, maybe your config is incorrect.'
-          puts e.inspect
+          puts UI.fmt '{{x}}: Failed to initialize api, maybe your config is incorrect.'
+          UI.Frame.open('{{x}}', color: :red) do
+            puts e.inspect
+          end
         end
     end
 
@@ -70,7 +88,7 @@ module MixinBot
 
     def api_method(method, *args)
       if api.nil?
-        puts 'MixinBot api not initialized!'
+        puts UI.fmt '{{x}} MixinBot api not initialized!'
         return
       end
 
@@ -79,7 +97,9 @@ module MixinBot
 
       [res, res && res['error'].nil?]
     rescue MixinBot::Errors => e
-      puts e
+      UI::Frame.open('{{x}}', color: :red) do
+        puts e.inspect
+      end
     end
   end
 end
