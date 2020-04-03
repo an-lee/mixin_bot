@@ -20,7 +20,14 @@ module MixinBot
       assets, success = read_assets
       return unless success
 
-      puts assets['data'].map(&->(asset) { asset['balance'].to_f * asset['price_usd'].to_f }).sum
+      log assets['data'].map(&->(asset) { asset['balance'].to_f * asset['price_usd'].to_f }).sum
+    end
+
+    desc 'read_asset', 'fetch specific asset of mixin bot'
+    option :config, required: true, aliases: '-c'
+    option :asset_id, required: true, aliases: '-a'
+    def read_asset
+      api_method(:read_asset, options[:asset_id])
     end
   end
 end

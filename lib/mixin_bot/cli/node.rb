@@ -7,8 +7,8 @@ module MixinBot
       return unless ensure_mixin_command_exist
 
       o, e, _s = Open3.capture3('mixin -n 35.188.235.212:8239 listallnodes')
-      puts e unless e.empty?
-      puts o
+      log e unless e.empty?
+      log o
     end
 
     private
@@ -16,8 +16,8 @@ module MixinBot
     def ensure_mixin_command_exist
       return true if command?('mixin')
 
-      puts '`mixin` command is not valid!'
-      puts 'Please install mixin software and provide a executable `mixin` command'
+      log '`mixin` command is not valid!'
+      log 'Please install mixin software and provide a executable `mixin` command'
     end
 
     def command?(name)

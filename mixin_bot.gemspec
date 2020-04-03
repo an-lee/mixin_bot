@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
   s.executables   = ['mixinbot']
 
+  s.add_dependency 'awesome_print', '~> 1.8'
   s.add_dependency 'bcrypt', '~> 3.1'
   s.add_dependency 'cli-ui', '~> 1.3'
   s.add_dependency 'faye-websocket', '~> 0.10'
