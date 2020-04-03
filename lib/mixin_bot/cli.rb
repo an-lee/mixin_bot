@@ -96,10 +96,13 @@ module MixinBot
 
       res = if args.empty? && params.empty?
               api&.public_send method
-            elsif args.empty?
+            elsif args.empty? && !params.empty?
               api&.public_send method params
+            elsif !args.empty? && params.empty?
+              api&.public_send method, args
             else
-              api&.public_send method, args, hash
+              args.push params
+              api&.public_send method, args
             end
       log res
 
