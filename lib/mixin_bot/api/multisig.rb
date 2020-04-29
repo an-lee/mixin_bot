@@ -87,6 +87,36 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
+      def sign_request(request_id, pin)
+        path = format('/multisigs/%<request_id>s/sign', request_id: request_id)
+        payload = {
+          pin: encrypt_pin(pin)
+        }
+        access_token ||= access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
+
+      def unlock_request(request_id, pin)
+        path = format('/multisigs/%<request_id>s/unlock', request_id: request_id)
+        payload = {
+          pin: encrypt_pin(pin)
+        }
+        access_token ||= access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
+
+      def cancel_request(request_id, pin)
+        path = format('/multisigs/%<request_id>s/cancel', request_id: request_id)
+        payload = {
+          pin: encrypt_pin(pin)
+        }
+        access_token ||= access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
+
       # pay to the multisig address
       # used for create multisig payment code_id
       def create_multisig_payment(params)
@@ -163,6 +193,14 @@ module MixinBot
           )
         end
 
+        unless params[:state].nil?
+          utxos = utxos.filter(
+            &lambda { |utxo|
+              utxo['state'] == params[:state]
+            }
+          )
+        end
+
         utxos
       end
 
@@ -192,7 +230,8 @@ module MixinBot
           members: senders,
           asset_id: asset_id,
           threshold: threshold,
-          access_token: access_token
+          access_token: access_token,
+          state: 'unspent'
         )
         amount = amount.to_f.round(8)
         input_amount = utxos.map(

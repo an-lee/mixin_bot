@@ -52,3 +52,15 @@ Style/NumericLiterals:
 
 RSpec/ExampleLength:
   Enabled: false
+
+Security/Eval:
+  Enabled: false
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
