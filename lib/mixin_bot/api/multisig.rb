@@ -163,6 +163,14 @@ module MixinBot
           )
         end
 
+        unless params[:state].nil?
+          utxos = utxos.filter(
+            &lambda { |utxo|
+              utxo['state'] == params[:state]
+            }
+          )
+        end
+
         utxos
       end
 
@@ -192,7 +200,8 @@ module MixinBot
           members: senders,
           asset_id: asset_id,
           threshold: threshold,
-          access_token: access_token
+          access_token: access_token,
+          state: 'unspent'
         )
         amount = amount.to_f.round(8)
         input_amount = utxos.map(
