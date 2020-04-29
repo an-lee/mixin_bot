@@ -90,7 +90,7 @@ module MixinBot
       def sign_request(request_id, pin)
         path = format('/multisigs/%<request_id>s/sign', request_id: request_id)
         payload = {
-          pin: encrypt_pin(pin),
+          pin: encrypt_pin(pin)
         }
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
@@ -100,7 +100,7 @@ module MixinBot
       def unlock_request(request_id, pin)
         path = format('/multisigs/%<request_id>s/unlock', request_id: request_id)
         payload = {
-          pin: encrypt_pin(pin),
+          pin: encrypt_pin(pin)
         }
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
@@ -110,7 +110,7 @@ module MixinBot
       def cancel_request(request_id, pin)
         path = format('/multisigs/%<request_id>s/cancel', request_id: request_id)
         payload = {
-          pin: encrypt_pin(pin),
+          pin: encrypt_pin(pin)
         }
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)

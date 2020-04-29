@@ -26,7 +26,7 @@ module MixinBot
       c = (Date.today - Date.new(2019, 2, 28)).to_i + 1
       distributions = []
       UI::Spinner.spin('Listing mint distributions') do |spinner|
-        o, e, _s = Open3.capture3(
+        o, _e, _s = Open3.capture3(
           'mixin',
           '-n',
           options[:node],
