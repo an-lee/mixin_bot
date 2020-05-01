@@ -36,7 +36,7 @@ module MixinBot
       end
 
       def all_multisigs(utxos: [], offset: nil, access_token: nil)
-        res = get_multisigs(limit: 100, offset: offset, access_token: access_token)
+        res = multisigs(limit: 100, offset: offset, access_token: access_token)
 
         return [] if res['data'].nil?
 
