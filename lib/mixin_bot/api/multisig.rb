@@ -28,14 +28,14 @@ module MixinBot
       #     "signed_tx":""
       #   }
       # ]}
-      def get_multisigs(limit: 100, offset: nil, access_token: nil)
+      def multisigs(limit: 100, offset: nil, access_token: nil)
         path = format('/multisigs?limit=%<limit>s&offset=%<offset>s', limit: limit, offset: offset)
         access_token ||= access_token('GET', path, '')
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
 
-      def get_all_multisigs(utxos: [], offset: nil, access_token: nil)
+      def all_multisigs(utxos: [], offset: nil, access_token: nil)
         res = get_multisigs(limit: 100, offset: offset, access_token: access_token)
 
         return [] if res['data'].nil?
@@ -45,7 +45,7 @@ module MixinBot
         if res['data'].length < 100
           utxos
         else
-          get_all_multisigs(utxos: utxos, offset: utxos[-1]['created_at'], access_token: access_token)
+          all_multisigs(utxos: utxos, offset: utxos[-1]['created_at'], access_token: access_token)
         end
       end
 
@@ -87,7 +87,7 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      def sign_request(request_id, pin)
+      def sign_multisig_request(request_id, pin)
         path = format('/multisigs/%<request_id>s/sign', request_id: request_id)
         payload = {
           pin: encrypt_pin(pin)
@@ -97,7 +97,7 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      def unlock_request(request_id, pin)
+      def unlock_multisig_request(request_id, pin)
         path = format('/multisigs/%<request_id>s/unlock', request_id: request_id)
         payload = {
           pin: encrypt_pin(pin)
@@ -107,7 +107,7 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      def cancel_request(request_id, pin)
+      def cancel_multisig_request(request_id, pin)
         path = format('/multisigs/%<request_id>s/cancel', request_id: request_id)
         payload = {
           pin: encrypt_pin(pin)
@@ -167,7 +167,7 @@ module MixinBot
 
       # filter utxo by members, asset_id and threshold
       def filter_utxos(params)
-        utxos = get_all_multisigs(access_token: params[:access_token])
+        utxos = all_multisigs(access_token: params[:access_token])
 
         unless params[:members].nil?
           utxos = utxos.filter(
@@ -223,15 +223,17 @@ module MixinBot
         memo           = params[:memo]
         threshold      = params[:threshold]
         access_token   = params[:access_token]
+        utxos          = params[:utxos]
 
         raise 'access_token required!' if access_token.nil? && !senders.include?(client_id)
 
-        utxos = filter_utxos(
+        # default to use all unspent utxo
+        utxos ||= filter_utxos(
           members: senders,
           asset_id: asset_id,
           threshold: threshold,
-          access_token: access_token,
-          state: 'unspent'
+          state: 'unspent',
+          access_token: access_token
         )
         amount = amount.to_f.round(8)
         input_amount = utxos.map(
