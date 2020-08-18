@@ -11,7 +11,10 @@ module MixinBot
           asset: options[:asset],
           order: options[:order]
         )
-        client.get(path)
+
+        access_token ||= access_token('GET', path)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.get(path, headers: { 'Authorization': authorization })
       end
 
       def read_snapshots(options = {}, access_token: nil)
@@ -29,7 +32,10 @@ module MixinBot
 
       def read_network_snapshot(snapshot_id)
         path = format('/network/snapshots/%<snapshot_id>s', snapshot_id: snapshot_id)
-        client.get(path)
+
+        access_token ||= access_token('GET', path)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.get(path, headers: { 'Authorization': authorization })
       end
     end
   end
