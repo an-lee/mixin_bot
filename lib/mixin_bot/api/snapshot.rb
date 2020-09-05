@@ -12,12 +12,12 @@ module MixinBot
           order: options[:order]
         )
 
-        access_token ||= access_token('GET', path)
+        access_token = options[:access_token] || access_token('GET', path)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
 
-      def read_snapshots(options = {}, access_token: nil)
+      def read_snapshots(options = {})
         path = format(
           '/snapshots?limit=%<limit>s&offset=%<offset>s&asset=%<asset>s',
           limit: options[:limit],
@@ -25,15 +25,15 @@ module MixinBot
           asset: options[:asset]
         )
 
-        access_token ||= access_token('GET', path)
+        access_token = options[:access_token] || access_token('GET', path)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
 
-      def read_network_snapshot(snapshot_id)
+      def read_network_snapshot(snapshot_id, options = {})
         path = format('/network/snapshots/%<snapshot_id>s', snapshot_id: snapshot_id)
 
-        access_token ||= access_token('GET', path)
+        access_token = options[:access_token] || access_token('GET', path)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
