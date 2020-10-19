@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'awesome_print', '~> 1.8'
   s.add_dependency 'bcrypt', '~> 3.1'
   s.add_dependency 'cli-ui', '~> 1.3'
-  s.add_dependency 'faye-websocket', '~> 0.10'
+  s.add_dependency 'faye-websocket', '>= 0.11'
   s.add_dependency 'http', '~> 4.1'
   s.add_dependency 'jose', '~> 1.1'
   s.add_dependency 'jwt', '~> 2.2'
