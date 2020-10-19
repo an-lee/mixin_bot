@@ -2,6 +2,7 @@
 
 require_relative './client'
 require_relative './errors'
+require_relative './api/app'
 require_relative './api/attachment'
 require_relative './api/auth'
 require_relative './api/blaze'
@@ -43,6 +44,7 @@ module MixinBot
       output.chomp
     end
 
+    include MixinBot::API::App
     include MixinBot::API::Attachment
     include MixinBot::API::Auth
     include MixinBot::API::Blaze
