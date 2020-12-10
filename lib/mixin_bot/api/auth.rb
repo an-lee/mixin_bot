@@ -17,7 +17,16 @@ module MixinBot
           sig: sig,
           scp: scp
         }
-        JWT.encode payload, private_key, 'RS512'
+        if pin_token.size == 32
+          jwk = JOSE::JWK.from_okp [:Ed25519, private_key]
+          jws = JOSE::JWS.from({ 'alg' => 'EdDSA' })
+        else
+          jwk = JOSE::JWK.from_pem private_key
+          jws = JOSE::JWS.from({ 'alg' => 'RS512' })
+        end
+
+        jwt = JOSE::JWT.from payload
+        JOSE::JWT.sign(jwk, jws, jwt).compact
       end
 
       def oauth_token(code)

@@ -10,6 +10,6 @@ describe MixinBot::API::Auth do
 
   it 'generate requet oauth url' do
     url = MixinBot.api.request_oauth
-    expect(url).to start_with 'https://mixin.one/oauth/authorize?client_id=' + MixinBot.client_id
+    expect(url).to start_with "https://mixin.one/oauth/authorize?client_id=#{MixinBot.client_id}"
   end
 end

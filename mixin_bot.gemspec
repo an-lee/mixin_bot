@@ -5,6 +5,8 @@ $LOAD_PATH.push File.expand_path('lib', __dir__)
 require 'mixin_bot/version'
 
 Gem::Specification.new do |s|
+  s.required_ruby_version = '>= 2.6.0'
+
   s.name          = 'mixin_bot'
   s.version       = MixinBot::VERSION
   s.authors       = ['an-lee']
@@ -23,7 +25,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'faye-websocket', '>= 0.11'
   s.add_dependency 'http', '~> 4.1'
   s.add_dependency 'jose', '~> 1.1'
-  s.add_dependency 'jwt', '~> 2.2'
   s.add_dependency 'msgpack', '~> 1.3'
   s.add_dependency 'thor', '~> 1.0'
 

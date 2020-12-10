@@ -14,7 +14,7 @@ module MixinBot
         )
       end
 
-      def start_blaze_connect(reconnect = true, &_block)
+      def start_blaze_connect(reconnect: true, &_block)
         ws ||= blaze
         yield if block_given?
 
@@ -54,7 +54,7 @@ module MixinBot
           end
 
           ws = nil
-          start_blaze_connect { yield } if reconnect
+          start_blaze_connect(&block) if reconnect
         end
       end
     end

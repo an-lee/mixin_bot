@@ -1,3 +1,4 @@
+# RSA
 client_id: 0508a116-1239-4e28-b150-85a8e3e6b400
 client_secret: 0b1a07abda1d14be9fb0388c0c9ec3a92a3ccdbcf6b10bbecf14a3716c8fa8a9
 session_id: 1acc1794-ae86-4818-9574-e570e4ae4f3b
@@ -19,3 +20,11 @@ private_key: |
   jIa6GdcG+Tm/BGQOyxECQQCDiydoNJY1H9J+TV2FimB+CqJHNIukxs8uf5Hyd0yi
   x+d4R2UKis//30L5Zw1Ex5tHUUfS6+Bxaw9hbRoYCW9n
   -----END RSA PRIVATE KEY-----
+
+# Ed25519
+# client_id: 0508a116-1239-4e28-b150-85a8e3e6b400
+# client_secret: 0b1a07abda1d14be9fb0388c0c9ec3a92a3ccdbcf6b10bbecf14a3716c8fa8a9
+# session_id: 1acc1794-ae86-4818-9574-e570e4ae4f3b
+# pin_code: '969893'
+# pin_token: T-3RhNg36a4rSCZRpkbRzbl5CnslOMDot9RqDsyKNVg
+# private_key: 6rK2AAf3FmDIgNhgPiC-Sn5D5qh7ieq8PuJANnf4-goNRVZPt3cnY0Zr6xF1COaRuhXjNCuj6gvHgb_FnN7ktA

@@ -6,8 +6,8 @@ require 'thor'
 require 'yaml'
 require 'json'
 require_relative './cli/node'
-require_relative './cli/me.rb'
-require_relative './cli/multisig.rb'
+require_relative './cli/me'
+require_relative './cli/multisig'
 
 module MixinBot
   class CLI < Thor
