@@ -13,14 +13,24 @@ describe MixinBot::API::User do
     expect(res).to have_key(:public_key)
   end
 
-  it 'create user' do
+  it 'generate ed25519 key' do
+    res = MixinBot.api.generate_ed25519_key
+    expect(res).to have_key(:public_key)
+  end
+
+  it 'create user using rsa as default' do
     res = MixinBot.api.create_user('Bot User')
     expect(res['data']&.[]('full_name')).to eq('Bot User')
   end
 
-  it 'create user with rsa_key' do
+  it 'create user using ed25519' do
+    res = MixinBot.api.create_user('Bot User', key_type: 'Ed25519')
+    expect(res['data']&.[]('full_name')).to eq('Bot User')
+  end
+
+  it 'create user with provided rsa_key' do
     rsa_key = MixinBot.api.generate_rsa_key
-    res = MixinBot.api.create_user('Bot User', rsa_key)
+    res = MixinBot.api.create_user('Bot User', rsa_key: rsa_key)
     expect(res[:rsa_key]).to eq(rsa_key)
   end
 
