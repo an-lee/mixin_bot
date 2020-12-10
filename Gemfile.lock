@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mixin_bot (0.2.0)
+    mixin_bot (0.3.0)
       awesome_print (~> 1.8)
       bcrypt (~> 3.1)
       cli-ui (~> 1.3)
