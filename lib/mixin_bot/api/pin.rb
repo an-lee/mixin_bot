@@ -52,7 +52,7 @@ module MixinBot
         tsone = (iterator % 0x10000) >> 8
         tstwo = (iterator % 0x1000000) >> 16
         tsthree = (iterator % 0x100000000) >> 24
-        tsstring = tszero.chr + tsone.chr + tstwo.chr + tsthree.chr + "\0\0\0\0"
+        tsstring = "#{tszero.chr}#{tsone.chr}#{tstwo.chr}#{tsthree.chr}\u0000\u0000\u0000\u0000"
         encrypt_content = pin_code + tsstring + tsstring
         pad_count = 16 - encrypt_content.length % 16
         padded_content =
@@ -77,14 +77,14 @@ module MixinBot
     def _generate_aes_key
       if pin_token.size == 32
         JOSE::JWA::X25519.x25519(
-          JOSE::JWA::Ed25519.secret_to_curve25519(private_key[0..31]), 
+          JOSE::JWA::Ed25519.secret_to_curve25519(private_key[0..31]),
           pin_token
         )
       else
         JOSE::JWA::PKCS1.rsaes_oaep_decrypt(
-          'SHA256', 
-          pin_token, 
-          OpenSSL::PKey::RSA.new(private_key), 
+          'SHA256',
+          pin_token,
+          OpenSSL::PKey::RSA.new(private_key),
           session_id
         )
       end

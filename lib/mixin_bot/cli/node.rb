@@ -35,14 +35,14 @@ module MixinBot
           c.to_s
         )
         distributions = eval o
-        spinner.update_title distributions.size.to_s + ' mint distributions listed'
+        spinner.update_title "#{distributions.size} mint distributions listed"
       end
 
       tx = ''
       UI::Spinner.spin('Finding transaction') do |spinner|
         index = distributions.index(&->(d) { d[:batch] == options[:batch] })
-        tx = distributions[index].dig(:transaction)
-        spinner.update_title 'Transaction hash found: ' + tx
+        tx = distributions[index][:transaction]
+        spinner.update_title "Transaction hash found: #{tx}"
       end
 
       UI::Spinner.spin('Fetching transaction') do |spinner|
@@ -55,12 +55,12 @@ module MixinBot
           tx
         )
         tx = eval o
-        spinner.update_title tx[:outputs].size.to_s + ' transaction outputs found'
+        spinner.update_title "#{tx[:outputs].size} transaction outputs found"
       end
 
       tx[:outputs].each_with_index do |output, index|
         address = ''
-        UI::Spinner.spin('Checking output index: ' + index.to_s) do |spinner|
+        UI::Spinner.spin("Checking output index: #{index}") do |spinner|
           o, _e, _s = Open3.capture3(
             'mixin',
             'decryptghostkey',
@@ -72,9 +72,9 @@ module MixinBot
             options[:view]
           )
           address = o.chomp
-          spinner.update_title 'Index ' + index.to_s + ' Address: ' + address
+          spinner.update_title "Index #{index} Address: #{address}"
         end
-        log 'Found Utxo: ' + index.to_s if address == options[:address]
+        log "Found Utxo: #{index}" if address == options[:address]
       end
     end
 

@@ -159,10 +159,10 @@ module MixinBot
 
       def build_threshold_script(threshold)
         s = threshold.to_s(16)
-        s = s.length == 1 ? '0' + s : s
+        s = s.length == 1 ? "0#{s}" : s
         raise 'NVALID THRESHOLD' if s.length > 2
 
-        'fffe' + s
+        "fffe#{s}"
       end
 
       # filter utxo by members, asset_id and threshold

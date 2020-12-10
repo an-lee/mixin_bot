@@ -58,10 +58,10 @@ module MixinBot
     def parse_response(response)
       content_type = response.headers[:content_type]
       parse_as = {
-        %r{^application\/json} => :json,
-        %r{^image\/.*} => :file,
-        %r{^text\/html} => :xml,
-        %r{^text\/plain} => :plain
+        %r{^application/json} => :json,
+        %r{^image/.*} => :file,
+        %r{^text/html} => :xml,
+        %r{^text/plain} => :plain
       }.each_with_object([]) { |match, memo| memo << match[1] if content_type =~ match[0] }.first || :plain
 
       if parse_as == :plain
@@ -76,12 +76,12 @@ module MixinBot
         result = JSON.parse(response.body.to_s)
       when :file
         extension =
-          if response.headers[:content_type] =~ %r{^image\/.*}
-            case response.headers['content-type']
-            when 'image/gif'  then '.gif'
-            when 'image/jpeg' then '.jpg'
-            when 'image/png'  then '.png'
-            end
+          if response.headers[:content_type] =~ %r{^image/.*}
+            {
+              'image/gif': '.gif',
+              'image/jpeg': '.jpg',
+              'image/png': '.png'
+            }[response.headers['content-type']]
           else
             ''
           end

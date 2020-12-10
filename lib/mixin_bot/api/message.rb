@@ -257,7 +257,7 @@ module MixinBot
       end
 
       # gzip the message for websocket
-      def write_ws_message(action: 'CREATE_MESSAGE', params:)
+      def write_ws_message(params:, action: 'CREATE_MESSAGE')
         msg = {
           id: SecureRandom.uuid,
           action: action,

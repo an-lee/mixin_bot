@@ -41,7 +41,7 @@ module MixinBot
         digest = md5.digest
         digest6 = (digest[6].ord & 0x0f | 0x30).chr
         digest8 = (digest[8].ord & 0x3f | 0x80).chr
-        cipher = digest[0...6] + digest6 + digest[7] + digest8 + digest[9..-1]
+        cipher = digest[0...6] + digest6 + digest[7] + digest8 + digest[9..]
         hex = cipher.unpack1('H*')
 
         format(
@@ -50,7 +50,7 @@ module MixinBot
           second: hex[8..11],
           third: hex[12..15],
           forth: hex[16..19],
-          fifth: hex[20..-1]
+          fifth: hex[20..]
         )
       end
     end
