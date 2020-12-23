@@ -54,7 +54,7 @@ module MixinBot
           end
 
           ws = nil
-          start_blaze_connect(&block) if reconnect
+          start_blaze_connect(&_block) if reconnect
         end
       end
     end
