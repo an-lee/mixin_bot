@@ -25,9 +25,14 @@ module MixinBot
       @client_id = options[:client_id] || MixinBot.client_id
       @client_secret = options[:client_secret] || MixinBot.client_secret
       @session_id = options[:session_id] || MixinBot.session_id
-      @pin_token = Base64.urlsafe_decode64 options[:pin_token] || MixinBot.pin_token
       @client = Client.new(MixinBot.api_host || 'api.mixin.one')
       @blaze_host = MixinBot.blaze_host || 'blaze.mixin.one'
+      @pin_token =
+        begin
+          Base64.urlsafe_decode64 options[:pin_token] || MixinBot.pin_token
+        rescue StandardError
+          ''
+        end
       _private_key = options[:private_key] || MixinBot.private_key
       @private_key =
         if /^-----BEGIN RSA PRIVATE KEY-----/.match? _private_key
