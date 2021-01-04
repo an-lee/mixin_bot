@@ -5,13 +5,13 @@ require 'spec_helper'
 describe MixinBot::API::Multisig do
   it 'read multisigs' do
     # {"data"=>[{"type"=>"multisig_utxo", "user_id"=>"0508a116-1239-4e28-b150-85a8e3e6b400", "utxo_id"=>"684ac1de-cdc5-36f3-9034-ef3b74de0338", "asset_id"=>"965e5c6e-434c-3fa9-b780-c50f43cd955c", "transaction_hash"=>"ed567043fbeab439105570bd77e57fb717dfd24eeef83476f5e0837bb53805cb", "output_index"=>0, "amount"=>"1", "threshold"=>2, "members"=>["0508a116-1239-4e28-b150-85a8e3e6b400", "7ed9292d-7c95-4333-aa48-a8c640064186", "a67c6e87-1c9e-4a1c-b81c-47a9f4f1bff1"], "memo"=>"test for multi sign", "state"=>"unspent", "created_at"=>"2019-12-11T07:32:42.606383Z", "signed_by"=>"", "signed_tx"=>""}]}
-    res = MixinBot.api.get_multisigs
+    res = MixinBot.api.multisigs
 
     expect(res['data']).not_to be_nil
   end
 
   it 'create output' do
-    # {"data"=>{"keys"=>["ae1077c010c9615259dd530534d80e353c4cb7f5ec909c6526fd62f46cf53b98", "b14f14a47a5556fa8577a81b90dd5a4df8bd4a23d3af95b6e7fe760d8d4c89cb", "039dae8bac5a456e3b9f62cd21bd65f18bd5082cbf09b9b43bf7075f3f7448c5"], "mask"=>"fb2f6332821bba06c54b5316475cd0dbbbf1a0bea03d8b2cce380b050922beed"}}
+    # {"data"=>{"type"=>"ghost_key", "mask"=>"1bb3c2718f22fd6ea9c20655e4246552890ef23d7a07edacd8fa4e1125604260", "keys"=>["9b36d8f4110d6fb82f7d100ae879817cad118835cd91f40dbd1e8e47e60d1b6b", "1fee396d8fdfb858684e81788d2934c5c47bd54ed19cb2a9b295c3c14fe3460a", "d6f5f1d26b0e45a621422a6c01ceca25783d1b12b8dc2a1dd7bbea94f3a7a690"]}}
     res = MixinBot.api.create_output(receivers: MULTI_SIGN_MEMBERS, index: 0)
 
     expect(res['data']).not_to be_nil
