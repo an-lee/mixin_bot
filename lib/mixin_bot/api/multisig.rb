@@ -261,15 +261,21 @@ module MixinBot
 
         outputs = []
         output0 = create_output(receivers: receivers, index: 0)['data']
-        output0['amount'] = format('%<amount>.8f', amount: amount)
-        output0['script'] = build_threshold_script(receivers.length)
-        outputs << output0
+        outputs << {
+          'amount': format('%<amount>.8f', amount: amount),
+          'script': build_threshold_script(receivers.length),
+          'mask': output0['mask'],
+          'keys': output0['keys']
+        }
 
         if input_amount > amount
           output1 = create_output(receivers: senders, index: 1)['data']
-          output1['amount'] = format('%<amount>.8f', amount: input_amount - amount)
-          output1['script'] = build_threshold_script(utxos[0]['threshold'].to_i)
-          outputs << output1
+          outputs << {
+            'amount': format('%<amount>.8f', amount: input_amount - amount),
+            'script': build_threshold_script(threshold.to_i),
+            'mask': output1['mask'],
+            'keys': output1['keys']
+          }
         end
 
         extra = Digest.hexencode memo.to_s.slice(0, 140)

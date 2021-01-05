@@ -24,7 +24,7 @@ describe MixinBot::API::Multisig do
       receivers: [TEST_UID],
       asset_id: CNB_ASSET_ID,
       asset_mixin_id: CNB_MIXIN_ID,
-      threshold: MULTI_SIGN_MEMBERS.size,
+      threshold: MULTI_SIGN_MEMBERS.size - 1,
       amount: 0.000_000_02,
       memo: 'test of sign request'
     )
