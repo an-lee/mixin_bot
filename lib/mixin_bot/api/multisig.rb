@@ -119,19 +119,19 @@ module MixinBot
 
       # pay to the multisig address
       # used for create multisig payment code_id
-      def create_multisig_payment(params)
+      def create_multisig_payment(**kwargs)
         path = '/payments'
         payload = {
-          asset_id: params[:asset_id],
-          amount: params[:amount].to_s,
-          trace_id: params[:trace_id] || SecureRandom.uuid,
-          memo: params[:memo],
+          asset_id: kwargs[:asset_id],
+          amount: kwargs[:amount].to_s,
+          trace_id: kwargs[:trace_id] || SecureRandom.uuid,
+          memo: kwargs[:memo],
           opponent_multisig: {
-            receivers: params[:receivers],
-            threshold: params[:threshold]
+            receivers: kwargs[:receivers],
+            threshold: kwargs[:threshold]
           }
         }
-        access_token = params[:access_token]
+        access_token = kwargs[:access_token]
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
@@ -166,37 +166,37 @@ module MixinBot
       end
 
       # filter utxo by members, asset_id and threshold
-      def filter_utxos(params)
-        utxos = all_multisigs(access_token: params[:access_token])
+      def filter_utxos(**kwargs)
+        utxos = all_multisigs(access_token: kwargs[:access_token])
 
-        unless params[:members].nil?
+        unless kwargs[:members].nil?
           utxos = utxos.filter(
             &lambda { |utxo|
-              utxo['members'].sort == params[:members].sort
+              utxo['members'].sort == kwargs[:members].sort
             }
           )
         end
 
-        unless params[:asset_id].nil?
+        unless kwargs[:asset_id].nil?
           utxos = utxos.filter(
             &lambda { |utxo|
-              utxo['asset_id'] == params[:asset_id]
+              utxo['asset_id'] == kwargs[:asset_id]
             }
           )
         end
 
-        unless params[:threshold].nil?
+        unless kwargs[:threshold].nil?
           utxos = utxos.filter(
             &lambda { |utxo|
-              utxo['threshold'] == params[:threshold]
+              utxo['threshold'] == kwargs[:threshold]
             }
           )
         end
 
-        unless params[:state].nil?
+        unless kwargs[:state].nil?
           utxos = utxos.filter(
             &lambda { |utxo|
-              utxo['state'] == params[:state]
+              utxo['state'] == kwargs[:state]
             }
           )
         end
@@ -204,7 +204,7 @@ module MixinBot
         utxos
       end
 
-      # params:
+      # kwargs:
       # {
       #   senders: [ uuid ],
       #   receivers: [ uuid ],
@@ -214,16 +214,16 @@ module MixinBot
       #   amount: string / float,
       #   memo: string,
       # }
-      def build_raw_transaction(params)
-        senders        = params[:senders]
-        receivers      = params[:receivers]
-        asset_id       = params[:asset_id]
-        asset_mixin_id = params[:asset_mixin_id]
-        amount         = params[:amount]
-        memo           = params[:memo]
-        threshold      = params[:threshold]
-        access_token   = params[:access_token]
-        utxos          = params[:utxos]
+      def build_raw_transaction(kwargs)
+        senders        = kwargs[:senders]
+        receivers      = kwargs[:receivers]
+        asset_id       = kwargs[:asset_id]
+        asset_mixin_id = kwargs[:asset_mixin_id]
+        amount         = kwargs[:amount]
+        memo           = kwargs[:memo]
+        threshold      = kwargs[:threshold]
+        access_token   = kwargs[:access_token]
+        utxos          = kwargs[:utxos]
 
         raise 'access_token required!' if access_token.nil? && !senders.include?(client_id)
 
