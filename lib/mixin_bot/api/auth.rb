@@ -4,7 +4,7 @@ module MixinBot
   class API
     module Auth
       def access_token(method, uri, body = '', exp_in: 600, scp: 'FULL')
-        sig = Digest::SHA256.hexdigest(method + uri + body)
+        sig = Digest::SHA256.hexdigest(method + uri + body.to_s)
         iat = Time.now.utc.to_i
         exp = (Time.now.utc + exp_in).to_i
         jti = SecureRandom.uuid

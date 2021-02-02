@@ -6,7 +6,7 @@ module MixinBot
       def add_favorite_app(app_id, access_token: nil)
         path = format('/apps/%<id>s/favorite', id: app_id)
 
-        access_token ||= access_token('POST', path, {})
+        access_token ||= access_token('POST', path)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization })
       end
@@ -14,7 +14,7 @@ module MixinBot
       def remove_favorite_app(app_id, access_token: nil)
         path = format('/apps/%<id>s/unfavorite', id: app_id)
 
-        access_token ||= access_token('POST', path, '')
+        access_token ||= access_token('POST', path)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization })
       end
