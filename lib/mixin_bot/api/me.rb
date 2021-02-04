@@ -4,12 +4,13 @@ module MixinBot
   class API
     module Me
       # https://developers.mixin.one/api/beta-mixin-message/read-profile/
-      def read_me(access_token: nil)
+      def me(access_token: nil)
         path = '/me'
         access_token ||= access_token('GET', path, '')
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
+      alias read_me me
 
       # https://developers.mixin.one/api/beta-mixin-message/update-profile/
       # avatar_base64:
@@ -25,29 +26,14 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      # https://developers.mixin.one/api/alpha-mixin-network/read-assets/
-      def read_assets(access_token: nil)
-        path = '/assets'
-        access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
-      end
-
-      # https://developers.mixin.one/api/alpha-mixin-network/read-asset/
-      def read_asset(asset_id, access_token: nil)
-        path = format('/assets/%<asset_id>s', asset_id: asset_id)
-        access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
-      end
-
       # https://developers.mixin.one/api/beta-mixin-message/friends/
-      def read_friends(access_token: nil)
+      def friends(access_token: nil)
         path = '/friends'
         access_token ||= access_token('GET', path, '')
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
+      alias read_friends friends
     end
   end
 end

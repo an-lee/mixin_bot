@@ -7,6 +7,16 @@ require "mixin_bot"
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
 
+require 'yaml'
+CONFIG = YAML.load_file("#{File.expand_path "../../spec/config.yml", __FILE__}")
+MixinBot.client_id = CONFIG['client_id']
+MixinBot.client_secret = CONFIG['client_secret']
+MixinBot.session_id = CONFIG['session_id']
+MixinBot.pin_token = CONFIG['pin_token']
+MixinBot.private_key = CONFIG['private_key']
+# MixinBot.api_host = 'mixin-api.zeromesh.net'
+# MixinBot.blaze_host = 'mixin-blaze.zeromesh.net'
+
 # (If you use this, don't forget to add pry to your Gemfile!)
 # require "pry"
 # Pry.start
