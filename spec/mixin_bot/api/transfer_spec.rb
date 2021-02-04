@@ -5,12 +5,19 @@ require 'spec_helper'
 describe MixinBot::API::Transfer do
   it 'transfer asset to user' do
     trace_id = SecureRandom.uuid
-    res = MixinBot.api.create_transfer(PIN_CODE,
-                                       asset_id: CNB_ASSET_ID,
-                                       opponent_id: TEST_UID,
-                                       amount: 0.00000001,
-                                       memo: 'test from MixinBot',
-                                       trace_id: trace_id)
+    res =
+      MixinBot
+      .api
+      .create_transfer(
+        PIN_CODE,
+        {
+          asset_id: CNB_ASSET_ID,
+          opponent_id: TEST_UID,
+          amount: 0.00000001,
+          memo: 'test from MixinBot',
+          trace_id: trace_id
+        }
+      )
     expect(res['data']&.[]('trace_id')).to eq(trace_id)
   end
 

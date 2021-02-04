@@ -3,7 +3,10 @@
 module MixinBot
   class API
     module Transfer
-      def create_transfer(pin, options, access_token: nil)
+      TRANSFER_ARGUMENTS = %i[asset_id opponent_id amount].freeze
+      def create_transfer(pin, options = {})
+        raise ArgumentError, "#{TRANSFER_ARGUMENTS.join(', ')} are needed for create transfer" unless TRANSFER_ARGUMENTS.all? { |param| options.keys.include? param }
+
         asset_id = options[:asset_id]
         opponent_id = options[:opponent_id]
         amount = options[:amount]
@@ -21,6 +24,7 @@ module MixinBot
           memo: memo
         }
 
+        access_token = options[:access_token]
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
