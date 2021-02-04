@@ -3,17 +3,19 @@
 module MixinBot
   class API
     module Conversation
-      def read_conversation(conversation_id)
+      def conversation(conversation_id)
         path = format('/conversations/%<conversation_id>s', conversation_id: conversation_id)
         access_token ||= access_token('GET', path, '')
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
+      alias read_conversation conversation
 
-      def read_conversation_by_user_id(user_id)
+      def conversation_by_user_id(user_id)
         conversation_id = unique_conversation_id(user_id)
         read_conversation(conversation_id)
       end
+      alias read_conversation_by_user_id conversation_by_user_id
 
       def create_contact_conversation(user_id)
         path = '/conversations'
@@ -33,7 +35,7 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      def unique_conversation_id(user_id, opponent_id = nil)
+      def unique_uuid(user_id, opponent_id = nil)
         opponent_id ||= client_id
         md5 = Digest::MD5.new
         md5 << [user_id, opponent_id].min
@@ -53,6 +55,7 @@ module MixinBot
           fifth: hex[20..]
         )
       end
+      alias unique_conversation_id unique_uuid
     end
   end
 end

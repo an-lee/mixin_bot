@@ -3,7 +3,7 @@
 module MixinBot
   class API
     module Snapshot
-      def read_network_snapshots(options = {})
+      def network_snapshots(options = {})
         path = format(
           '/network/snapshots?limit=%<limit>s&offset=%<offset>s&asset=%<asset>s&order=%<order>s',
           limit: options[:limit],
@@ -16,8 +16,9 @@ module MixinBot
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
+      alias read_network_snapshots network_snapshots
 
-      def read_snapshots(options = {})
+      def snapshots(options = {})
         path = format(
           '/snapshots?limit=%<limit>s&offset=%<offset>s&asset=%<asset>s',
           limit: options[:limit],
@@ -29,14 +30,16 @@ module MixinBot
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
+      alias read_snapshots snapshots
 
-      def read_network_snapshot(snapshot_id, options = {})
+      def network_snapshot(snapshot_id, options = {})
         path = format('/network/snapshots/%<snapshot_id>s', snapshot_id: snapshot_id)
 
         access_token = options[:access_token] || access_token('GET', path)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
+      alias read_network_snapshot network_snapshot
     end
   end
 end
