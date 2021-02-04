@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative './client'
-require_relative './errors'
 require_relative './api/app'
 require_relative './api/asset'
 require_relative './api/attachment'

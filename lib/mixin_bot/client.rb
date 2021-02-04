@@ -29,17 +29,42 @@ module MixinBot
       begin
         response = HTTP.timeout(connect: 5, write: 5, read: 5).request(verb, uri, options)
       rescue HTTP::Error => e
-        raise Errors::HttpError, e.message
+        raise HttpError, e.message
       end
 
-      raise Errors::APIError.new(nil, response.to_s) unless response.status.success?
+      raise RequestError.new(nil, response.to_s) unless response.status.success?
 
       parse_response(response) do |parse_as, result|
         case parse_as
         when :json
-          break result if result[:errcode].nil? || result[:errcode].zero?
+          if result['error'].nil?
+            result.merge! result['data'] if result['data'].is_a? Hash
+            break result
+          end
 
-          raise Errors::APIError.new(result[:errcode], result[:errmsg])
+          errmsg = "errcode: #{result['error']['code']}, errmsg: #{result['error']['description']}"
+
+          # status code description
+          # 202	400	The request body can’t be pasred as valid data.
+          # 202	401	Unauthorized.
+          # 202	403	Forbidden.
+          # 202	404	The endpoint is not found.
+          # 202	429	Too Many Requests.
+          # 202	10006	App update required.
+          # 202	20116	The group chat is full.
+          # 500	500	Internal Server Error.
+          # 500	7000	Blaze server error.
+          # 500	7001	The blaze operation timeout.
+          case result['error']['code']
+          when 401
+            raise UnauthorizedError, errmsg
+          when 403, 20116
+            raise ForbiddenError, errmsg
+          when 400, 404, 429, 10006, 20133, 500, 7000, 7001
+            raise ResponseError, errmsg
+          else
+            raise ResponseError, errmsg
+          end
         else
           result
         end

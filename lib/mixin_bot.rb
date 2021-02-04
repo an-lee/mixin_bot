@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# third-party dependencies
 require 'English'
 require 'base64'
 require 'digest'
@@ -10,6 +11,7 @@ require 'msgpack'
 require 'open3'
 require 'openssl'
 require 'rbnacl'
+
 require_relative './mixin_bot/api'
 require_relative './mixin_bot/cli'
 require_relative './mixin_bot/version'
@@ -22,4 +24,10 @@ module MixinBot
   def self.api
     @api ||= MixinBot::API.new
   end
+
+  class HttpError < StandardError; end
+  class RequestError < StandardError; end
+  class ResponseError < StandardError; end
+  class UnauthorizedError < StandardError; end
+  class ForbiddenError < StandardError; end
 end
