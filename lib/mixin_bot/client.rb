@@ -32,7 +32,7 @@ module MixinBot
         raise HttpError, e.message
       end
 
-      raise RequestError.new(nil, response.to_s) unless response.status.success?
+      raise RequestError, response.to_s unless response.status.success?
 
       parse_response(response) do |parse_as, result|
         case parse_as
