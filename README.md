@@ -7,7 +7,7 @@ An API wrapper for [Mixin Network](https://developers.mixin.one/api)
 Add to gemfile, and `bundle install`
 
 ```ruby
-gem 'mixin_bot', github: 'an-lee/mixin_bot', branch: 'master'
+gem 'mixin_bot'
 ```
 
 Or
