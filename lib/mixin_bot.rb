@@ -11,6 +11,7 @@ require 'msgpack'
 require 'open3'
 require 'openssl'
 require 'rbnacl'
+require 'sha3'
 
 require_relative './mixin_bot/api'
 require_relative './mixin_bot/cli'
