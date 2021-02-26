@@ -30,10 +30,10 @@ module MixinBot
       # ]}
       def outputs(**kwargs)
         limit = kwargs[:limit] || 100
-        offset = kwargs[:offset]
-        state = kwargs[:state]
-        members = kwargs[:members]
-        threshold = kwargs[:threshold]
+        offset = kwargs[:offset] || ''
+        state = kwargs[:state] || ''
+        members = kwargs[:members] || []
+        threshold = kwargs[:threshold] || ''
         access_token = kwargs[:access_token]
         members = SHA3::Digest::SHA256.hexdigest(members&.sort&.join)
 
