@@ -13,6 +13,7 @@ require_relative './api/multisig'
 require_relative './api/payment'
 require_relative './api/pin'
 require_relative './api/snapshot'
+require_relative './api/transaction'
 require_relative './api/transfer'
 require_relative './api/user'
 require_relative './api/withdraw'
@@ -65,6 +66,7 @@ module MixinBot
     include MixinBot::API::Payment
     include MixinBot::API::Pin
     include MixinBot::API::Snapshot
+    include MixinBot::API::Transaction
     include MixinBot::API::Transfer
     include MixinBot::API::User
     include MixinBot::API::Withdraw
