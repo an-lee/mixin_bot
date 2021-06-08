@@ -23,7 +23,7 @@ module MixinBot
             threshold: threshold
           },
           pin: encrypted_pin,
-          amount: amount.to_s,
+          amount: format('%.8f', amount),
           trace_id: trace_id,
           memo: memo
         }
@@ -50,7 +50,7 @@ module MixinBot
           asset_id: asset_id,
           opponent_key: opponent_key,
           pin: encrypted_pin,
-          amount: amount.to_s,
+          amount: format('%.8f', amount),
           trace_id: trace_id,
           memo: memo
         }
