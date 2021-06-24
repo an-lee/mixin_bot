@@ -44,7 +44,7 @@ module MixinBot
     end
 
     # Use a mixin software to implement transaction build
-    def build_transaction(json)
+    def sign_raw_transaction(json)
       ensure_mixin_command_exist
       command = format("mixin signrawtransaction --raw '%<arg>s'", arg: json)
 

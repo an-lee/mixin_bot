@@ -255,7 +255,7 @@ module MixinBot
           extra: extra
         }
 
-        build_transaction tx.to_json
+        tx.to_json
       end
 
       def str_to_bin(str)
