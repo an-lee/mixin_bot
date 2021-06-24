@@ -197,7 +197,7 @@ module MixinBot
           threshold: threshold,
           state: 'unspent',
           access_token: access_token
-        ).filter(
+        )['data'].filter(
           &lambda { |utxo|
             utxo['asset_id'] == kwargs[:asset_id]
           }
