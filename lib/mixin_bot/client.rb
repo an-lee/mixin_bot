@@ -55,13 +55,32 @@ module MixinBot
           # 500	500	Internal Server Error.
           # 500	7000	Blaze server error.
           # 500	7001	The blaze operation timeout.
+          # 202	10002	Illegal request paramters.
+          # 202	20117	Insufficient balance。
+          # 202	20118	PIN format error.
+          # 202	20119	PIN error.
+          # 202	20120	Transfer amount is too small.
+          # 202	20121	Authorization code has expired.
+          # 202	20124	Insufficient withdrawal fee.
+          # 202	20125	The transfer has been paid by someone else.
+          # 202	20127	The withdrawal amount is too small.
+          # 202	20131	Withdrawal Memo format error.
+          # 500	30100	The current asset's public chain synchronization error.
+          # 500	30101	Wrong private key.
+          # 500	30102	Wrong withdrawal address.
+          # 500	7000	WebSocket server error.
+          # 500	7001	WebSocket operation timeout.
           case result['error']['code']
-          when 401
+          when 401, 20121
             raise UnauthorizedError, errmsg
-          when 403, 20116
+          when 403, 20116, 10002, 429
             raise ForbiddenError, errmsg
-          when 400, 404, 429, 10006, 20133, 500, 7000, 7001
+          when 400, 404, 10006, 20133, 500, 7000, 7001
             raise ResponseError, errmsg
+          when 20117
+            raise InsufficientBalanceError, errmsg
+          when 20118, 20119
+            raise PinError, errmsg
           else
             raise ResponseError, errmsg
           end
