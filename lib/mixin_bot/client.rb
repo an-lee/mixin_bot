@@ -68,6 +68,7 @@ module MixinBot
           # 500	30100	The current asset's public chain synchronization error.
           # 500	30101	Wrong private key.
           # 500	30102	Wrong withdrawal address.
+          # 500	30103	Insufficient pool.
           # 500	7000	WebSocket server error.
           # 500	7001	WebSocket operation timeout.
           case result['error']['code']
@@ -81,6 +82,8 @@ module MixinBot
             raise InsufficientBalanceError, errmsg
           when 20118, 20119
             raise PinError, errmsg
+          when 30103
+            raise InsufficientPoolError, errmsg
           else
             raise ResponseError, errmsg
           end

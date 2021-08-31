@@ -32,5 +32,6 @@ module MixinBot
   class UnauthorizedError < StandardError; end
   class ForbiddenError < StandardError; end
   class InsufficientBalanceError < StandardError; end
+  class InsufficientPoolError < StandardError; end
   class PinError < StandardError; end
 end
