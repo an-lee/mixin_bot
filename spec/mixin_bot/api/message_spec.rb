@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'fastimage'
 
 describe MixinBot::API::Message do
   let(:conversation_id) { MixinBot.api.unique_conversation_id(TEST_UID) }
@@ -145,5 +146,44 @@ describe MixinBot::API::Message do
                                       conversation_id: conversation_id)
 
     expect(res['error']).to be_nil
+  end
+
+  it 'send image msg via HTTP post request' do
+    file_path = File.expand_path('../../fixtures/Mixin.png', __dir__)
+
+    sizes = FastImage.size file_path
+    image_type = FastImage.type file_path
+
+    image = File.open file_path
+    attachment = MixinBot.api.upload_attachment(image)
+
+    res = MixinBot.api.send_image_message(
+      conversation_id: conversation_id,
+      data: {
+        attachment_id: attachment['attachment_id'],
+        mime_type: "images/#{image_type}",
+        size: image.size,
+        width: sizes[0],
+        height: sizes[1]
+      }
+    )
+    expect(res['conversation_id']).to eq(conversation_id)
+  end
+
+  it 'send file msg via HTTP post request' do
+    file_path = File.expand_path('../../fixtures/Mixin.png', __dir__)
+
+    file = File.open file_path
+    attachment = MixinBot.api.upload_attachment(file)
+
+    res = MixinBot.api.send_file_message(
+      conversation_id: conversation_id,
+      data: {
+        attachment_id: attachment['attachment_id'],
+        size: file.size,
+        name: file.path.split('/').last
+      }
+    )
+    expect(res['conversation_id']).to eq(conversation_id)
   end
 end

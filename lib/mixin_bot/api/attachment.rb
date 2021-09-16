@@ -21,6 +21,27 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: {})
       end
 
+      def upload_attachment(file)
+        raise 'not a File' unless file.is_a?(File)
+
+        attachment = create_attachment['data']
+
+        HTTP
+          .timeout(connect: 5, write: 5, read: 5)
+          .request(
+            :put, 
+            attachment.delete('upload_url'), 
+            {
+              body: file,
+              headers: {
+                'x-amz-acl': 'public-read',
+                'Content-Type': 'application/octet-stream',
+              }
+          })
+
+        attachment
+      end
+
       def read_attachment(attachment_id)
         path = format('/attachments/%<id>s', id: attachment_id)
         access_token ||= access_token('GET', path, '')

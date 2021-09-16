@@ -276,6 +276,14 @@ module MixinBot
         send_message plain_text(options)
       end
 
+      def send_image_message(options)
+        send_message plain_image(options)
+      end
+
+      def send_file_message(options)
+        send_message plain_data(options)
+      end
+
       def send_post_message(options)
         send_message plain_post(options)
       end

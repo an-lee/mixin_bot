@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'sha3', '~> 1.0'
   s.add_dependency 'thor', '~> 1.0'
 
+  s.add_development_dependency 'fastimage', '~> 2.2.5'
   s.add_development_dependency 'pry', '~> 0.13.1'
   s.add_development_dependency 'rake', '~> 13.0'
   s.add_development_dependency 'rspec', '~> 3.8'
