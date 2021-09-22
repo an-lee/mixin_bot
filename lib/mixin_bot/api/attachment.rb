@@ -22,8 +22,6 @@ module MixinBot
       end
 
       def upload_attachment(file)
-        raise 'not a File' unless file.is_a?(File)
-
         attachment = create_attachment['data']
 
         HTTP
