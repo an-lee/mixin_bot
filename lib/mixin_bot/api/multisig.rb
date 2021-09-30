@@ -304,6 +304,18 @@ module MixinBot
 
         res
       end
+
+      def generate_trace_from_hash(hash, output_index = 0)
+        md5 = Digest::MD5.new
+        md5 << hash
+        md5 << [output_index].pack('c*') if output_index.positive? && output_index < 256
+        digest = md5.digest
+        digest[6] = ((digest[6].ord & 0x0f) | 0x30).chr
+        digest[8] = ((digest[8].ord & 0x3f) | 0x80).chr
+        hex = digest.unpack1('H*')
+
+        [hex[0..7], hex[8..11], hex[12..15], hex[16..19], hex[20..]].join('-')
+      end
     end
   end
 end
