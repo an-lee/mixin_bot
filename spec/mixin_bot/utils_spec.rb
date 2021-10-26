@@ -82,4 +82,26 @@ describe MixinBot::Utils do
 
     expect(signed_raw).to eq(native_raw) 
   end
+
+  it 'mint nft memo' do
+    collection = '9d833ff3-70d2-48fd-a072-830d35f0df14'
+    token_id = '1e25f3ea-2a11-4e8c-81f7-3ff73b022c7c'
+    hash = 'TEST'
+    result = 'TkZPAAEAAAAAAAAAAUPWHc3kE0UNgLgQHV6QM1cUPIwWGhiuLIsU_aEhb_99qIxBm10QnYM_83DSSP2gcoMNNfDfFBAeJfPqKhFOjIH3P_c7Aix8IPTwjpNn4TPcQqS5ycZlqe-9S_FdsU1JxuxR0NxMQ3_7'
+
+    memo = MixinBot::Utils.mint_nft_memo collection, token_id, hash
+
+    expect(memo).to eq(result)
+  end
+
+  it 'mint nft memo of default collection' do
+    collection = ''
+    token_id = '1e25f3ea-2a11-4e8c-81f7-3ff73b022c7c'
+    hash = 'TEST'
+    result = 'TkZPAAEAAAAAAAAAAUPWHc3kE0UNgLgQHV6QM1cUPIwWGhiuLIsU_aEhb_99qIxBm10QAAAAAAAAAAAAAAAAAAAAABAeJfPqKhFOjIH3P_c7Aix8IPTwjpNn4TPcQqS5ycZlqe-9S_FdsU1JxuxR0NxMQ3_7'
+
+    memo = MixinBot::Utils.mint_nft_memo collection, token_id, hash
+
+    expect(memo).to eq(result)
+  end
 end

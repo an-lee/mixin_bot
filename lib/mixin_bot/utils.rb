@@ -9,6 +9,12 @@ module MixinBot
     AGGREGATED_SIGNATURE_PREFIX = 0xFF01
     AGGREGATED_SIGNATURE_ORDINAY_MASK = [0x00]
     AGGREGATED_SIGNATURE_SPARSE_MASK = [0x01]
+    NFT_MEMO_PREFIX = 'NFO'
+    NFT_MEMO_VERSION = 0x00
+    NFT_MEMO_DEFAULT_CHAIN = '43d61dcd-e413-450d-80b8-101d5e903357'
+    NFT_MEMO_DEFAULT_CLASS = '3c8c161a18ae2c8b14fda1216fff7da88c419b5d'
+    NFT_MASK = 0x00
+    NULL_UUID = '00000000-0000-0000-0000-000000000000'
 
     def self.sign_raw_transaction(tx)
       if tx.is_a? String
@@ -270,6 +276,59 @@ module MixinBot
       hex = digest.unpack1('H*')
 
       [hex[0..7], hex[8..11], hex[12..15], hex[16..19], hex[20..]].join('-')
+    end
+
+    def self.mint_nft_memo(collection, token_id, meta_data)
+      collection = NULL_UUID if collection.empty?
+      meta_data = meta_data.to_json if meta_data.is_a?(Hash)
+
+      memo = {
+        prefix: NFT_MEMO_PREFIX,
+        version: NFT_MEMO_VERSION,
+        mask: 0,
+        chain: NFT_MEMO_DEFAULT_CHAIN,
+        class: NFT_MEMO_DEFAULT_CLASS,
+        collection: collection,
+        token: token_id,
+        extra: SHA3::Digest::SHA256.hexdigest(meta_data)
+      }
+
+      mark = [0]
+      mark.map do |index|
+        if index >= 64
+          raise "invalid NFO memo index #{index}"
+        end
+        memo[:mask] = memo[:mask] ^ (1 << index)
+      end
+
+      bytes = []
+
+      bytes += NFT_MEMO_PREFIX.bytes 
+      bytes += [NFT_MEMO_VERSION]
+
+      if memo[:mask] != 0
+        bytes += [1]
+        bytes += encode_unit_64 memo[:mask]
+        bytes += memo[:chain].split('-').pack('H* H* H* H* H*').bytes
+
+        class_bytes = [memo[:class]].pack('H*').bytes
+        bytes += bytes_of class_bytes.size
+        bytes += class_bytes
+
+        collection_bytes = memo[:collection].split('-').pack('H* H* H* H* H*').bytes
+        bytes += bytes_of collection_bytes.size
+        bytes += collection_bytes
+
+        token_bytes = memo[:token].split('-').pack('H* H* H* H* H*').bytes
+        bytes += bytes_of token_bytes.size
+        bytes += token_bytes
+      end
+
+      extra_bytes = [memo[:extra]].pack('H*').bytes
+      bytes += bytes_of extra_bytes.size
+      bytes += extra_bytes
+
+      Base64.urlsafe_encode64 bytes.pack('C*')
     end
   end
 end
