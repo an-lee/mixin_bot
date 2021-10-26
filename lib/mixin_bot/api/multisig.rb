@@ -248,7 +248,7 @@ module MixinBot
 
         extra = Digest.hexencode memo.to_s.slice(0, 140)
         tx = {
-          version: 1,
+          version: 2,
           asset: SHA3::Digest::SHA256.hexdigest(asset_id),
           inputs: inputs,
           outputs: outputs,
@@ -283,38 +283,8 @@ module MixinBot
         res
       end
 
-      def build_outputs(outputs)
-        res = []
-        prototype = {
-          'Type' => 0,
-          'Amount' => nil,
-          'Keys' => nil,
-          'Script' => nil,
-          'Mask' => nil
-        }
-        outputs.each do |output|
-          struc = prototype.dup
-          struc['Type'] = str_to_bin output['type']
-          struc['Amount'] = str_to_bin output['amount']
-          struc['Keys'] = output['keys'].map(&->(key) { str_to_bin(key) })
-          struc['Script'] = str_to_bin output['script']
-          struc['Mask'] = str_to_bin output['mask']
-          res << struc
-        end
-
-        res
-      end
-
       def generate_trace_from_hash(hash, output_index = 0)
-        md5 = Digest::MD5.new
-        md5 << hash
-        md5 << [output_index].pack('c*') if output_index.positive? && output_index < 256
-        digest = md5.digest
-        digest[6] = ((digest[6].ord & 0x0f) | 0x30).chr
-        digest[8] = ((digest[8].ord & 0x3f) | 0x80).chr
-        hex = digest.unpack1('H*')
-
-        [hex[0..7], hex[8..11], hex[12..15], hex[16..19], hex[20..]].join('-')
+        MixinBot::Utils.generate_trace_from_hash hash, output_index
       end
     end
   end

@@ -2,6 +2,7 @@
 
 # third-party dependencies
 require 'English'
+require 'active_support/core_ext/hash'
 require 'base64'
 require 'digest'
 require 'faye/websocket'
@@ -15,6 +16,7 @@ require 'sha3'
 
 require_relative './mixin_bot/api'
 require_relative './mixin_bot/cli'
+require_relative './mixin_bot/utils'
 require_relative './mixin_bot/version'
 
 module MixinBot
