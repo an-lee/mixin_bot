@@ -83,25 +83,64 @@ describe MixinBot::Utils do
     expect(signed_raw).to eq(native_raw) 
   end
 
-  it 'mint nft memo' do
-    collection = '9d833ff3-70d2-48fd-a072-830d35f0df14'
-    token_id = '1e25f3ea-2a11-4e8c-81f7-3ff73b022c7c'
-    hash = 'TEST'
-    result = 'TkZPAAEAAAAAAAAAAUPWHc3kE0UNgLgQHV6QM1cUPIwWGhiuLIsU_aEhb_99qIxBm10QnYM_83DSSP2gcoMNNfDfFBAeJfPqKhFOjIH3P_c7Aix8IPTwjpNn4TPcQqS5ycZlqe-9S_FdsU1JxuxR0NxMQ3_7'
+  it 'encode mint nft memo' do
+    collection = ''
+    token_id = 204035246287023896153498043217692302767
+    meta = {
+      group: "Bar",
+      name: "Foo", 
+      description:  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
+      icon_url: "https://mixin-images.zeromesh.net/zVDjOxNTQvVsA8h2B4ZVxuHoCF3DJszufYKWpd9duXUSbSapoZadC7_13cnWBqg0EmwmRcKGbJaUpA8wFfpgZA=s128", 
+      media_url: "https://mixin-images.zeromesh.net/HvYGJsV5TGeZ-X9Ek3FEQohQZ3fE9LBEBGcOcn4c4BNHovP4fW4YB97Dg5LcXoQ1hUjMEgjbl1DPlKg1TW7kK6XP=s128",
+      mime: "image/png", 
+      hash: "1973a73d678690c5d004b6d6bfec65483749173617807ebf838a96900a3f6955"
+    }
 
-    memo = MixinBot::Utils.mint_nft_memo collection, token_id, hash
+    # puts SHA3::Digest::SHA256.hexdigest meta.to_json
+
+    result = 'TkZPAAEAAAAAAAAAAUPWHc3kE0UNgLgQHV6QM1cUPIwWGhiuLIsU_aEhb_99qIxBm10QAAAAAAAAAAAAAAAAAAAAABCZf8JRU9xKu5V5zW47G52vIN8k7X9uQpyzJLSJkRjT2KmX5tONE1oUM0E7o-TplLgq'
+
+    memo = MixinBot::Utils.nft_memo collection, token_id, meta
 
     expect(memo).to eq(result)
   end
 
-  it 'mint nft memo of default collection' do
+  it 'decode nft memo' do
+    encoded = 'TkZPAAEAAAAAAAAAAUPWHc3kE0UNgLgQHV6QM1cUPIwWGhiuLIsU_aEhb_99qIxBm10QAAAAAAAAAAAAAAAAAAAAABCZf8JRU9xKu5V5zW47G52vIN8k7X9uQpyzJLSJkRjT2KmX5tONE1oUM0E7o-TplLgq'
+    memo = {
+      prefix: 'NFO',
+      version: 0,
+      mask: 1,
+      chain: '43d61dcd-e413-450d-80b8-101d5e903357',
+      class: '3c8c161a18ae2c8b14fda1216fff7da88c419b5d',
+      collection: '00000000-0000-0000-0000-000000000000',
+      token: 204035246287023896153498043217692302767,
+      extra: 'df24ed7f6e429cb324b4899118d3d8a997e6d38d135a1433413ba3e4e994b82a'
+    }
+
+    decoed = MixinBot::Utils.decode_nft_memo encoded
+    puts decoed
+
+    expect(decoed).to eq(memo)
+  end
+
+  it 'decode & encode mint nft memo' do
     collection = ''
-    token_id = '1e25f3ea-2a11-4e8c-81f7-3ff73b022c7c'
-    hash = 'TEST'
-    result = 'TkZPAAEAAAAAAAAAAUPWHc3kE0UNgLgQHV6QM1cUPIwWGhiuLIsU_aEhb_99qIxBm10QAAAAAAAAAAAAAAAAAAAAABAeJfPqKhFOjIH3P_c7Aix8IPTwjpNn4TPcQqS5ycZlqe-9S_FdsU1JxuxR0NxMQ3_7'
+    token_id = 1234
+    meta = {
+      group: "Bar",
+      name: "Foo", 
+      description:  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
+      icon_url: "https://mixin-images.zeromesh.net/zVDjOxNTQvVsA8h2B4ZVxuHoCF3DJszufYKWpd9duXUSbSapoZadC7_13cnWBqg0EmwmRcKGbJaUpA8wFfpgZA=s128", 
+      media_url: "https://mixin-images.zeromesh.net/HvYGJsV5TGeZ-X9Ek3FEQohQZ3fE9LBEBGcOcn4c4BNHovP4fW4YB97Dg5LcXoQ1hUjMEgjbl1DPlKg1TW7kK6XP=s128",
+      mime: "image/png", 
+      hash: "1973a73d678690c5d004b6d6bfec65483749173617807ebf838a96900a3f6955"
+    }
 
-    memo = MixinBot::Utils.mint_nft_memo collection, token_id, hash
+    hash = MixinBot::Utils.nft_memo_hash collection, token_id, meta
+    encoded = MixinBot::Utils.nft_memo collection, token_id, meta
+    decoded = MixinBot::Utils.decode_nft_memo encoded
 
-    expect(memo).to eq(result)
+    expect(decoded).to eq(hash)
   end
 end

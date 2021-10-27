@@ -123,24 +123,7 @@ module MixinBot
       end
 
       def unique_uuid(user_id, opponent_id = nil)
-        opponent_id ||= client_id
-        md5 = Digest::MD5.new
-        md5 << [user_id, opponent_id].min
-        md5 << [user_id, opponent_id].max
-        digest = md5.digest
-        digest6 = (digest[6].ord & 0x0f | 0x30).chr
-        digest8 = (digest[8].ord & 0x3f | 0x80).chr
-        cipher = digest[0...6] + digest6 + digest[7] + digest8 + digest[9..]
-        hex = cipher.unpack1('H*')
-
-        format(
-          '%<first>s-%<second>s-%<third>s-%<forth>s-%<fifth>s',
-          first: hex[0..7],
-          second: hex[8..11],
-          third: hex[12..15],
-          forth: hex[16..19],
-          fifth: hex[20..]
-        )
+        MixinBot::Utils.unique_uuid user_id, opponent_id
       end
       alias unique_conversation_id unique_uuid
     end

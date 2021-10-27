@@ -6,6 +6,7 @@ require_relative './api/asset'
 require_relative './api/attachment'
 require_relative './api/auth'
 require_relative './api/blaze'
+require_relative './api/collectible'
 require_relative './api/conversation'
 require_relative './api/me'
 require_relative './api/message'
@@ -63,6 +64,7 @@ module MixinBot
     include MixinBot::API::Attachment
     include MixinBot::API::Auth
     include MixinBot::API::Blaze
+    include MixinBot::API::Collectible
     include MixinBot::API::Conversation
     include MixinBot::API::Me
     include MixinBot::API::Message

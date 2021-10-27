@@ -95,7 +95,7 @@ module MixinBot
 
       # pay to the multisig address
       # used for create multisig payment code_id
-      def create_multisig_payment(**kwargs)
+      def create_payment(**kwargs)
         path = '/payments'
         payload = {
           asset_id: kwargs[:asset_id],
@@ -112,6 +112,7 @@ module MixinBot
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
+      alias create_multisig_payment create_payment
 
       def verify_multisig(code_id, access_token: nil)
         path = format('/codes/%<code_id>s', code_id: code_id)
