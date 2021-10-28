@@ -3,6 +3,8 @@
 module MixinBot
   class API
     module Collectible
+      NFT_ASSET_MIXIN_ID = '1700941284a95f31b25ec8c546008f208f88eee4419ccdcdbe6e3195e60128ca'
+
       def collectible(id, access_token: nil)
         path = "/collectibles/tokens/#{id}"
         access_token ||= access_token('GET', path, '')
@@ -35,7 +37,7 @@ module MixinBot
 
       COLLECTABLE_REQUEST_ACTIONS = %i[sign unlock].freeze
       def create_collectible_request(action, raw, access_token: nil)
-        raise ArgumentError, "request action is limited in #{COLLECTABLE_REQUEST_ACTIONS.join(', ')}" unless action.to_sym.in? COLLECTABLE_REQUEST_ACTIONS
+        raise ArgumentError, "request action is limited in #{COLLECTABLE_REQUEST_ACTIONS.join(', ')}" unless COLLECTABLE_REQUEST_ACTIONS.include? action.to_sym
         path = '/collectibles/requests'
         payload = {
           action: action,
@@ -47,11 +49,11 @@ module MixinBot
       end
 
       def create_sign_collectible_request(raw, access_token: nil)
-        create_collectible_output 'sign', raw, access_token
+        create_collectible_request 'sign', raw, access_token: access_token
       end
 
       def create_unlock_collectible_request(raw, access_token: nil)
-        create_collectible_output 'unlock', raw, access_token
+        create_collectible_request 'unlock', raw, access_token: access_token
       end
 
       def sign_collectible_request(request_id, pin)
@@ -83,6 +85,39 @@ module MixinBot
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
+    end
+
+    # collectible = {
+    #   type: 'non_fungible_output',
+    #   user_id: '',
+    #   output_id: '',
+    #   token_id: '',
+    #   transaction_hash: '',
+    #   output_index: '',
+    #   amount: 1,
+    #   senders: [],
+    #   sender_threshold: 1,
+    #   receivers: [],
+    #   receivers_threshold: 1,
+    #   state: 'unspent'
+    # }
+    COLLECTIBLE_TRANSACTION_ARGUMENTS = %i[collectible nfo receivers threshold].freeze
+    def build_collectible_transaction(**kwargs)
+      raise ArgumentError, "#{COLLECTIBLE_TRANSACTION_ARGUMENTS.join(', ')} are needed for build collectible transaction" unless COLLECTIBLE_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
+
+      kwargs = kwargs.with_indifferent_access
+      collectible = kwargs['collectible']
+      raise "collectible is #{collectible['state']}" unless collectible['state'] == 'unspent'
+
+      build_raw_transaction(
+        utxos: [collectible],
+        senders: collectible['receivers'],
+        receivers: kwargs['receivers'],
+        threshold: kwargs['threshold'],
+        extra: kwargs["nfo"],
+        amount: 1,
+        asset_mixin_id: NFT_ASSET_MIXIN_ID
+      )
     end
 
     def nft_memo(collection, token_id, meta)

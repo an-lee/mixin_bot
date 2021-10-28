@@ -40,7 +40,7 @@ module MixinBot
 
       MULTISIG_REQUEST_ACTIONS = %i[sign unlock].freeze
       def create_multisig_request(action, raw, access_token: nil)
-        raise ArgumentError, "request action is limited in #{MULTISIG_REQUEST_ACTIONS.join(', ')}" unless action.to_sym.in? MULTISIG_REQUEST_ACTIONS
+        raise ArgumentError, "request action is limited in #{MULTISIG_REQUEST_ACTIONS.join(', ')}" unless MULTISIG_REQUEST_ACTIONS.include? action.to_sym
 
         path = '/multisigs/requests'
         payload = {
@@ -54,13 +54,13 @@ module MixinBot
 
       # transfer from the multisig address
       def create_sign_multisig_request(raw, access_token: nil)
-        create_multisig_request 'sign', raw, access_token
+        create_multisig_request 'sign', raw, access_token: access_token
       end
 
       # transfer from the multisig address
       # create a request for unlock a multi-sign
       def create_unlock_multisig_request(raw, access_token: nil)
-        create_multisig_request 'unlock', raw, access_token
+        create_multisig_request 'unlock', raw, access_token: access_token
       end
 
       def sign_multisig_request(request_id, pin)
@@ -151,7 +151,7 @@ module MixinBot
       #   amount: string / float,
       #   memo: string,
       # }
-      RAW_TRANSACTION_ARGUMENTS = %i[senders receivers amount threshold asset_id].freeze
+      RAW_TRANSACTION_ARGUMENTS = %i[utxos senders receivers amount threshold].freeze
       def build_raw_transaction(**kwargs)
         raise ArgumentError, "#{RAW_TRANSACTION_ARGUMENTS.join(', ')} are needed for build raw transaction" unless RAW_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
 
@@ -160,23 +160,13 @@ module MixinBot
         amount         = kwargs[:amount]
         threshold      = kwargs[:threshold]
         asset_id       = kwargs[:asset_id]
+        asset_mixin_id = kwargs[:asset_mixin_id]
         utxos          = kwargs[:utxos]
         memo           = kwargs[:memo]
+        extra          = kwargs[:extra]
         access_token   = kwargs[:access_token]
 
         raise 'access_token required!' if access_token.nil? && !senders.include?(client_id)
-
-        # default to use all(first 100) unspent utxo
-        utxos ||= multisigs(
-          members: senders,
-          threshold: threshold,
-          state: 'unspent',
-          access_token: access_token
-        )['data'].filter(
-          &lambda { |utxo|
-            utxo['asset_id'] == kwargs[:asset_id]
-          }
-        )
 
         amount = amount.to_f.round(8)
         input_amount = utxos.map(
@@ -221,10 +211,11 @@ module MixinBot
           }
         end
 
-        extra = Digest.hexencode memo.to_s.slice(0, 140)
+        extra = extra || Digest.hexencode(memo.to_s.slice(0, 140))
+        asset = asset_mixin_id || SHA3::Digest::SHA256.hexdigest(asset_id)
         tx = {
           version: 2,
-          asset: SHA3::Digest::SHA256.hexdigest(asset_id),
+          asset: asset,
           inputs: inputs,
           outputs: outputs,
           extra: extra

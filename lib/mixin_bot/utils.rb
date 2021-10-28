@@ -58,6 +58,7 @@ module MixinBot
         if tx.is_a? String
           tx = JSON.parse tx
         end
+        raise "#{tx} is not a valid json" unless tx.is_a? Hash
 
         tx = tx.with_indifferent_access
         bytes = []
