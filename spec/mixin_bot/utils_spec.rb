@@ -4,17 +4,6 @@ require 'spec_helper'
 
 describe MixinBot::Utils do
   it 'build raw transaction' do
-    # tx = MixinBot.api.build_raw_transaction(
-    #   senders: MULTI_SIGN_MEMBERS.sort,
-    #   receivers: [TEST_UID],
-    #   asset_id: CNB_ASSET_ID,
-    #   asset_mixin_id: CNB_MIXIN_ID,
-    #   threshold: MULTI_SIGN_MEMBERS.size - 1,
-    #   amount: 0.000_000_02,
-    #   memo: 'test of sign request'
-    # )
-    # puts tx
-
     tx = { 
       'version': 2,
       'asset': "b9f49cf777dc4d03bc54cd1367eebca319f8603ea1ce18910d09e2c540c630d8",
@@ -66,21 +55,13 @@ describe MixinBot::Utils do
     expect(signed_raw).to eq(native_raw) 
   end
 
-  it 'build fresh raw transaction' do
-    tx = MixinBot.api.build_raw_transaction(
-      senders: MULTI_SIGN_MEMBERS.sort,
-      receivers: [TEST_UID],
-      asset_id: CNB_ASSET_ID,
-      asset_mixin_id: CNB_MIXIN_ID,
-      threshold: MULTI_SIGN_MEMBERS.size - 1,
-      amount: 0.000_000_02,
-      memo: 'test sign raw transaction'
-    )
+  it 'decode raw transaction' do
+    raw = '77770002b9f49cf777dc4d03bc54cd1367eebca319f8603ea1ce18910d09e2c540c630d8000178934a694300e56399ebfabaad70448fa968b52fb8409f7fe1394e57b10080fd000000000000000000010000000405f5e10000011886d7fc4db195f61ecedef4363d50225a8e4387d02ca19de938fa7e158175ffcca2605a28463e22f3e11a539fdbb3efb7fe3b07824caa154c4af96689b2e8e00003fffe010000002a383161313534633431303030303030303030303030303030303030303030303030303030303030303030ffffff01a9e8559f521ed3cb337b35e7cccafab4744c8c7f36330d9731e74d2cd8d5e9b61ddc881d881116f76b959326f26180cccbcec61a5c79ef7e5acb55e07830be0100000102'
 
-    native_raw = MixinBot.api.sign_raw_transaction tx
-    signed_raw = MixinBot::Utils.sign_raw_transaction tx
+    native_tx = MixinBot.api.decode_raw_transaction_native raw
+    tx = MixinBot.api.decode_raw_transaction raw
 
-    expect(signed_raw).to eq(native_raw) 
+    expect(tx).to eq(native_tx)
   end
 
   it 'encode mint nft memo' do
@@ -119,7 +100,7 @@ describe MixinBot::Utils do
     }
 
     decoed = MixinBot::Utils.decode_nft_memo encoded
-    puts decoed
+    # puts decoed
 
     expect(decoed).to eq(memo)
   end

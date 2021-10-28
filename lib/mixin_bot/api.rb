@@ -48,6 +48,10 @@ module MixinBot
       MixinBot::Utils.sign_raw_transaction tx
     end
 
+    def decode_raw_transaction(raw)
+      MixinBot::Utils.decode_raw_transaction raw
+    end
+
     # Use a mixin software to implement transaction build
     def sign_raw_transaction_native(json)
       ensure_mixin_command_exist
@@ -57,6 +61,17 @@ module MixinBot
       raise error unless error.empty?
 
       output.chomp
+    end
+
+    # Use a mixin software to implement transaction build
+    def decode_raw_transaction_native(raw)
+      ensure_mixin_command_exist
+      command = format("mixin decoderawtransaction --raw '%<arg>s'", arg: raw)
+
+      output, error = Open3.capture3(command)
+      raise error unless error.empty?
+
+      JSON.parse output.chomp
     end
 
     include MixinBot::API::App

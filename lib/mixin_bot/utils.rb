@@ -68,6 +68,8 @@ module MixinBot
 
         # version
         bytes += [0, tx['version']]
+
+        # asset
         bytes += [tx['asset']].pack('H*').bytes
 
         # inputs
@@ -91,6 +93,191 @@ module MixinBot
         end
 
         bytes.pack('C*').unpack1('H*')
+      end
+
+      def decode_raw_transaction(raw)
+        bytes = [raw].pack('H*').bytes
+        tx = {}
+
+        magic = bytes.shift(2)
+        raise 'Not valid raw' unless magic == MAGIC
+
+        version = bytes.shift(2)
+        tx['version'] = bytes_to_int version
+
+        asset = bytes.shift(32)
+        tx['asset'] = asset.pack('C*').unpack1('H*')
+
+        # read inputs
+        inputs_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+        tx['inputs'] = []
+        inputs_size.times do
+          input = {}
+          hash = bytes.shift(32)
+          input['hash'] = hash.pack('C*').unpack1('H*')
+
+          index = bytes.shift(2)
+          input['index'] = index.reverse.pack('C*').unpack1('S*')
+
+          if bytes[...2] != NULL_BYTES
+            genesis_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            genesis = bytes.shift(genesis_size)
+            input['genesis'] = genesis.pack('C*').unpack1('H*')
+          else
+            bytes.shift 2
+          end
+
+          if bytes[...2] != NULL_BYTES
+            magic = bytes.shift(2)
+            raise 'Not valid input' unless magic == MAGIC
+
+            deposit = {}
+            deposit['chain'] = bytes.shift(32).pack('C*').unpack1('H*')
+
+            asset_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            deposit['asset'] = bytes.shift(asset_size).unpack1('H*')
+
+            transaction_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            deposit['transaction'] = bytes.shift(transaction_size).unpack1('H*')
+
+            deposit['index'] = bytes.shift(8).reverse.pack('C*').unpack1('Q*')
+
+            amount_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            deposit['amount'] = bytes_to_int bytes.shift(amount_size)
+
+            input['deposit'] = deposit
+          else
+            bytes.shift 2
+          end
+
+          if bytes[...2] != NULL_BYTES
+            magic = bytes.shift(2)
+            raise 'Not valid input' unless magic == MAGIC
+
+            mint = {}
+            if bytes[...2] != NULL_BYTES
+              group_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+              mint['group'] = bytes.shift(group_size).unpack1('H*')
+            else
+              bytes.shift 2
+            end
+
+            mint['batch'] = bytes.shift(8).reverse.pack('C*').unpack1('Q*')
+            _amount_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            mint['amount'] = bytes_to_int bytes.shift(_amount_size)
+
+            input['mint'] = mint
+          else
+            bytes.shift 2
+          end
+
+          tx['inputs'].push input
+        end
+
+        # read outputs
+        outputs_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+        tx['outputs'] = []
+        outputs_size.times do
+          output = {}
+
+          bytes.shift
+          type = bytes.shift
+          output['type'] = type
+
+          amount_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+          output['amount'] = format('%.8f', bytes_to_int(bytes.shift(amount_size)).to_f / 1e8)
+
+          output['keys'] = []
+          keys_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+          keys_size.times do
+            output['keys'].push bytes.shift(32).pack('C*').unpack1('H*')
+          end
+
+          output['mask'] = bytes.shift(32).pack('C*').unpack1('H*')
+
+          script_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+          output['script'] = bytes.shift(script_size).pack('C*').unpack1('H*')
+
+          if bytes[...2] != NULL_BYTES
+            magic = bytes.shift(2)
+            raise 'Not valid output' unless magic == MAGIC
+
+            withdraw = {}
+
+            output['chain'] = bytes.shift(32).pack('C*').unpack1('H*')
+
+            asset_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            output['asset'] = bytes.shift(asset_size).unpack1('H*')
+
+            if bytes[...2] != NULL_BYTES
+              address = {}
+
+              adderss_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+              output['adderss'] = bytes.shift(adderss_size).pack('C*').unpack1('H*')
+            else
+              bytes.shift 2
+            end
+
+            if bytes[...2] != NULL_BYTES
+              tag = {}
+
+              tag_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+              output['tag'] = bytes.shift(tag_size).pack('C*').unpack1('H*')
+            else
+              bytes.shift 2
+            end
+          else
+            bytes.shift 2
+          end
+
+          tx['outputs'].push output
+        end
+
+        extra_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+        tx['extra'] = bytes.shift(extra_size).pack('C*').unpack1('H*')
+
+        num = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+        if num == MAX_ENCODE_INT
+          # aggregated
+          aggregated = {}
+
+          raise 'invalid aggregated' unless bytes.shift(2).reverse.pack('C*').unpack1('S*') == AGGREGATED_SIGNATURE_PREFIX
+
+          aggregated['signature'] = bytes.shift(64).pack('C*').unpack1('H*')
+
+          byte = bytes.shift
+          case byte
+          when AGGREGATED_SIGNATURE_ORDINAY_MASK.first
+            aggregated['signers'] = []
+            masks_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            masks = bytes.shift(masks_size)
+            masks = [masks] unless masks.is_a? Array
+
+            masks.each_with_index do |mask, i|
+              8.times do |j|
+                k = 1 << j
+                aggregated['signers'].push(i * 8 + j) if mask & k == k
+              end
+            end
+          when AGGREGATED_SIGNATURE_SPARSE_MASK.first
+            signers_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            return if signers_size == 0
+
+            aggregated['signers'] = []
+            signers_size.times do
+              aggregated['signers'].push bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            end
+          end
+
+          tx['aggregated'] = aggregated
+        else
+          if bytes[...2] != NULL_BYTES
+            signatures_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            tx['signatures'] = bytes.shift(signatures_size).pack('C*').unpack1('H*')
+          end
+        end
+        
+        tx
       end
 
       def nft_memo_hash(collection, token_id, meta)
@@ -226,9 +413,9 @@ module MixinBot
           # genesis
           genesis = input['genesis'] || ''
           if genesis.empty?
-            bytes += encode_int 0
+            bytes += NULL_BYTES
           else
-            genesis_bytes = [genesis].pack('H*')
+            genesis_bytes = [genesis].pack('H*').bytes
             bytes += encode_int genesis_bytes.size
             bytes += genesis_bytes
           end
@@ -266,7 +453,7 @@ module MixinBot
             # group
             group = mint['group'] || ''
             if group.empty?
-              bytes += encode_int 0
+              bytes += encode_int NULL_BYTES
             else
               group_bytes = [group].pack('H*')
               bytes += encode_int group_bytes.size
@@ -350,14 +537,14 @@ module MixinBot
       end
 
       def encode_aggregated_signature(aggregated, bytes = [])
-        bytes += MAX_ENCODE_INT
+        bytes += encode_int MAX_ENCODE_INT
         bytes += encode_int AGGREGATED_SIGNATURE_PREFIX
         bytes += [aggregated['signature']].pack('H*').bytes
 
         signers = aggregated['signers']
         if signers.size == 0
           bytes += AGGREGATED_SIGNATURE_ORDINAY_MASK
-          bytes += encode_int 0
+          bytes += NULL_BYTES
         else
           signers.each do |sig, i|
             raise 'signers not sorted' if i > 0 && sig <= signers[i - 1]
@@ -367,7 +554,7 @@ module MixinBot
           max = signers.last
           if (((max / 8 | 0) + 1 | 0) > aggregated['signature'].size * 2)
             bytes += AGGREGATED_SIGNATURE_SPARSE_MASK
-            bytes += encode_int aggregated['signature'].size
+            bytes += encode_int aggregated['signers'].size
             signers.map(&->(signer) { bytes += encode_int(signer) })
           end
 
