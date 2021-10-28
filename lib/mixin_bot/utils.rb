@@ -109,129 +109,10 @@ module MixinBot
         tx['asset'] = asset.pack('C*').unpack1('H*')
 
         # read inputs
-        inputs_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-        tx['inputs'] = []
-        inputs_size.times do
-          input = {}
-          hash = bytes.shift(32)
-          input['hash'] = hash.pack('C*').unpack1('H*')
-
-          index = bytes.shift(2)
-          input['index'] = index.reverse.pack('C*').unpack1('S*')
-
-          if bytes[...2] != NULL_BYTES
-            genesis_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-            genesis = bytes.shift(genesis_size)
-            input['genesis'] = genesis.pack('C*').unpack1('H*')
-          else
-            bytes.shift 2
-          end
-
-          if bytes[...2] != NULL_BYTES
-            magic = bytes.shift(2)
-            raise 'Not valid input' unless magic == MAGIC
-
-            deposit = {}
-            deposit['chain'] = bytes.shift(32).pack('C*').unpack1('H*')
-
-            asset_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-            deposit['asset'] = bytes.shift(asset_size).unpack1('H*')
-
-            transaction_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-            deposit['transaction'] = bytes.shift(transaction_size).unpack1('H*')
-
-            deposit['index'] = bytes.shift(8).reverse.pack('C*').unpack1('Q*')
-
-            amount_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-            deposit['amount'] = bytes_to_int bytes.shift(amount_size)
-
-            input['deposit'] = deposit
-          else
-            bytes.shift 2
-          end
-
-          if bytes[...2] != NULL_BYTES
-            magic = bytes.shift(2)
-            raise 'Not valid input' unless magic == MAGIC
-
-            mint = {}
-            if bytes[...2] != NULL_BYTES
-              group_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-              mint['group'] = bytes.shift(group_size).unpack1('H*')
-            else
-              bytes.shift 2
-            end
-
-            mint['batch'] = bytes.shift(8).reverse.pack('C*').unpack1('Q*')
-            _amount_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-            mint['amount'] = bytes_to_int bytes.shift(_amount_size)
-
-            input['mint'] = mint
-          else
-            bytes.shift 2
-          end
-
-          tx['inputs'].push input
-        end
+        bytes, tx = decode_inputs bytes, tx
 
         # read outputs
-        outputs_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-        tx['outputs'] = []
-        outputs_size.times do
-          output = {}
-
-          bytes.shift
-          type = bytes.shift
-          output['type'] = type
-
-          amount_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-          output['amount'] = format('%.8f', bytes_to_int(bytes.shift(amount_size)).to_f / 1e8)
-
-          output['keys'] = []
-          keys_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-          keys_size.times do
-            output['keys'].push bytes.shift(32).pack('C*').unpack1('H*')
-          end
-
-          output['mask'] = bytes.shift(32).pack('C*').unpack1('H*')
-
-          script_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-          output['script'] = bytes.shift(script_size).pack('C*').unpack1('H*')
-
-          if bytes[...2] != NULL_BYTES
-            magic = bytes.shift(2)
-            raise 'Not valid output' unless magic == MAGIC
-
-            withdraw = {}
-
-            output['chain'] = bytes.shift(32).pack('C*').unpack1('H*')
-
-            asset_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-            output['asset'] = bytes.shift(asset_size).unpack1('H*')
-
-            if bytes[...2] != NULL_BYTES
-              address = {}
-
-              adderss_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-              output['adderss'] = bytes.shift(adderss_size).pack('C*').unpack1('H*')
-            else
-              bytes.shift 2
-            end
-
-            if bytes[...2] != NULL_BYTES
-              tag = {}
-
-              tag_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
-              output['tag'] = bytes.shift(tag_size).pack('C*').unpack1('H*')
-            else
-              bytes.shift 2
-            end
-          else
-            bytes.shift 2
-          end
-
-          tx['outputs'].push output
-        end
+        bytes, tx = decode_outputs bytes, tx
 
         extra_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
         tx['extra'] = bytes.shift(extra_size).pack('C*').unpack1('H*')
@@ -271,7 +152,7 @@ module MixinBot
 
           tx['aggregated'] = aggregated
         else
-          if bytes[...2] != NULL_BYTES
+          if !bytes.empty? && bytes[...2] != NULL_BYTES
             signatures_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
             tx['signatures'] = bytes.shift(signatures_size).pack('C*').unpack1('H*')
           end
@@ -590,6 +471,137 @@ module MixinBot
         end
 
         bytes
+      end
+
+      def decode_inputs(bytes, tx)
+        inputs_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+        tx['inputs'] = []
+        inputs_size.times do
+          input = {}
+          hash = bytes.shift(32)
+          input['hash'] = hash.pack('C*').unpack1('H*')
+
+          index = bytes.shift(2)
+          input['index'] = index.reverse.pack('C*').unpack1('S*')
+
+          if bytes[...2] != NULL_BYTES
+            genesis_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            genesis = bytes.shift(genesis_size)
+            input['genesis'] = genesis.pack('C*').unpack1('H*')
+          else
+            bytes.shift 2
+          end
+
+          if bytes[...2] != NULL_BYTES
+            magic = bytes.shift(2)
+            raise 'Not valid input' unless magic == MAGIC
+
+            deposit = {}
+            deposit['chain'] = bytes.shift(32).pack('C*').unpack1('H*')
+
+            asset_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            deposit['asset'] = bytes.shift(asset_size).unpack1('H*')
+
+            transaction_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            deposit['transaction'] = bytes.shift(transaction_size).unpack1('H*')
+
+            deposit['index'] = bytes.shift(8).reverse.pack('C*').unpack1('Q*')
+
+            amount_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            deposit['amount'] = bytes_to_int bytes.shift(amount_size)
+
+            input['deposit'] = deposit
+          else
+            bytes.shift 2
+          end
+
+          if bytes[...2] != NULL_BYTES
+            magic = bytes.shift(2)
+            raise 'Not valid input' unless magic == MAGIC
+
+            mint = {}
+            if bytes[...2] != NULL_BYTES
+              group_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+              mint['group'] = bytes.shift(group_size).unpack1('H*')
+            else
+              bytes.shift 2
+            end
+
+            mint['batch'] = bytes.shift(8).reverse.pack('C*').unpack1('Q*')
+            _amount_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            mint['amount'] = bytes_to_int bytes.shift(_amount_size)
+
+            input['mint'] = mint
+          else
+            bytes.shift 2
+          end
+
+          tx['inputs'].push input
+        end
+
+        [bytes, tx]
+      end
+
+      def decode_outputs(bytes, tx)
+        outputs_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+        tx['outputs'] = []
+        outputs_size.times do
+          output = {}
+
+          bytes.shift
+          type = bytes.shift
+          output['type'] = type
+
+          amount_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+          output['amount'] = format('%.8f', bytes_to_int(bytes.shift(amount_size)).to_f / 1e8)
+
+          output['keys'] = []
+          keys_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+          keys_size.times do
+            output['keys'].push bytes.shift(32).pack('C*').unpack1('H*')
+          end
+
+          output['mask'] = bytes.shift(32).pack('C*').unpack1('H*')
+
+          script_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+          output['script'] = bytes.shift(script_size).pack('C*').unpack1('H*')
+
+          if bytes[...2] != NULL_BYTES
+            magic = bytes.shift(2)
+            raise 'Not valid output' unless magic == MAGIC
+
+            withdraw = {}
+
+            output['chain'] = bytes.shift(32).pack('C*').unpack1('H*')
+
+            asset_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+            output['asset'] = bytes.shift(asset_size).unpack1('H*')
+
+            if bytes[...2] != NULL_BYTES
+              address = {}
+
+              adderss_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+              output['adderss'] = bytes.shift(adderss_size).pack('C*').unpack1('H*')
+            else
+              bytes.shift 2
+            end
+
+            if bytes[...2] != NULL_BYTES
+              tag = {}
+
+              tag_size = bytes.shift(2).reverse.pack('C*').unpack1('S*')
+              output['tag'] = bytes.shift(tag_size).pack('C*').unpack1('H*')
+            else
+              bytes.shift 2
+            end
+          else
+            bytes.shift 2
+          end
+
+          tx['outputs'].push output
+        end
+
+        [bytes, tx]
       end
     end
   end
