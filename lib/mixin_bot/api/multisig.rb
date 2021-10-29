@@ -156,16 +156,20 @@ module MixinBot
       def build_raw_transaction(**kwargs)
         raise ArgumentError, "#{RAW_TRANSACTION_ARGUMENTS.join(', ')} are needed for build raw transaction" unless RAW_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
 
-        senders        = kwargs[:senders]
-        receivers      = kwargs[:receivers]
-        amount         = kwargs[:amount]
-        threshold      = kwargs[:threshold]
-        asset_id       = kwargs[:asset_id]
-        asset_mixin_id = kwargs[:asset_mixin_id]
-        utxos          = kwargs[:utxos]
-        memo           = kwargs[:memo]
-        extra          = kwargs[:extra]
-        access_token   = kwargs[:access_token]
+        senders             = kwargs[:senders]
+        threshold           = kwargs[:threshold]
+        receivers           = kwargs[:receivers]
+        receivers_threshold = kwargs[:receivers_threshold]
+        amount              = kwargs[:amount]
+        threshold           = kwargs[:threshold]
+        asset_id            = kwargs[:asset_id]
+        asset_mixin_id      = kwargs[:asset_mixin_id]
+        utxos               = kwargs[:utxos]
+        memo                = kwargs[:memo]
+        extra               = kwargs[:extra]
+        access_token        = kwargs[:access_token]
+        outputs             = kwargs[:outputs] || []
+        hint                = kwargs[:hint]
 
         raise 'access_token required!' if access_token.nil? && !senders.include?(client_id)
 
@@ -193,23 +197,27 @@ module MixinBot
           }
         )
 
-        outputs = []
-        output0 = create_output(receivers: receivers, index: 0)['data']
-        outputs << {
-          'amount': format('%<amount>.8f', amount: amount),
-          'script': build_threshold_script(receivers.length),
-          'mask': output0['mask'],
-          'keys': output0['keys']
-        }
+        if outputs.empty?
+          receivers_threshold = 1 if receivers.size == 1
+          output0 = build_output(
+            receivers: receivers, 
+            index: 0, 
+            amount: amount, 
+            threshold: receivers_threshold,
+            hint: hint
+          )
+          outputs.push output0
 
-        if input_amount > amount
-          output1 = create_output(receivers: senders, index: 1)['data']
-          outputs << {
-            'amount': format('%<amount>.8f', amount: input_amount - amount),
-            'script': build_threshold_script(threshold.to_i),
-            'mask': output1['mask'],
-            'keys': output1['keys']
-          }
+          if input_amount > amount
+            output1 = build_output(
+              receivers: senders, 
+              index: 1, 
+              amount: (input_amount - amount),
+              threshold: threshold,
+              hint: hint
+            )
+            outputs.push output1
+          end
         end
 
         extra = extra || Digest.hexencode(memo.to_s.slice(0, 140))
@@ -225,29 +233,20 @@ module MixinBot
         tx.to_json
       end
 
+      def build_output(receivers:, index:, amount:, threshold:, hint: nil)
+        _output = create_output receivers: receivers, index: index, hint: hint
+        {
+          amount: format('%.8f', amount.to_f),
+          script: build_threshold_script(threshold),
+          mask: _output['mask'],
+          keys: _output['keys']
+        }
+      end
+
       def str_to_bin(str)
         return if str.nil?
 
         str.scan(/../).map(&:hex).pack('c*')
-      end
-
-      def build_inputs(inputs)
-        res = []
-        prototype = {
-          'Hash' => nil,
-          'Index' => nil,
-          'Genesis' => nil,
-          'Deposit' => nil,
-          'Mint' => nil
-        }
-        inputs.each do |input|
-          struc = prototype.dup
-          struc['Hash'] = str_to_bin input['hash']
-          struc['Index'] = input['index']
-          res << struc
-        end
-
-        res
       end
 
       def generate_trace_from_hash(hash, output_index = 0)
