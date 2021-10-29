@@ -27,11 +27,12 @@ module MixinBot
       alias multisigs outputs
       alias multisig_outputs outputs
 
-      def create_output(receivers:, index:, access_token: nil)
+      def create_output(receivers:, index:, hint: nil, access_token: nil)
         path = '/outputs'
         payload = {
           receivers: receivers,
-          index: index
+          index: index,
+          hint: hint
         }
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
