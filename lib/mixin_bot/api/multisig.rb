@@ -146,22 +146,22 @@ module MixinBot
       # kwargs:
       # {
       #   senders: [ uuid ],
+      #   senders_threshold: integer,
       #   receivers: [ uuid ],
-      #   threshold: integer,
+      #   receivers_threshold: integer,
       #   asset_id: uuid,
       #   amount: string / float,
       #   memo: string,
       # }
-      RAW_TRANSACTION_ARGUMENTS = %i[utxos senders receivers amount threshold].freeze
+      RAW_TRANSACTION_ARGUMENTS = %i[utxos senders senders_threshold receivers receivers_threshold amount].freeze
       def build_raw_transaction(**kwargs)
         raise ArgumentError, "#{RAW_TRANSACTION_ARGUMENTS.join(', ')} are needed for build raw transaction" unless RAW_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
 
         senders             = kwargs[:senders]
-        threshold           = kwargs[:threshold]
+        senders_threshold   = kwargs[:senders_threshold]
         receivers           = kwargs[:receivers]
         receivers_threshold = kwargs[:receivers_threshold]
         amount              = kwargs[:amount]
-        threshold           = kwargs[:threshold]
         asset_id            = kwargs[:asset_id]
         asset_mixin_id      = kwargs[:asset_mixin_id]
         utxos               = kwargs[:utxos]
@@ -213,7 +213,7 @@ module MixinBot
               receivers: senders, 
               index: 1, 
               amount: (input_amount - amount),
-              threshold: threshold,
+              threshold: senders_threshold,
               hint: hint
             )
             outputs.push output1

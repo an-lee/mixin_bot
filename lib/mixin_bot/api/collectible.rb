@@ -101,7 +101,7 @@ module MixinBot
     #   receivers_threshold: 1,
     #   state: 'unspent'
     # }
-    COLLECTIBLE_TRANSACTION_ARGUMENTS = %i[collectible nfo receivers threshold].freeze
+    COLLECTIBLE_TRANSACTION_ARGUMENTS = %i[collectible nfo receivers receivers_threshold].freeze
     def build_collectible_transaction(**kwargs)
       raise ArgumentError, "#{COLLECTIBLE_TRANSACTION_ARGUMENTS.join(', ')} are needed for build collectible transaction" unless COLLECTIBLE_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
 
@@ -112,8 +112,9 @@ module MixinBot
       build_raw_transaction(
         utxos: [collectible],
         senders: collectible['receivers'],
+        senders_threshold: collectible['receivers_threshold'],
         receivers: kwargs['receivers'],
-        threshold: kwargs['threshold'],
+        receivers_threshold: kwargs['receivers_threshold'],
         extra: kwargs["nfo"],
         amount: 1,
         asset_mixin_id: NFT_ASSET_MIXIN_ID

@@ -17,11 +17,10 @@ module MixinBot
       NFT_MASK = 0x00
       NULL_UUID = '00000000-0000-0000-0000-000000000000'
 
-      def unique_uuid(user_id, opponent_id = nil)
-        opponent_id ||= client_id
+      def unique_uuid(uuid_1, uuid_2)
         md5 = Digest::MD5.new
-        md5 << [user_id, opponent_id].min
-        md5 << [user_id, opponent_id].max
+        md5 << [uuid_1, uuid_2].min
+        md5 << [uuid_1, uuid_2].max
         digest = md5.digest
         digest6 = (digest[6].ord & 0x0f | 0x30).chr
         digest8 = (digest[8].ord & 0x3f | 0x80).chr
