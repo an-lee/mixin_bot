@@ -115,9 +115,10 @@ module MixinBot
         senders_threshold: collectible['receivers_threshold'],
         receivers: kwargs['receivers'],
         receivers_threshold: kwargs['receivers_threshold'],
-        extra: kwargs["nfo"],
+        extra: kwargs['nfo'],
         amount: 1,
-        asset_mixin_id: NFT_ASSET_MIXIN_ID
+        asset_mixin_id: NFT_ASSET_MIXIN_ID,
+        access_token: kwargs['access_token'],
       )
     end
 
