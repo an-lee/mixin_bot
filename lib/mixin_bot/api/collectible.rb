@@ -107,7 +107,7 @@ module MixinBot
 
       kwargs = kwargs.with_indifferent_access
       collectible = kwargs['collectible']
-      raise "collectible is #{collectible['state']}" unless collectible['state'] == 'unspent'
+      raise "collectible is spent" unless collectible['state'] == 'spent'
 
       build_raw_transaction(
         utxos: [collectible],
@@ -119,6 +119,7 @@ module MixinBot
         amount: 1,
         asset_mixin_id: NFT_ASSET_MIXIN_ID,
         access_token: kwargs['access_token'],
+        hint: kwargs['hint']
       )
     end
 
