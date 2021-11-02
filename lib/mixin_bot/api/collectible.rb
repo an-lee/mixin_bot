@@ -107,7 +107,7 @@ module MixinBot
 
       kwargs = kwargs.with_indifferent_access
       collectible = kwargs['collectible']
-      raise "collectible is spent" unless collectible['state'] == 'spent'
+      raise "collectible is spent" if collectible['state'] == 'spent'
 
       build_raw_transaction(
         utxos: [collectible],
