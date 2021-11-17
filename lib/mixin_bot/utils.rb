@@ -358,7 +358,7 @@ module MixinBot
           bytes += [0x00, type]
 
           # amount
-          amount_bytes = bytes_of (output['amount'].to_f * 1e8).to_i
+          amount_bytes = bytes_of (output['amount'].to_f * 1e8).round
           bytes +=  encode_int amount_bytes.size
           bytes +=  amount_bytes
 
