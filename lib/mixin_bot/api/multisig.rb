@@ -122,19 +122,6 @@ module MixinBot
         client.get(path, headers: { 'Authorization': authorization })
       end
 
-      # send a signed transaction to main net
-      def send_raw_transaction(raw, access_token: nil)
-        path = '/external/proxy'
-        payload = {
-          method: 'sendrawtransaction',
-          params: [raw]
-        }
-
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
-      end
-
       def build_threshold_script(threshold)
         s = threshold.to_s(16)
         s = s.length == 1 ? "0#{s}" : s
