@@ -223,7 +223,7 @@ module MixinBot
       def build_output(receivers:, index:, amount:, threshold:, hint: nil)
         _output = create_output receivers: receivers, index: index, hint: hint
         {
-          amount: format('%.8f', amount.to_f),
+          amount: amount.to_f.round(8).to_s,
           script: build_threshold_script(threshold),
           mask: _output['mask'],
           keys: _output['keys']
