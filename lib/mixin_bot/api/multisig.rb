@@ -160,12 +160,12 @@ module MixinBot
 
         raise 'access_token required!' if access_token.nil? && !senders.include?(client_id)
 
-        amount = amount.to_f.floor(8)
+        amount = amount.to_d.round(8)
         input_amount = utxos.map(
           &lambda { |utxo|
-            utxo['amount'].to_f
+            utxo['amount'].to_d
           }
-        ).sum.floor(8)
+        ).sum
 
         if input_amount < amount
           raise format(
@@ -199,7 +199,7 @@ module MixinBot
             output1 = build_output(
               receivers: senders, 
               index: 1, 
-              amount: (input_amount - amount).floor(8),
+              amount: input_amount - amount,
               threshold: senders_threshold,
               hint: hint
             )
@@ -223,7 +223,7 @@ module MixinBot
       def build_output(receivers:, index:, amount:, threshold:, hint: nil)
         _output = create_output receivers: receivers, index: index, hint: hint
         {
-          amount: amount.to_f.floor(8).to_s,
+          amount: amount.to_d.round(8).to_s,
           script: build_threshold_script(threshold),
           mask: _output['mask'],
           keys: _output['keys']

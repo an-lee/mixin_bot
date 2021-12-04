@@ -24,11 +24,12 @@ describe MixinBot::API::Multisig do
     tx = MixinBot.api.build_raw_transaction(
       utxos: utxos,
       senders: MULTI_SIGN_MEMBERS.sort,
+      senders_threshold: MULTI_SIGN_THRESHOLD,
       receivers: [TEST_UID],
+      receivers_threshold: 1,
       asset_id: CNB_ASSET_ID,
       asset_mixin_id: CNB_MIXIN_ID,
-      threshold: MULTI_SIGN_THRESHOLD,
-      amount: 0.000_000_02,
+      amount: 1.0999999999,
       memo: 'test of sign request',
       hint: SecureRandom.uuid
     )

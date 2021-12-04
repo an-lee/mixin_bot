@@ -4,6 +4,8 @@
 require 'English'
 require 'active_support/core_ext/hash'
 require 'base64'
+require 'bigdecimal'
+require 'bigdecimal/util'
 require 'digest'
 require 'faye/websocket'
 require 'http'
