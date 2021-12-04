@@ -100,7 +100,7 @@ module MixinBot
         path = '/payments'
         payload = {
           asset_id: kwargs[:asset_id],
-          amount: kwargs[:amount].to_s,
+          amount: format('%.8f', kwargs[:amount].to_d.to_r),
           trace_id: kwargs[:trace_id] || SecureRandom.uuid,
           memo: kwargs[:memo],
           opponent_multisig: {
@@ -223,7 +223,7 @@ module MixinBot
       def build_output(receivers:, index:, amount:, threshold:, hint: nil)
         _output = create_output receivers: receivers, index: index, hint: hint
         {
-          amount: amount.to_d.round(8).to_s,
+          amount: format('%.8f', amount.to_d.to_r),
           script: build_threshold_script(threshold),
           mask: _output['mask'],
           keys: _output['keys']
