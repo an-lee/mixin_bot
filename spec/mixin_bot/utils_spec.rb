@@ -78,11 +78,11 @@ describe MixinBot::Utils do
       hash: "1973a73d678690c5d004b6d6bfec65483749173617807ebf838a96900a3f6955"
     }
 
-    # puts SHA3::Digest::SHA256.hexdigest meta.to_json
+    hash = SHA3::Digest::SHA256.hexdigest meta.to_json
 
     result = 'TkZPAAEAAAAAAAAAAUPWHc3kE0UNgLgQHV6QM1cUPIwWGhiuLIsU_aEhb_99qIxBm10QAAAAAAAAAAAAAAAAAAAAABCZf8JRU9xKu5V5zW47G52vIN8k7X9uQpyzJLSJkRjT2KmX5tONE1oUM0E7o-TplLgq'
 
-    memo = MixinBot::Utils.nft_memo collection, token_id, meta
+    memo = MixinBot::Utils.nft_memo collection, token_id, hash
 
     expect(memo).to eq(result)
   end
@@ -119,8 +119,8 @@ describe MixinBot::Utils do
       hash: "1973a73d678690c5d004b6d6bfec65483749173617807ebf838a96900a3f6955"
     }
 
-    hash = MixinBot::Utils.nft_memo_hash collection, token_id, meta
-    encoded = MixinBot::Utils.nft_memo collection, token_id, meta
+    hash = MixinBot::Utils.nft_memo_hash collection, token_id, meta[:hash]
+    encoded = MixinBot::Utils.nft_memo collection, token_id, meta[:hash]
     decoded = MixinBot::Utils.decode_nft_memo encoded
 
     expect(decoded).to eq(hash)

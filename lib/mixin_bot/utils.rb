@@ -160,9 +160,9 @@ module MixinBot
         tx
       end
 
-      def nft_memo_hash(collection, token_id, meta)
+      def nft_memo_hash(collection, token_id, hash)
         collection = NULL_UUID if collection.empty?
-        meta = meta.to_json if meta.is_a?(Hash)
+        raise 'hash must be 256-bit string' unless hash.is_a?(String) && hash.size == 64
 
         memo = {
           prefix: NFT_MEMO_PREFIX,
@@ -172,7 +172,7 @@ module MixinBot
           class: NFT_MEMO_DEFAULT_CLASS,
           collection: collection,
           token: token_id,
-          extra: SHA3::Digest::SHA256.hexdigest(meta)
+          extra: hash
         }
 
         mark = [0]
@@ -186,8 +186,8 @@ module MixinBot
         memo
       end
 
-      def nft_memo(collection, token_id, meta)
-        encode_nft_memo nft_memo_hash(collection, token_id, meta)
+      def nft_memo(collection, token_id, hash)
+        encode_nft_memo nft_memo_hash(collection, token_id, hash)
       end
 
       def encode_nft_memo(memo)

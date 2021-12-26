@@ -2,6 +2,7 @@
 
 # third-party dependencies
 require 'English'
+require 'active_support/isolated_execution_state'
 require 'active_support/core_ext/hash'
 require 'base64'
 require 'bigdecimal'
