@@ -5,9 +5,9 @@ require 'cli/ui'
 require 'thor'
 require 'yaml'
 require 'json'
+require_relative './cli/api'
 require_relative './cli/node'
-require_relative './cli/me'
-require_relative './cli/multisig'
+require_relative './cli/utils'
 
 module MixinBot
   class CLI < Thor
@@ -15,62 +15,47 @@ module MixinBot
     UI = ::CLI::UI
 
     class_option :apihost, type: :string, aliases: '-a', desc: 'Specify mixin api host, default as api.mixin.one'
-    class_option :pretty, type: :boolean, aliases: '-p', desc: 'Print output in pretty'
+    class_option :keystore, type: :string, aliases: '-k', desc: 'Specify keystore.json file path'
+    class_option :pretty, type: :boolean, aliases: '-r', default: true, desc: 'Print output in pretty'
 
-    attr_reader :config, :api
+    attr_reader :keystore, :api_instance
 
     def initialize(*args)
       super
-      if File.exist? options[:config].to_s
-        @config =
-          begin
-            YAML.load_file options[:config]
-          rescue StandardError => e
-            log UI.fmt(
-              format(
-                '{{x}} %<file>s is not a valid .yml file',
-                file: options[:config]
-              )
-            )
-            UI::Frame.open('{{x}}', color: :red) do
-              log e
-            end
-          end
-      elsif options[:config]
-        @confg =
-          begin
-            JSON.parse options[:config]
-          rescue StandardError => e
-            log UI.fmt(
-              format(
-                '{{x}} Failed to parse %<config>s',
-                config: options[:config]
-              )
-            )
-            UI::Frame.open('{{x}}', color: :red) do
-              log e
-            end
-          end
-      end
+      return if options[:keystore].blank?
 
-      return unless @config
+      keystore =
+        if File.exist? options[:keystore].to_s
+          File.read options[:keystore]
+        else
+          options[:keystore]
+        end
+
+      @keystore = 
+        begin
+          JSON.parse keystore
+        rescue JSON::ParserError => e
+          log UI.fmt(
+            format(
+              '{{x}} falied to parse keystore.json: %<keystore>s',
+              keystore: options[:keystore]
+            )
+          )
+        end
+
+      return unless @keystore
 
       MixinBot.api_host = options[:apihost]
-      @api ||=
+      @api_instance ||=
         begin
           MixinBot::API.new(
-            client_id: @config['client_id'],
-            client_secret: @config['client_secret'],
-            session_id: @config['session_id'],
-            pin_token: @config['pin_token'],
-            private_key: @config['private_key'],
-            pin_code: @config['pin_code']
+            client_id: @keystore['client_id'],
+            session_id: @keystore['session_id'],
+            pin_token: @keystore['pin_token'],
+            private_key: @keystore['private_key']
           )
         rescue StandardError => e
-          log UI.fmt '{{x}}: Failed to initialize api, maybe your config is incorrect.'
-          UI.Frame.open('{{x}}', color: :red) do
-            log e
-          end
+          log UI.fmt '{{x}}: Failed to initialize api, maybe your keystore is incorrect.'
         end
     end
 
@@ -87,31 +72,6 @@ module MixinBot
     end
 
     private
-
-    def api_method(method, *args, **params)
-      if api.nil?
-        log UI.fmt '{{x}} MixinBot api not initialized!'
-        return
-      end
-
-      res = if args.empty? && params.empty?
-              api&.public_send method
-            elsif args.empty? && !params.empty?
-              api&.public_send method params
-            elsif !args.empty? && params.empty?
-              api&.public_send method, args
-            else
-              args.push params
-              api&.public_send method, args
-            end
-      log res
-
-      [res, res && res['error'].nil?]
-    rescue MixinBot::Errors => e
-      UI::Frame.open('{{x}}', color: :red) do
-        log e
-      end
-    end
 
     def log(obj)
       if options[:pretty]
