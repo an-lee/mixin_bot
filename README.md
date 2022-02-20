@@ -18,6 +18,32 @@ gem install mixin_bot
 
 ## Usage
 
+### CLI
+
+```bash
+Commands:
+  mixinbot api PATH -k, --keystore=KEYSTORE                                   # request PATH of Mixin API
+  mixinbot decodetx TRANSACTION                                               # decode raw transaction
+  mixinbot encrypt PIN -k, --keystore=KEYSTORE                                # encrypt PIN using private key
+  mixinbot generatetrace HASH                                                 # generate trace ID from Tx hash
+  mixinbot help [COMMAND]                                                     # Describe available commands or one specific command
+  mixinbot nftmemo -c, --collection=COLLECTION -h, --hash=HASH -t, --token=N  # memo for mint NFT
+  mixinbot unique UUIDS                                                       # generate unique UUID for two or more UUIDs
+  mixinbot version                                                            # Distay MixinBot version
+
+Options:
+  -a, [--apihost=APIHOST]        # Specify mixin api host
+                                 # Default: api.mixin.one
+  -r, [--pretty], [--no-pretty]  # Print output in pretty
+                                 # Default: true
+```
+
+Example:
+
+```bash
+$ mixinbot api /me -k ~/.mixinbot/keystore.json
+```
+
 ### Initialize params
 
 To use MixinBot api, you should set the keys first.
