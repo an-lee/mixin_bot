@@ -60,23 +60,23 @@ describe MixinBot::API::Collectible do
     meta = {
       collection: {
         id: collection,
-        name: "TEST_COLLECTION",
-        description: "very cool test",
+        name: 'TEST_COLLECTION',
+        description: 'very cool test',
         icon: {
-          hash: "hash of the collection icon",
-          url: "https://mixin.one/assets/8cb83bab76f849798c8e74e8c6a968d3.png"
+          hash: 'hash of the collection icon',
+          url: 'https://mixin.one/assets/8cb83bab76f849798c8e74e8c6a968d3.png'
         }
       },
       token: {
         id: token_id,
-        name: "No.999 Token",
-        description: "unique token",
+        name: 'No.999 Token',
+        description: 'unique token',
         icon: {
-          hash: "hash of the token icon",
-          url: "https://mixin.one/assets/8cb83bab76f849798c8e74e8c6a968d3.png"
+          hash: 'hash of the token icon',
+          url: 'https://mixin.one/assets/8cb83bab76f849798c8e74e8c6a968d3.png'
         },
         media: {}
-      },
+      }
     }
     meta[:checksum] = SHA3::Digest::SHA256.hexdigest [meta[:collection][:id], meta[:collection][:name], meta[:token][:id], meta[:token][:name]].join
 

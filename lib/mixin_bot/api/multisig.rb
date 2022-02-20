@@ -187,9 +187,9 @@ module MixinBot
         if outputs.empty?
           receivers_threshold = 1 if receivers.size == 1
           output0 = build_output(
-            receivers: receivers, 
-            index: 0, 
-            amount: amount, 
+            receivers: receivers,
+            index: 0,
+            amount: amount,
             threshold: receivers_threshold,
             hint: hint
           )
@@ -197,8 +197,8 @@ module MixinBot
 
           if input_amount > amount
             output1 = build_output(
-              receivers: senders, 
-              index: 1, 
+              receivers: senders,
+              index: 1,
               amount: input_amount - amount,
               threshold: senders_threshold,
               hint: hint
@@ -207,7 +207,7 @@ module MixinBot
           end
         end
 
-        extra = extra || Digest.hexencode(memo.to_s.slice(0, 140))
+        extra ||= Digest.hexencode(memo.to_s.slice(0, 140))
         asset = asset_mixin_id || SHA3::Digest::SHA256.hexdigest(asset_id)
         tx = {
           version: 2,

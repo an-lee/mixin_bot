@@ -38,6 +38,7 @@ module MixinBot
       COLLECTABLE_REQUEST_ACTIONS = %i[sign unlock].freeze
       def create_collectible_request(action, raw, access_token: nil)
         raise ArgumentError, "request action is limited in #{COLLECTABLE_REQUEST_ACTIONS.join(', ')}" unless COLLECTABLE_REQUEST_ACTIONS.include? action.to_sym
+
         path = '/collectibles/requests'
         payload = {
           action: action,
@@ -107,7 +108,7 @@ module MixinBot
 
       kwargs = kwargs.with_indifferent_access
       collectible = kwargs['collectible']
-      raise "collectible is spent" if collectible['state'] == 'spent'
+      raise 'collectible is spent' if collectible['state'] == 'spent'
 
       build_raw_transaction(
         utxos: [collectible],

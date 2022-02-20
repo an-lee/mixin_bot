@@ -27,15 +27,16 @@ module MixinBot
         HTTP
           .timeout(connect: 5, write: 5, read: 5)
           .request(
-            :put, 
-            attachment.delete('upload_url'), 
+            :put,
+            attachment.delete('upload_url'),
             {
               body: file,
               headers: {
                 'x-amz-acl': 'public-read',
-                'Content-Type': 'application/octet-stream',
+                'Content-Type': 'application/octet-stream'
               }
-          })
+            }
+          )
 
         attachment
       end

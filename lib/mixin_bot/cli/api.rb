@@ -3,12 +3,12 @@
 module MixinBot
   class CLI < Thor
     desc 'api', 'request Mixin API'
-    option :keystore, type: :string, aliases: '-k', default: '~/.mixinbot/keystore.json', desc: 'Specify keystore.json file path'
+    option :keystore, type: :string, aliases: '-k', required: true, default: '~/.mixinbot/keystore.json', desc: 'Specify keystore.json file path'
     option :url, type: :string, aliases: '-u', required: true, desc: 'Mixin API url, exmaple: /me'
     option :method, type: :string, aliases: '-m', default: 'GET', desc: 'GET or POST'
-    option :params, type: :hash, aliases: '-p', desc: 'Example: --params=limit:100 state:unspent' 
-    option :body, type: :hash, aliases: '-b', default: {}, desc: 'Example: --body=pin:123456' 
-    option :accesstoken, type: :string, aliases: '-a', desc: 'Specify a accesstoken, or will generate by keystore' 
+    option :params, type: :hash, aliases: '-p', desc: 'Example: --params=limit:100 state:unspent'
+    option :body, type: :hash, aliases: '-b', default: {}, desc: 'Example: --body=pin:123456'
+    option :accesstoken, type: :string, aliases: '-a', desc: 'Specify a accesstoken, or will generate by keystore'
     def api
       url = options[:url]
       url = "#{url}?#{URI.encode_www_form(options[:params])}" if options[:params].present?
@@ -23,7 +23,7 @@ module MixinBot
       authorization = format('Bearer %<access_token>s', access_token: access_token)
       res = ''
 
-      CLI::UI::Spinner.spin("#{options[:method]} #{url}, payload: #{payload}") do |spinner|
+      CLI::UI::Spinner.spin("#{options[:method]} #{url}, payload: #{payload}") do |_spinner|
         res =
           case options[:method].downcase.to_sym
           when :post

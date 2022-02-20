@@ -171,7 +171,7 @@ module MixinBot
           chain: NFT_MEMO_DEFAULT_CHAIN,
           class: NFT_MEMO_DEFAULT_CLASS,
           collection: collection,
-          token: token_id,
+          token: token_id.to_s,
           extra: hash
         }
 

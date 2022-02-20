@@ -14,8 +14,7 @@ module MixinBot
     # https://github.com/Shopify/cli-ui
     UI = ::CLI::UI
 
-    class_option :apihost, type: :string, aliases: '-a', desc: 'Specify mixin api host, default as api.mixin.one'
-    class_option :keystore, type: :string, aliases: '-k', desc: 'Specify keystore.json file path'
+    class_option :apihost, type: :string, aliases: '-a', default: 'api.mixin.one', desc: 'Specify mixin api host'
     class_option :pretty, type: :boolean, aliases: '-r', default: true, desc: 'Print output in pretty'
 
     attr_reader :keystore, :api_instance
@@ -31,7 +30,7 @@ module MixinBot
           options[:keystore]
         end
 
-      @keystore = 
+      @keystore =
         begin
           JSON.parse keystore
         rescue JSON::ParserError => e
@@ -59,8 +58,8 @@ module MixinBot
         end
     end
 
-    desc 'node', 'mixin node commands helper'
-    subcommand 'node', MixinBot::NodeCLI
+    # desc 'node', 'mixin node commands helper'
+    # subcommand 'node', MixinBot::NodeCLI
 
     desc 'version', 'Distay MixinBot version'
     def version
