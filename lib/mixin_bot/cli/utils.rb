@@ -2,19 +2,16 @@
 
 module MixinBot
   class CLI < Thor
-    desc 'encryptpin', 'encrypt PIN'
+    desc 'encrypt PIN', 'encrypt PIN using private key'
     option :keystore, type: :string, aliases: '-k', required: true, default: '~/.mixinbot/keystore.json', desc: 'Specify keystore.json file path'
-    option :pin, type: :numeric, aliases: '-p', desc: 'Encrypt PIN code'
     option :iterator, type: :string, aliases: '-i', desc: 'Iterator'
-    def encryptpin
-      pin = options[:pin] || keystore['pin']
+    def encrypt(pin)
       log api_instance.encrypt_pin options[:pin].to_s, iterator: options[:iterator]
     end
 
-    desc 'uniqueuuid', 'generate unique UUID for two or more UUIDs'
-    option :uuids, type: :array, required: true, aliases: '-u', desc: 'UUIDs to generate'
-    def uniqueuuid
-      uuids = options[:uuids].sort
+    desc 'unique UUIDS', 'generate unique UUID for two or more UUIDs'
+    def unique(*uuids)
+      uuids.sort
       r = uuids.first
       uuids.each_with_index do |uuid, i|
         r = MixinBot::Utils.unique_uuid(r, uuid) if i.positive?
@@ -23,16 +20,14 @@ module MixinBot
       log r
     end
 
-    desc 'txhashtotrace', 'generate Tx trace ID from Tx hash'
-    option :hash, type: :string, required: true, aliases: '-h', desc: 'Transaction hash'
-    def txhashtotrace
-      log MixinBot::Utils.generate_trace_from_hash(options[:hash])
+    desc 'generatetrace HASH', 'generate trace ID from Tx hash'
+    def generatetrace(hash)
+      log MixinBot::Utils.generate_trace_from_hash(hash)
     end
 
-    desc 'decoderawtransaction', 'decode raw transaction'
-    option :tx, type: :string, required: true, aliases: '-x', desc: 'Raw Transaction'
-    def decoderawtransaction
-      log MixinBot::Utils.decode_raw_transaction(options[:tx])
+    desc 'decodetx TRANSACTION', 'decode raw transaction'
+    def decodetx(transaction)
+      log MixinBot::Utils.decode_raw_transaction(transaction)
     end
 
     desc 'nftmemo', 'memo for mint NFT'
