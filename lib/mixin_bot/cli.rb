@@ -24,7 +24,7 @@ module MixinBot
       return if options[:keystore].blank?
 
       keystore =
-        if File.exist? options[:keystore].to_s
+        if File.file? options[:keystore]
           File.read options[:keystore]
         else
           options[:keystore]

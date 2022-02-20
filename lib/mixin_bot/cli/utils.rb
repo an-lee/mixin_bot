@@ -3,7 +3,7 @@
 module MixinBot
   class CLI < Thor
     desc 'encrypt PIN', 'encrypt PIN using private key'
-    option :keystore, type: :string, aliases: '-k', required: true, default: '~/.mixinbot/keystore.json', desc: 'Specify keystore.json file path'
+    option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
     option :iterator, type: :string, aliases: '-i', desc: 'Iterator'
     def encrypt(pin)
       log api_instance.encrypt_pin options[:pin].to_s, iterator: options[:iterator]

@@ -18,7 +18,7 @@ module MixinBot
 
       $ mixinbot api /payments -k ~/.mixinbot/keystore.json -m POST -d '{"asset_id":"965e5c6e-434c-3fa9-b780-c50f43cd955c", "amount":"1", "trace_id": "37f16abb-0640-4d01-9423-a06121732d35", "memo":"test", "opponent_multisig":{"receivers":["0508a116-1239-4e28-b150-85a8e3e6b400", "7ed9292d-7c95-4333-aa48-a8c640064186", "a67c6e87-1c9e-4a1c-b81c-47a9f4f1bff1"], "threshold":2}}'
     LONGDESC
-    option :keystore, type: :string, aliases: '-k', required: true, default: '~/.mixinbot/keystore.json', desc: 'Specify keystore.json file path'
+    option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
     option :method, type: :string, aliases: '-m', default: 'GET', desc: 'HTTP method, GET or POST'
     option :params, type: :hash, aliases: '-p', desc: 'HTTP GET params'
     option :data, type: :string, aliases: '-d', default: '{}', desc: 'HTTP POST data'
