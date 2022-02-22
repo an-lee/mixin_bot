@@ -30,12 +30,13 @@ module MixinBot
     @api ||= MixinBot::API.new
   end
 
-  class HttpError < StandardError; end
-  class RequestError < StandardError; end
-  class ResponseError < StandardError; end
-  class UnauthorizedError < StandardError; end
-  class ForbiddenError < StandardError; end
-  class InsufficientBalanceError < StandardError; end
-  class InsufficientPoolError < StandardError; end
-  class PinError < StandardError; end
+  class Error < StandardError; end
+  class HttpError < Error; end
+  class RequestError < Error; end
+  class ResponseError < Error; end
+  class UnauthorizedError < Error; end
+  class ForbiddenError < Error; end
+  class InsufficientBalanceError < Error; end
+  class InsufficientPoolError < Error; end
+  class PinError < Error; end
 end
