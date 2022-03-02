@@ -57,7 +57,7 @@ module MixinBot
         if tx.is_a? String
           tx = JSON.parse tx
         end
-        raise "#{tx} is not a valid json" unless tx.is_a? Hash
+        raise ArgumentError, "#{tx} is not a valid json" unless tx.is_a? Hash
 
         tx = tx.with_indifferent_access
         bytes = []
@@ -99,7 +99,7 @@ module MixinBot
         tx = {}
 
         magic = bytes.shift(2)
-        raise 'Not valid raw' unless magic == MAGIC
+        raise ArgumentError, 'Not valid raw' unless magic == MAGIC
 
         version = bytes.shift(2)
         tx['version'] = bytes_to_int version
@@ -121,7 +121,7 @@ module MixinBot
           # aggregated
           aggregated = {}
 
-          raise 'invalid aggregated' unless bytes.shift(2).reverse.pack('C*').unpack1('S*') == AGGREGATED_SIGNATURE_PREFIX
+          raise ArgumentError, 'invalid aggregated' unless bytes.shift(2).reverse.pack('C*').unpack1('S*') == AGGREGATED_SIGNATURE_PREFIX
 
           aggregated['signature'] = bytes.shift(64).pack('C*').unpack1('H*')
 
@@ -162,7 +162,7 @@ module MixinBot
 
       def nft_memo_hash(collection, token_id, hash)
         collection = NULL_UUID if collection.empty?
-        raise 'hash must be 256-bit string' unless hash.is_a?(String) && hash.size == 64
+        raise ArgumentError, 'hash must be 256-bit string' unless hash.is_a?(String) && hash.size == 64
 
         memo = {
           prefix: NFT_MEMO_PREFIX,
@@ -171,14 +171,14 @@ module MixinBot
           chain: NFT_MEMO_DEFAULT_CHAIN,
           class: NFT_MEMO_DEFAULT_CLASS,
           collection: collection,
-          token: token_id.to_s,
+          token: token_id.to_i,
           extra: hash
         }
 
         mark = [0]
         mark.map do |index|
           if index >= 64
-            raise "invalid NFO memo index #{index}"
+            raise ArgumentError, "invalid NFO memo index #{index}"
           end
           memo[:mask] = memo[:mask] ^ (1 << index)
         end
@@ -252,8 +252,8 @@ module MixinBot
       private
 
       def encode_int(int)
-        raise "only support int #{int}" unless int.is_a?(Integer)
-        raise "int #{int} is larger than MAX_ENCODE_INT #{MAX_ENCODE_INT}" if int > MAX_ENCODE_INT
+        raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
+        raise ArgumentError,"int #{int} is larger than MAX_ENCODE_INT #{MAX_ENCODE_INT}" if int > MAX_ENCODE_INT
 
         [int].pack('S*').bytes.reverse
       end
@@ -263,7 +263,7 @@ module MixinBot
       end
 
       def bytes_of(int)
-        raise 'not integer' unless int.is_a?(Integer)
+        raise ArgumentError, 'not integer' unless int.is_a?(Integer)
 
         bytes = []
         loop do
@@ -427,8 +427,8 @@ module MixinBot
           bytes += NULL_BYTES
         else
           signers.each do |sig, i|
-            raise 'signers not sorted' if i > 0 && sig <= signers[i - 1]
-            raise 'signers not sorted' if sig > MAX_ENCODE_INT
+            raise ArgumentError, 'signers not sorted' if i > 0 && sig <= signers[i - 1]
+            raise ArgumentError, 'signers not sorted' if sig > MAX_ENCODE_INT
           end
 
           max = signers.last
@@ -458,7 +458,7 @@ module MixinBot
             0
           end
 
-        raise 'signatures overflow' if sl == MAX_ENCODE_INT
+        raise ArgumentError, 'signatures overflow' if sl == MAX_ENCODE_INT
         bytes += encode_int sl
 
         if sl > 0
@@ -493,7 +493,7 @@ module MixinBot
 
           if bytes[...2] != NULL_BYTES
             magic = bytes.shift(2)
-            raise 'Not valid input' unless magic == MAGIC
+            raise ArgumentError, 'Not valid input' unless magic == MAGIC
 
             deposit = {}
             deposit['chain'] = bytes.shift(32).pack('C*').unpack1('H*')
@@ -516,7 +516,7 @@ module MixinBot
 
           if bytes[...2] != NULL_BYTES
             magic = bytes.shift(2)
-            raise 'Not valid input' unless magic == MAGIC
+            raise ArgumentError, 'Not valid input' unless magic == MAGIC
 
             mint = {}
             if bytes[...2] != NULL_BYTES
@@ -567,7 +567,7 @@ module MixinBot
 
           if bytes[...2] != NULL_BYTES
             magic = bytes.shift(2)
-            raise 'Not valid output' unless magic == MAGIC
+            raise ArgumentError, 'Not valid output' unless magic == MAGIC
 
             withdraw = {}
 

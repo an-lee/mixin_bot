@@ -31,6 +31,7 @@ module MixinBot
   end
 
   class Error < StandardError; end
+  class ArgumentError < StandardError; end
   class HttpError < Error; end
   class RequestError < Error; end
   class ResponseError < Error; end
