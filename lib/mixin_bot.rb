@@ -35,6 +35,7 @@ module MixinBot
   class HttpError < Error; end
   class RequestError < Error; end
   class ResponseError < Error; end
+  class NotFoundError < Error; end
   class UnauthorizedError < Error; end
   class ForbiddenError < Error; end
   class InsufficientBalanceError < Error; end
