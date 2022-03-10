@@ -17,7 +17,7 @@ module MixinBot
       NFT_MASK = 0x00
       NULL_UUID = '00000000-0000-0000-0000-000000000000'
 
-      def unique_uuid(uuid_1, uuid_2)
+      def generate_unique_uuid(uuid_1, uuid_2)
         md5 = Digest::MD5.new
         md5 << [uuid_1, uuid_2].min
         md5 << [uuid_1, uuid_2].max
@@ -35,6 +35,16 @@ module MixinBot
           forth: hex[16..19],
           fifth: hex[20..]
         )
+      end
+
+      def unique_uuid(*uuids)
+        uuids.sort
+        r = uuids.first
+        uuids.each_with_index do |uuid, i|
+          r = MixinBot::Utils.generate_unique_uuid(r, uuid) if i.positive?
+        end
+
+        r
       end
 
       def generate_trace_from_hash(hash, output_index = 0)

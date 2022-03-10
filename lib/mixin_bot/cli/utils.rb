@@ -11,13 +11,7 @@ module MixinBot
 
     desc 'unique UUIDS', 'generate unique UUID for two or more UUIDs'
     def unique(*uuids)
-      uuids.sort
-      r = uuids.first
-      uuids.each_with_index do |uuid, i|
-        r = MixinBot::Utils.unique_uuid(r, uuid) if i.positive?
-      end
-
-      log r
+      log MixinBot::Utils.unique_uuid *uuids
     end
 
     desc 'generatetrace HASH', 'generate trace ID from Tx hash'
