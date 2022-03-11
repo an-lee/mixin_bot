@@ -20,11 +20,12 @@ module MixinBot
 
       def snapshots(**options)
         path = format(
-          '/snapshots?limit=%<limit>s&offset=%<offset>s&asset=%<asset>s&opponent=%<opponent>s',
+          '/snapshots?limit=%<limit>s&offset=%<offset>s&asset=%<asset>s&opponent=%<opponent>s&order=%<order>s',
           limit: options[:limit],
           offset: options[:offset],
           asset: options[:asset],
-          opponent: options[:opponent]
+          opponent: options[:opponent],
+          order: options[:order],
         )
 
         access_token = options[:access_token] || access_token('GET', path)
