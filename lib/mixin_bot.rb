@@ -43,4 +43,5 @@ module MixinBot
   class PinError < Error; end
   class InvalidNfoFormatError < MixinBot::Error; end
   class InvalidUuidFormatError < MixinBot::Error; end
+  class InvalidTransactionFormatError < MixinBot::Error; end
 end
