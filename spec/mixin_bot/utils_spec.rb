@@ -49,7 +49,6 @@ describe MixinBot::Utils do
     }
 
     native_raw = MixinBot.api.sign_raw_transaction tx.to_json
-    puts native_raw
     signed_raw = described_class.sign_raw_transaction tx
 
     expect(signed_raw).to eq(native_raw)
@@ -84,44 +83,5 @@ describe MixinBot::Utils do
     memo = described_class.nft_memo collection, token_id, hash
 
     expect(memo).to eq(result)
-  end
-
-  it 'decode nft memo' do
-    encoded = 'TkZPAAEAAAAAAAAAAUPWHc3kE0UNgLgQHV6QM1cUPIwWGhiuLIsU_aEhb_99qIxBm10QAAAAAAAAAAAAAAAAAAAAABCZf8JRU9xKu5V5zW47G52vIN8k7X9uQpyzJLSJkRjT2KmX5tONE1oUM0E7o-TplLgq'
-    memo = {
-      prefix: 'NFO',
-      version: 0,
-      mask: 1,
-      chain: '43d61dcd-e413-450d-80b8-101d5e903357',
-      class: '3c8c161a18ae2c8b14fda1216fff7da88c419b5d',
-      collection: '00000000-0000-0000-0000-000000000000',
-      token: 204035246287023896153498043217692302767,
-      extra: 'df24ed7f6e429cb324b4899118d3d8a997e6d38d135a1433413ba3e4e994b82a'
-    }
-
-    decoed = described_class.decode_nft_memo encoded
-    # puts decoed
-
-    expect(decoed).to eq(memo)
-  end
-
-  it 'decode & encode mint nft memo' do
-    collection = ''
-    token_id = 1234
-    meta = {
-      group: 'Bar',
-      name: 'Foo',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ',
-      icon_url: 'https://mixin-images.zeromesh.net/zVDjOxNTQvVsA8h2B4ZVxuHoCF3DJszufYKWpd9duXUSbSapoZadC7_13cnWBqg0EmwmRcKGbJaUpA8wFfpgZA=s128',
-      media_url: 'https://mixin-images.zeromesh.net/HvYGJsV5TGeZ-X9Ek3FEQohQZ3fE9LBEBGcOcn4c4BNHovP4fW4YB97Dg5LcXoQ1hUjMEgjbl1DPlKg1TW7kK6XP=s128',
-      mime: 'image/png',
-      hash: '1973a73d678690c5d004b6d6bfec65483749173617807ebf838a96900a3f6955'
-    }
-
-    hash = described_class.nft_memo_hash collection, token_id, meta[:hash]
-    encoded = described_class.nft_memo collection, token_id, meta[:hash]
-    decoded = described_class.decode_nft_memo encoded
-
-    expect(decoded).to eq(hash)
   end
 end

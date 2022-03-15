@@ -2,7 +2,7 @@
 
 # third-party dependencies
 require 'English'
-require 'active_support'
+require 'active_support/all'
 require 'base64'
 require 'bigdecimal'
 require 'bigdecimal/util'

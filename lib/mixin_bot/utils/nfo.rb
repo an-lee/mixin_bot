@@ -26,10 +26,10 @@ module MixinBot
       end
 
       def mint_memo
-        raise MixinBot::InvalidNfoFormatError, 'collection is required' if collection.blank?
         raise MixinBot::InvalidNfoFormatError, 'token is required' if token.blank?
         raise MixinBot::InvalidNfoFormatError, 'extra must be 256-bit string' if extra.blank? || extra.size != 64
 
+        @collection = NULL_UUID if collection.blank?
         @chain = NFT_MEMO_DEFAULT_CHAIN
         @nm_class= NFT_MEMO_DEFAULT_CLASS
         mark 0
