@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative './utils/nfo'
+require_relative './utils/uuid'
+
 module MixinBot
   module Utils
     class << self
@@ -10,12 +13,6 @@ module MixinBot
       AGGREGATED_SIGNATURE_PREFIX = 0xFF01
       AGGREGATED_SIGNATURE_ORDINAY_MASK = [0x00]
       AGGREGATED_SIGNATURE_SPARSE_MASK = [0x01]
-      NFT_MEMO_PREFIX = 'NFO'
-      NFT_MEMO_VERSION = 0x00
-      NFT_MEMO_DEFAULT_CHAIN = '43d61dcd-e413-450d-80b8-101d5e903357'
-      NFT_MEMO_DEFAULT_CLASS = '3c8c161a18ae2c8b14fda1216fff7da88c419b5d'
-      NFT_MASK = 0x00
-      NULL_UUID = '00000000-0000-0000-0000-000000000000'
 
       def generate_unique_uuid(uuid_1, uuid_2)
         md5 = Digest::MD5.new
@@ -170,96 +167,13 @@ module MixinBot
         tx
       end
 
-      def nft_memo_hash(collection, token_id, hash)
-        collection = NULL_UUID if collection.empty?
-        raise ArgumentError, 'hash must be 256-bit string' unless hash.is_a?(String) && hash.size == 64
-
-        memo = {
-          prefix: NFT_MEMO_PREFIX,
-          version: NFT_MEMO_VERSION,
-          mask: 0,
-          chain: NFT_MEMO_DEFAULT_CHAIN,
-          class: NFT_MEMO_DEFAULT_CLASS,
-          collection: collection,
-          token: token_id.to_i,
-          extra: hash
-        }
-
-        mark = [0]
-        mark.map do |index|
-          if index >= 64
-            raise ArgumentError, "invalid NFO memo index #{index}"
-          end
-          memo[:mask] = memo[:mask] ^ (1 << index)
-        end
-
-        memo
+      def nft_memo(collection, token, extra)
+        MixinBot::Utils::Nfo.new(
+          collection: collection, 
+          token: token, 
+          extra: extra
+        ).mint_memo
       end
-
-      def nft_memo(collection, token_id, hash)
-        encode_nft_memo nft_memo_hash(collection, token_id, hash)
-      end
-
-      def encode_nft_memo(memo)
-        bytes = []
-
-        bytes += NFT_MEMO_PREFIX.bytes 
-        bytes += [NFT_MEMO_VERSION]
-
-        if memo[:mask] != 0
-          bytes += [1]
-          bytes += encode_unit_64 memo[:mask]
-          bytes += memo[:chain].split('-').pack('H* H* H* H* H*').bytes
-
-          class_bytes = [memo[:class]].pack('H*').bytes
-          bytes += bytes_of class_bytes.size
-          bytes += class_bytes
-
-          collection_bytes = memo[:collection].split('-').pack('H* H* H* H* H*').bytes
-          bytes += bytes_of collection_bytes.size
-          bytes += collection_bytes
-
-          # token_bytes = memo[:token].split('-').pack('H* H* H* H* H*').bytes
-          token_bytes = bytes_of memo[:token]
-          bytes += bytes_of token_bytes.size
-          bytes += token_bytes
-        end
-
-        extra_bytes = [memo[:extra]].pack('H*').bytes
-        bytes += bytes_of extra_bytes.size
-        bytes += extra_bytes
-
-        Base64.urlsafe_encode64 bytes.pack('C*'), padding: false
-      end
-
-      def decode_nft_memo(encoded)
-        bytes = Base64.urlsafe_decode64(encoded).bytes
-        memo = {}
-        memo[:prefix] = bytes.shift(3).pack('C*')
-        memo[:version] = bytes.shift
-
-        hint = bytes.shift
-        if hint == 1
-          memo[:mask] = bytes.shift(8).reverse.pack('C*').unpack1('Q*')
-          memo[:chain] = hex_to_uuid bytes.shift(16).pack('C*').unpack1('H*')
-
-          class_length = bytes.shift
-          memo[:class] = bytes.shift(class_length).pack('C*').unpack1('H*')
-
-          collection_length = bytes.shift
-          memo[:collection] = hex_to_uuid bytes.shift(collection_length).pack('C*').unpack1('H*')
-
-          token_length = bytes.shift
-          memo[:token] = bytes_to_int bytes.shift(token_length)
-        end
-
-        extra_length = bytes.shift
-        memo[:extra] = bytes.shift(extra_length).pack('C*').unpack1('H*')
-
-        memo
-      end
-
-      private
 
       def encode_int(int)
         raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)

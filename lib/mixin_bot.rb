@@ -41,4 +41,6 @@ module MixinBot
   class InsufficientBalanceError < Error; end
   class InsufficientPoolError < Error; end
   class PinError < Error; end
+  class InvalidNfoFormatError < MixinBot::Error; end
+  class InvalidUuidFormatError < MixinBot::Error; end
 end
