@@ -84,4 +84,14 @@ describe MixinBot::Utils do
 
     expect(memo).to eq(result)
   end
+
+  it 'generate unique uuid' do
+    uuid1 = '67d46d1b-0a46-4821-bb05-71efb9f90335'
+    uuid2 = '073153fb-a5a3-4724-8658-fc9073e5510c'
+    uuid3 = '5c749a9f-c45c-4f5c-a80e-09f3b3473cf7'
+
+    expect(MixinBot::Utils.generate_unique_uuid(uuid1, uuid2)).to eq('42a76a3b-775f-3ee6-baeb-3f76224f8deb')
+    expect(MixinBot::Utils.generate_unique_uuid(uuid2, uuid1)).to eq('42a76a3b-775f-3ee6-baeb-3f76224f8deb')
+    expect(MixinBot::Utils.unique_uuid(uuid1, uuid2, uuid3)).to eq('f681e720-4981-3497-add1-4d90eabd7dce')
+  end
 end

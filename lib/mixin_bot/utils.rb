@@ -23,16 +23,8 @@ module MixinBot
         digest6 = (digest[6].ord & 0x0f | 0x30).chr
         digest8 = (digest[8].ord & 0x3f | 0x80).chr
         cipher = digest[0...6] + digest6 + digest[7] + digest8 + digest[9..]
-        hex = cipher.unpack1('H*')
 
-        format(
-          '%<first>s-%<second>s-%<third>s-%<forth>s-%<fifth>s',
-          first: hex[0..7],
-          second: hex[8..11],
-          third: hex[12..15],
-          forth: hex[16..19],
-          fifth: hex[20..]
-        )
+        UUID.new(raw: cipher).unpacked
       end
 
       def unique_uuid(*uuids)
@@ -58,7 +50,7 @@ module MixinBot
       end
 
       def hex_to_uuid(hex)
-        [hex[0..7], hex[8..11], hex[12..15], hex[16..19], hex[20..]].join('-')
+        UUID.new(hex: hex).unpacked
       end
 
       def sign_raw_transaction(tx)
