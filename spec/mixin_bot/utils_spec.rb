@@ -94,4 +94,11 @@ describe MixinBot::Utils do
     expect(MixinBot::Utils.generate_unique_uuid(uuid2, uuid1)).to eq('42a76a3b-775f-3ee6-baeb-3f76224f8deb')
     expect(MixinBot::Utils.unique_uuid(uuid1, uuid2, uuid3)).to eq('f681e720-4981-3497-add1-4d90eabd7dce')
   end
+
+  it 'generate trace from hash' do
+    hash = '9694efdb97561af52104a112d9d836ea7972a2f97536fead2e5a9a1ffe0ba6ab'
+    trace_id = '9fd4e5b8-7dba-3145-a2a6-914930a77cb7'
+
+    expect(MixinBot::Utils.generate_trace_from_hash(hash)).to eq(trace_id)
+  end
 end

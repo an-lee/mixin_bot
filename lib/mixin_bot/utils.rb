@@ -44,9 +44,8 @@ module MixinBot
         digest = md5.digest
         digest[6] = ((digest[6].ord & 0x0f) | 0x30).chr
         digest[8] = ((digest[8].ord & 0x3f) | 0x80).chr
-        hex = digest.unpack1('H*')
 
-        hex_to_uuid hex
+        UUID.new(raw: digest).unpacked
       end
 
       def hex_to_uuid(hex)
