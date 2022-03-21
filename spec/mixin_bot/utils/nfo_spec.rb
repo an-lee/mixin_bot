@@ -16,6 +16,15 @@ describe MixinBot::Utils::Nfo do
 
     expect(nfo.mint_memo).to eq(memo)
   end
+  
+  it 'build normal memo' do
+    extra = 'test'
+    nfo = described_class.new extra: extra.unpack1('H*')
+    nfo.encode
+
+    decoded = described_class.new(hex: nfo.hex).decode
+    expect([decoded.extra].pack('H*')).to eq(extra)
+  end
 
   it 'decode memo' do
     memo = 'TkZPAAEAAAAAAAAAAUPWHc3kE0UNgLgQHV6QM1cUPIwWGhiuLIsU_aEhb_99qIxBm10QTW1Rcd5gTfq7yoByst-H2AFFIP8gz81L50ehZewm8Xe5ta5oeOuZB0NPTZNtC-92BktK'
@@ -35,7 +44,6 @@ describe MixinBot::Utils::Nfo do
     nfo = described_class.new hex: hex
 
     nfo.decode
-    p nfo
 
     expect(nfo.extra).to eq(extra)
   end

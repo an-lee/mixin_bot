@@ -70,6 +70,8 @@ module MixinBot
           token_bytes = MixinBot::Utils.bytes_of token
           bytes += MixinBot::Utils.bytes_of token_bytes.size
           bytes += token_bytes
+        else
+          bytes += [0]
         end
 
         extra_bytes = [extra].pack('H*').bytes
@@ -127,6 +129,8 @@ module MixinBot
 
         extra_length = bytes.shift
         @extra = bytes.shift(extra_length).pack('C*').unpack1('H*')
+
+        self
       end
 
       def to_h
