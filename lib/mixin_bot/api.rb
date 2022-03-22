@@ -22,7 +22,7 @@ require_relative './api/withdraw'
 
 module MixinBot
   class API
-    attr_reader :client_id, :client_secret, :session_id, :pin_token, :private_key, :client, :blaze_host, :schmoozer
+    attr_reader :client_id, :client_secret, :session_id, :pin_token, :private_key, :client, :blaze_host, :key_type
 
     def initialize(options = {})
       @client_id = options[:client_id] || MixinBot.client_id
@@ -37,12 +37,13 @@ module MixinBot
           ''
         end
       _private_key = options[:private_key] || MixinBot.private_key
-      @private_key =
-        if /^-----BEGIN RSA PRIVATE KEY-----/.match? _private_key
-          _private_key.gsub('\\r\\n', "\n").gsub("\r\n", "\n")
-        else
-          Base64.urlsafe_decode64 _private_key
-        end
+      if /^-----BEGIN RSA PRIVATE KEY-----/.match? _private_key
+        @private_key = _private_key.gsub('\\r\\n', "\n").gsub("\r\n", "\n")
+        @key_type = :rsa
+      else
+        @private_key = Base64.urlsafe_decode64 _private_key
+        @key_type = :ed25519
+      end
     end
 
     def sign_raw_transaction(tx)

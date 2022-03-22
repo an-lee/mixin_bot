@@ -17,10 +17,11 @@ module MixinBot
           sig: sig,
           scp: scp
         }
-        if pin_token.size == 32
+        case key_type
+        when :ed25519
           jwk = JOSE::JWK.from_okp [:Ed25519, private_key]
           jws = JOSE::JWS.from({ 'alg' => 'EdDSA' })
-        else
+        when :rsa
           jwk = JOSE::JWK.from_pem private_key
           jws = JOSE::JWS.from({ 'alg' => 'RS512' })
         end
