@@ -20,8 +20,7 @@ describe MixinBot::Utils::Nfo do
   it 'generate token id from collection and token' do
     nfo = described_class.new(
       collection: 'da0d22b0-b966-4f41-b26c-a3202644e226',
-      token: 1,
-      extra: 'a29b1f5ca60d28fd372e9e2034f42ce5d76a19c04f94fc11e7cebd5654ea8a16'
+      token: 1
     )
     token_id = '53785273-1636-3b0b-a958-7646a5269d87'
     expect(nfo.unique_token_id).to eq(token_id)
@@ -29,8 +28,7 @@ describe MixinBot::Utils::Nfo do
 
   it 'generate token id from null collection and token' do
     nfo = described_class.new(
-      token: 83613129028534230817087350303625793902,
-      extra: '9ed514e56a5586b28dec511937f715ac80e05eb5b46fe1de35601b04ac7f96c6'
+      token: '83613129028534230817087350303625793902'
     )
     token_id = '9210779e-c9d3-3e2e-9233-909d728774a6'
     expect(nfo.unique_token_id).to eq(token_id)

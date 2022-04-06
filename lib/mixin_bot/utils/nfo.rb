@@ -19,7 +19,7 @@ module MixinBot
         @chain = kwargs[:chain] || NFT_MEMO_DEFAULT_CHAIN
         @nm_class = kwargs[:nm_class] || NFT_MEMO_DEFAULT_CLASS
         @collection = kwargs[:collection] || NULL_UUID
-        @token = kwargs[:token]
+        @token = kwargs[:token].presence&.to_i
         @extra = kwargs[:extra]
         @memo = kwargs[:memo]
         @hex = kwargs[:hex]
