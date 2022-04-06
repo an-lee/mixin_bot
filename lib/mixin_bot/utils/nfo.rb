@@ -16,9 +16,9 @@ module MixinBot
         @prefix = NFT_MEMO_PREFIX
         @version = NFT_MEMO_VERSION
         @mask = kwargs[:mask] || 0
-        @chain = kwargs[:chain]
-        @nm_class = kwargs[:nm_class]
-        @collection = kwargs[:collection]
+        @chain = kwargs[:chain] || NFT_MEMO_DEFAULT_CHAIN
+        @nm_class = kwargs[:nm_class] || NFT_MEMO_DEFAULT_CLASS
+        @collection = kwargs[:collection] || NULL_UUID
         @token = kwargs[:token]
         @extra = kwargs[:extra]
         @memo = kwargs[:memo]
@@ -36,6 +36,25 @@ module MixinBot
         encode
 
         memo
+      end
+
+      def unique_token_id
+        bytes = []
+        bytes += MixinBot::Utils::UUID.new(hex: chain).packed.bytes
+        bytes += [nm_class].pack('H*').bytes
+        bytes += MixinBot::Utils::UUID.new(hex: collection).packed.bytes
+        bytes += MixinBot::Utils.bytes_of token
+
+        md5 = Digest::MD5.new
+        md5.update bytes.pack('c*')
+        digest = [md5.hexdigest].pack('H*').bytes
+
+        digest[6] = (digest[6] & 0x0f) | 0x30
+        digest[8] = (digest[8] & 0x3f) | 0x80
+
+        hex = digest.pack('c*').unpack1('H*')
+
+        MixinBot::Utils::UUID.new(hex: hex).unpacked
       end
 
       def mark(*indexes)
