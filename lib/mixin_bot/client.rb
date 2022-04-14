@@ -42,7 +42,7 @@ module MixinBot
             break result
           end
 
-          errmsg = "errcode: #{result['error']['code']}, errmsg: #{result['error']['description']}, request_id: #{response['X-Request-Id']}, server_time: #{response['X-Server-Time']}'"
+          errmsg = "errcode: #{result['error']['code']}, errmsg: #{result['error']['description']}, request_id: #{response&.[]('X-Request-Id')}, server_time: #{response&.[]('X-Server-Time')}'"
 
           # status code description
           # 202	400	The request body can’t be pasred as valid data.
