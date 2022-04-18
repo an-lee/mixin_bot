@@ -12,6 +12,13 @@ module MixinBot
         client.get(path, headers: { 'Authorization': authorization })
       end
 
+      def collection(id, access_token: nil)
+        path = "/collectibles/collections/#{id}"
+        access_token ||= access_token('GET', path, '')
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.get(path, headers: { 'Authorization': authorization })
+      end
+
       def collectible_outputs(**kwargs)
         limit = kwargs[:limit] || 100
         offset = kwargs[:offset] || ''
