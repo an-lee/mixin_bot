@@ -39,4 +39,13 @@ describe MixinBot::API::Transfer do
       )
     expect(res['data']&.[]('trace_id')).to eq(trace_id)
   end
+
+  it 'Get public network-wide deposit records' do
+    res =
+      MixinBot
+      .api
+      .transactions
+
+    expect(res['data']&.[](0)&.[]('type')).to eq('transaction')
+  end
 end

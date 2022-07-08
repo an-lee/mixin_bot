@@ -60,6 +60,19 @@ module MixinBot
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
+
+      def transactions(**options)
+        path = format(
+          '/external/transactions?limit=%<limit>s&offset=%<offset>s&asset=%<asset>s&destination=%<destination>s&tag=%<tag>s',
+          limit: options[:limit],
+          offset: options[:offset],
+          asset: options[:asset],
+          destination: options[:destination],
+          tag: options[:tag]
+        )
+
+        client.get path
+      end
     end
   end
 end
