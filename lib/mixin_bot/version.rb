@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module MixinBot
-  VERSION = '0.8.6'
+  VERSION = '0.9.0'
 end
