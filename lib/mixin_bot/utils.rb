@@ -7,13 +7,13 @@ require_relative './utils/transaction'
 module MixinBot
   module Utils
     class << self
-      MAGIC = [0x77, 0x77]
+      MAGIC = [0x77, 0x77].freeze
       TX_VERSION = 2
       MAX_ENCODE_INT = 0xFFFF
-      NULL_BYTES = [0x00, 0x00]
+      NULL_BYTES = [0x00, 0x00].freeze
       AGGREGATED_SIGNATURE_PREFIX = 0xFF01
-      AGGREGATED_SIGNATURE_ORDINAY_MASK = [0x00]
-      AGGREGATED_SIGNATURE_SPARSE_MASK = [0x01]
+      AGGREGATED_SIGNATURE_ORDINAY_MASK = [0x00].freeze
+      AGGREGATED_SIGNATURE_SPARSE_MASK = [0x01].freeze
 
       def generate_unique_uuid(uuid_1, uuid_2)
         md5 = Digest::MD5.new
@@ -53,9 +53,7 @@ module MixinBot
       end
 
       def sign_raw_transaction(tx)
-        if tx.is_a? String
-          tx = JSON.parse tx
-        end
+        tx = JSON.parse tx if tx.is_a? String
         raise ArgumentError, "#{tx} is not a valid json" unless tx.is_a? Hash
 
         tx = tx.with_indifferent_access
@@ -64,7 +62,7 @@ module MixinBot
           asset: tx[:asset],
           inputs: tx[:inputs],
           outputs: tx[:outputs],
-          extra: tx[:extra],
+          extra: tx[:extra]
         ).encode.hex
       end
 
@@ -74,15 +72,15 @@ module MixinBot
 
       def nft_memo(collection, token, extra)
         MixinBot::Utils::Nfo.new(
-          collection: collection, 
-          token: token, 
+          collection: collection,
+          token: token,
           extra: extra
         ).mint_memo
       end
 
       def encode_int(int)
         raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
-        raise ArgumentError,"int #{int} is larger than MAX_ENCODE_INT #{MAX_ENCODE_INT}" if int > MAX_ENCODE_INT
+        raise ArgumentError, "int #{int} is larger than MAX_ENCODE_INT #{MAX_ENCODE_INT}" if int > MAX_ENCODE_INT
 
         [int].pack('S*').bytes.reverse
       end
@@ -97,8 +95,9 @@ module MixinBot
         bytes = []
         loop do
           break if int === 0
+
           bytes.push int & 255
-          int = int / (2 ** 8) | 0
+          int = int / (2**8) | 0
         end
 
         bytes.reverse
@@ -107,7 +106,7 @@ module MixinBot
       def bytes_to_int(bytes)
         int = 0
         bytes.each do |byte|
-          int = int * (2 ** 8) + byte
+          int = int * (2**8) + byte
         end
 
         int

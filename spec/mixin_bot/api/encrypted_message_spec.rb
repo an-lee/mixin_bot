@@ -19,18 +19,18 @@ describe MixinBot::API::Message do
 
     sessions = [
       {
-        "user_id" => user_id, 
-        "session_id" => session_ids.first, 
-        "public_key" => Base64.urlsafe_encode64(JOSE::JWA::Ed25519.pk_to_curve25519(ed25519_keys[0][0])) 
+        'user_id' => user_id,
+        'session_id' => session_ids.first,
+        'public_key' => Base64.urlsafe_encode64(JOSE::JWA::Ed25519.pk_to_curve25519(ed25519_keys[0][0]))
       },
       {
-        "user_id" => user_id, 
-        "session_id" => session_ids.second, 
-        "public_key" => Base64.urlsafe_encode64(JOSE::JWA::Ed25519.pk_to_curve25519(ed25519_keys[1][0])) 
+        'user_id' => user_id,
+        'session_id' => session_ids.second,
+        'public_key' => Base64.urlsafe_encode64(JOSE::JWA::Ed25519.pk_to_curve25519(ed25519_keys[1][0]))
       }
     ]
 
-    plain_text = "Hello"
+    plain_text = 'Hello'
     plain_text_base64 = Base64.urlsafe_encode64 plain_text
     encrypted_text = MixinBot.api.encrypt_message(plain_text_base64, sessions)
 
@@ -43,24 +43,24 @@ describe MixinBot::API::Message do
     recipient_id = '7ed9292d-7c95-4333-aa48-a8c640064186'
     sessions = [
       {
-        "type"=>"participant", 
-        "user_id"=>"7ed9292d-7c95-4333-aa48-a8c640064186", 
-        "session_id"=>"8387dc92-0701-482e-aa35-f009cb87daef", 
-        "public_key"=>"oRboV_-XlVXTL5kPbu8U5pItLCIF6pRRE9ILLwAGdxQ"
+        'type' => 'participant',
+        'user_id' => '7ed9292d-7c95-4333-aa48-a8c640064186',
+        'session_id' => '8387dc92-0701-482e-aa35-f009cb87daef',
+        'public_key' => 'oRboV_-XlVXTL5kPbu8U5pItLCIF6pRRE9ILLwAGdxQ'
       }, {
-        "type"=>"participant", 
-        "user_id"=>"7ed9292d-7c95-4333-aa48-a8c640064186", 
-        "session_id"=>"9546b2cb-97ee-48a6-86dd-44bff87855ae", 
-        "public_key"=>"OKrOTLCsxaX_BE-3qcZ9Accz5bwGwrjITGyFZriZp2Q"
+        'type' => 'participant',
+        'user_id' => '7ed9292d-7c95-4333-aa48-a8c640064186',
+        'session_id' => '9546b2cb-97ee-48a6-86dd-44bff87855ae',
+        'public_key' => 'OKrOTLCsxaX_BE-3qcZ9Accz5bwGwrjITGyFZriZp2Q'
       }
     ]
 
     r = MixinBot.api.send_encrypted_text_message({
-      recipient_id: recipient_id,
-      conversation_id: MixinBot.api.unique_conversation_id(recipient_id),
-      data: 'Hello world',
-      sessions: sessions
-    })
+                                                   recipient_id: recipient_id,
+                                                   conversation_id: MixinBot.api.unique_conversation_id(recipient_id),
+                                                   data: 'Hello world',
+                                                   sessions: sessions
+                                                 })
 
     expect(r['data']).not_to be_nil
   end

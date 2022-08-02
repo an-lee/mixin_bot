@@ -5,8 +5,8 @@ require 'spec_helper'
 describe MixinBot::Utils::Nfo do
   it 'build mint memo' do
     nfo = described_class.new(
-      collection: '4d6d5171-de60-4dfa-bbca-8072b2df87d8', 
-      token: 69, 
+      collection: '4d6d5171-de60-4dfa-bbca-8072b2df87d8',
+      token: 69,
       extra: 'ff20cfcd4be747a165ec26f177b9b5ae6878eb9907434f4d936d0bef76064b4a'
     )
 
@@ -33,7 +33,7 @@ describe MixinBot::Utils::Nfo do
     token_id = '9210779e-c9d3-3e2e-9233-909d728774a6'
     expect(nfo.unique_token_id).to eq(token_id)
   end
-  
+
   it 'build normal memo' do
     extra = 'test'
     nfo = described_class.new extra: extra.unpack1('H*')

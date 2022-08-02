@@ -5,13 +5,13 @@ module MixinBot
     desc 'encrypt PIN', 'encrypt PIN using private key'
     option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
     option :iterator, type: :string, aliases: '-i', desc: 'Iterator'
-    def encrypt(pin)
+    def encrypt(_pin)
       log api_instance.encrypt_pin options[:pin].to_s, iterator: options[:iterator]
     end
 
     desc 'unique UUIDS', 'generate unique UUID for two or more UUIDs'
     def unique(*uuids)
-      log MixinBot::Utils.unique_uuid *uuids
+      log MixinBot::Utils.unique_uuid(*uuids)
     end
 
     desc 'generatetrace HASH', 'generate trace ID from Tx hash'

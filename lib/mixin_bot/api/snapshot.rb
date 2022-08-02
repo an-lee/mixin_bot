@@ -25,7 +25,7 @@ module MixinBot
           offset: options[:offset],
           asset: options[:asset],
           opponent: options[:opponent],
-          order: options[:order],
+          order: options[:order]
         )
 
         access_token = options[:access_token] || access_token('GET', path)

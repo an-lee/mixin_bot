@@ -31,7 +31,7 @@ module MixinBot
 
         @collection = NULL_UUID if collection.blank?
         @chain = NFT_MEMO_DEFAULT_CHAIN
-        @nm_class= NFT_MEMO_DEFAULT_CLASS
+        @nm_class = NFT_MEMO_DEFAULT_CLASS
         mark 0
         encode
 
@@ -59,9 +59,8 @@ module MixinBot
 
       def mark(*indexes)
         indexes.map do |index|
-          if index >= 64 || index < 0
-            raise ArgumentError, "invalid NFO memo index #{index}"
-          end
+          raise ArgumentError, "invalid NFO memo index #{index}" if index >= 64 || index.negative?
+
           @mask = mask ^ (1 << index)
         end
       end
@@ -69,7 +68,7 @@ module MixinBot
       def encode
         bytes = []
 
-        bytes += prefix.bytes 
+        bytes += prefix.bytes
         bytes += [version]
 
         if mask != 0
