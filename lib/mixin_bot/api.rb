@@ -8,6 +8,7 @@ require_relative './api/auth'
 require_relative './api/blaze'
 require_relative './api/collectible'
 require_relative './api/conversation'
+require_relative './api/encrypted_message'
 require_relative './api/me'
 require_relative './api/message'
 require_relative './api/multisig'
@@ -83,6 +84,7 @@ module MixinBot
     include MixinBot::API::Blaze
     include MixinBot::API::Collectible
     include MixinBot::API::Conversation
+    include MixinBot::API::EncryptedMessage
     include MixinBot::API::Me
     include MixinBot::API::Message
     include MixinBot::API::Multisig
