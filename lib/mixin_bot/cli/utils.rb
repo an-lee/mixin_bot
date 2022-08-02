@@ -5,8 +5,8 @@ module MixinBot
     desc 'encrypt PIN', 'encrypt PIN using private key'
     option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
     option :iterator, type: :string, aliases: '-i', desc: 'Iterator'
-    def encrypt(_pin)
-      log api_instance.encrypt_pin options[:pin].to_s, iterator: options[:iterator]
+    def encrypt(pin)
+      log api_instance.encrypt_pin pin.to_s, iterator: options[:iterator]
     end
 
     desc 'unique UUIDS', 'generate unique UUID for two or more UUIDs'
