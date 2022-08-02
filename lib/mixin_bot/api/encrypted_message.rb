@@ -104,7 +104,7 @@ module MixinBot
       # http post request
       def send_encrypted_message(payload)
         path = '/encrypted_messages'
-        payload = [payload]
+        payload = [payload] unless payload.is_a?(Array)
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)

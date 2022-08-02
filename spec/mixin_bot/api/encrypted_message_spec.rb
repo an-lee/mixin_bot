@@ -55,12 +55,17 @@ describe MixinBot::API::Message do
       }
     ]
 
-    r = MixinBot.api.send_encrypted_text_message({
-                                                   recipient_id: recipient_id,
-                                                   conversation_id: MixinBot.api.unique_conversation_id(recipient_id),
-                                                   data: 'Hello world',
-                                                   sessions: sessions
-                                                 })
+    r =
+      MixinBot
+      .api
+      .send_encrypted_text_message(
+        {
+          recipient_id: recipient_id,
+          conversation_id: MixinBot.api.unique_conversation_id(recipient_id),
+          data: 'Hello world',
+          sessions: sessions
+        }
+      )
 
     expect(r['data']).not_to be_nil
   end
