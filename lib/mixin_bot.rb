@@ -20,6 +20,7 @@ require_relative './mixin_bot/api'
 require_relative './mixin_bot/cli'
 require_relative './mixin_bot/utils'
 require_relative './mixin_bot/version'
+require_relative './mvm'
 
 module MixinBot
   class<< self
