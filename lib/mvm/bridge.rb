@@ -8,6 +8,10 @@ module MVM
       @client = MVM::Client.new 'bridge.mvm.dev'
     end
 
+    def info
+      client.get '/'
+    end
+
     def user(public_key)
       path = '/users'
 

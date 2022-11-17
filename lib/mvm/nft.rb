@@ -2,18 +2,15 @@
 
 module MVM
   class Nft
-    RPC_URL = 'https://geth.mvm.dev'
-    MIRROR_ADDRESS = '0xC193486e6Bf3E8461cb8fcdF178676a5D75c066A'
+    attr_reader :rpc, :mirror
 
-    attr_reader :client, :mirror
-
-    def initialize
-      @client = Eth::Client.create RPC_URL
-      @mirror = Eth::Contract.from_abi name: 'Mirror', address: MIRROR_ADDRESS, abi: File.open(File.expand_path('./abis/mirror.json', __dir__)).read
+    def initialize(rpc_url: MVM::RPC_URL, mirror_address: MVM::MIRROR_ADDRESS)
+      @rpc = Eth::Client.create rpc_url
+      @mirror = Eth::Contract.from_abi name: 'Mirror', address: mirror_address, abi: File.open(File.expand_path('./abis/mirror.json', __dir__)).read
     end
 
     def collection_from_contract(address)
-      collection = @client.call @mirror, 'collections', address
+      collection = @rpc.call @mirror, 'collections', address
       return if collection.zero?
 
       MixinBot::Utils::UUID.new(hex: collection.to_fs(16)).unpacked
@@ -21,7 +18,7 @@ module MVM
 
     def contract_from_collection(uuid)
       collection = uuid.to_s.gsub('-', '').to_i(16)
-      contract = @client.call @mirror, 'contracts', collection
+      contract = @rpc.call @mirror, 'contracts', collection
       address = Eth::Address.new contract
       return unless address.valid?
 
@@ -33,7 +30,7 @@ module MVM
       return if address.blank? || address.to_i(16).zero?
 
       contract = Eth::Contract.from_abi name: 'Collectible', address: address, abi: File.open(File.expand_path('./abis/erc721.json', __dir__)).read
-      owner = @client.call contract, 'ownerOf', token_id.to_i
+      owner = @rpc.call contract, 'ownerOf', token_id.to_i
       address = Eth::Address.new owner
       return unless address.valid?
 
@@ -45,7 +42,7 @@ module MVM
     def token_of_owner_by_index(contract, owner, index)
       contract = Eth::Contract.from_abi name: 'Collectible', address: contract, abi: File.open(File.expand_path('./abis/erc721.json', __dir__)).read
 
-      @client.call contract, 'tokenOfOwnerByIndex', owner, index
+      @rpc.call contract, 'tokenOfOwnerByIndex', owner, index
     rescue IOError
       nil
     end
