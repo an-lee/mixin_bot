@@ -12,4 +12,17 @@ describe MixinBot::API::Auth do
     url = MixinBot.api.request_oauth
     expect(url).to start_with "https://mixin.one/oauth/authorize?client_id=#{MixinBot.client_id}"
   end
+
+  it 'get authorization data' do
+    data = MixinBot.api.authorization_data '0508a116-1239-4e28-b150-85a8e3e6b400'
+    expect(data).not_to be_nil
+  end
+
+  it 'get authorize code' do
+    r = MixinBot.api.authorize_code(
+      user_id: '0508a116-1239-4e28-b150-85a8e3e6b400',
+      pin: PIN_CODE
+    )
+    expect(r).not_to be_nil
+  end
 end

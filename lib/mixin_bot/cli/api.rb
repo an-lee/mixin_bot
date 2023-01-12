@@ -49,5 +49,23 @@ module MixinBot
 
       log res['data']
     end
+
+    desc 'authcode', 'code to authorize other mixin account'
+    option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
+    option :client_id, type: :string, required: true, aliases: '-c', desc: "client_id of bot to authorize"
+    option :scope, type: :array, default: ['PROFILE:READ'], aliases: '-s', desc: 'scope to authorize'
+    option :pin, type: :string, required: true, aliases: '-p', desc: 'pin'
+    def authcode
+      res = {}
+      CLI::UI::Spinner.spin("POST /oauth/authorize") do |_spinner|
+        res =
+          api_instance.authorize_code(
+            user_id: options[:client_id],
+            scope: options[:scope],
+            pin: options[:pin]
+          )
+      end
+      log res['data']
+    end
   end
 end

@@ -52,6 +52,56 @@ module MixinBot
           scope: scope
         )
       end
+
+      def authorize_code(**kwargs)
+        path = '/oauth/authorize'
+        data = authorization_data(
+          kwargs[:user_id], 
+          kwargs[:scope] || ['PROFILE:READ']
+        )
+
+        payload = {
+          authorization_id: data['authorization_id'],
+          scopes: data['scopes'],
+          pin_base64: encrypt_pin(kwargs[:pin])
+        }
+
+        access_token = kwargs[:access_token]
+        access_token ||= access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
+
+      def authorization_data(user_id, scope = ['PROFILE:READ'])
+        @_client_id = user_id
+        @_scope = scope.join(' ')
+        EM.run do
+          start_blaze_connect do
+            def on_open(ws, event)
+              ws.send write_ws_message(
+                action: 'REFRESH_OAUTH_CODE',
+                params: {
+                  client_id: @_client_id,
+                  scope: @_scope,
+                  authorization_id: '',
+                  code_challenge: ''
+                }
+              )
+            end
+
+            def on_message(ws, event)
+              raw = JSON.parse read_ws_message(event.data)
+              @_data = raw['data']
+              ws.close
+            end
+
+            def on_close(ws, event)
+              EM.stop_event_loop
+            end
+          end
+        end
+        @_data
+      end
     end
   end
 end
