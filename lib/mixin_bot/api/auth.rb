@@ -56,7 +56,7 @@ module MixinBot
       def authorize_code(**kwargs)
         path = '/oauth/authorize'
         data = authorization_data(
-          kwargs[:user_id], 
+          kwargs[:user_id],
           kwargs[:scope] || ['PROFILE:READ']
         )
 
@@ -77,7 +77,7 @@ module MixinBot
         @_scope = scope.join(' ')
         EM.run do
           start_blaze_connect do
-            def on_open(ws, event)
+            def on_open(ws, _event)
               ws.send write_ws_message(
                 action: 'REFRESH_OAUTH_CODE',
                 params: {
@@ -95,7 +95,7 @@ module MixinBot
               ws.close
             end
 
-            def on_close(ws, event)
+            def on_close(_ws, _event)
               EM.stop_event_loop
             end
           end

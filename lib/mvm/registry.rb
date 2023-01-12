@@ -11,7 +11,7 @@ module MVM
 
     def pid
       hex = @rpc.call(@registry, 'PID').to_s(16)
-      MixinBot::Utils::UUID.new(hex:hex).unpacked
+      MixinBot::Utils::UUID.new(hex: hex).unpacked
     end
 
     def version
@@ -20,7 +20,7 @@ module MVM
 
     def asset_from_contract(contract)
       hex = @rpc.call(@registry, 'assets', contract).to_s(16)
-      MixinBot::Utils::UUID.new(hex:hex).unpacked
+      MixinBot::Utils::UUID.new(hex: hex).unpacked
     end
 
     def users_from_contract(contract)
