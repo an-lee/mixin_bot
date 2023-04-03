@@ -3,7 +3,7 @@
 module MixinBot
   module Utils
     class Transaction
-      DEAULT_VERSION = 2
+      DEAULT_VERSION = 3
       MAGIC = [0x77, 0x77]
       TX_VERSION = 2
       MAX_ENCODE_INT = 0xFFFF

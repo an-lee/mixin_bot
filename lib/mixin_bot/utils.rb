@@ -62,7 +62,8 @@ module MixinBot
           asset: tx[:asset],
           inputs: tx[:inputs],
           outputs: tx[:outputs],
-          extra: tx[:extra]
+          extra: tx[:extra],
+          version: tx[:version]
         ).encode.hex
       end
 
