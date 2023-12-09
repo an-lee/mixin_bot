@@ -10,16 +10,24 @@ module MixinBot
         asset_id = options[:asset_id]
         opponent_id = options[:opponent_id]
         amount = options[:amount].to_d
-        memo = options[:memo]
+        memo = options[:memo] || ''
         trace_id = options[:trace_id] || SecureRandom.uuid
-        encrypted_pin = options[:encrypted_pin] || encrypt_pin(pin)
+        amount = format('%.8f', amount.to_r).gsub(/\.?0+$/, '')
+
+        encrypted_pin = options[:encrypted_pin]
+        encrypted_pin ||= 
+          if pin.length > 6
+            encrypt_tip_pin pin, 'TIP:TRANSFER:CREATE:', asset_id, opponent_id, amount, trace_id, memo
+          else
+            encrypt_pin pin
+          end
 
         path = '/transfers'
         payload = {
           asset_id: asset_id,
           opponent_id: opponent_id,
           pin: encrypted_pin,
-          amount: format('%.8f', amount.to_r),
+          amount: amount,
           trace_id: trace_id,
           memo: memo
         }
@@ -27,7 +35,7 @@ module MixinBot
         access_token = options[:access_token]
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        # client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
       def transfer(trace_id, access_token: nil)

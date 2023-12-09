@@ -10,8 +10,10 @@ module MixinBot
         payload = 
           if pin.length > 6
             data = build_tip_pin_verification_msg pin
-            data[:pin_base64] = encrypt_pin data[:pin_base64]
-            data
+            {
+              pin_base64: encrypt_pin(data[:signature]),
+              timestamp: data[:timestamp]
+            }
           else 
             {
               pin: encrypt_pin(pin)
@@ -25,8 +27,11 @@ module MixinBot
 
       # https://developers.mixin.one/api/alpha-mixin-network/create-pin/
       def update_pin(old_pin:, pin:)
+        raise ArgumentError, 'invalid old pin' if old_pin.present? && old_pin.length != 6
+
         path = '/pin/update'
         encrypted_old_pin = old_pin.nil? ? '' : encrypt_pin(old_pin, iterator: Time.now.utc.to_i)
+
         encrypted_pin = encrypt_pin(pin, iterator: Time.now.utc.to_i + 1)
         payload = {
           old_pin_base64: encrypted_old_pin,
@@ -57,10 +62,10 @@ module MixinBot
 
         timestamp = Time.now.utc.to_i
         msg = "TIP:VERIFY:#{timestamp.to_s.rjust(32, '0')}"
-        pin_base64 = JOSE::JWA::Ed25519.sign(msg, private_key).unpack1('H*')
+        signature = JOSE::JWA::Ed25519.sign(msg, private_key).unpack1('H*')
 
         {
-          pin_base64: pin_base64,
+          signature: signature,
           timestamp: timestamp
         }
       end

@@ -66,5 +66,60 @@ module MixinBot
       end
       log res['data']
     end
+
+    desc 'updatetip PIN', 'update TIP pin'
+    option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
+    def updatetip(pin)
+      profile = api_instance.me
+      log UI.fmt "{{v}} #{profile['full_name']}, TIP counter: #{profile['tip_counter']}"
+
+      counter = profile['tip_counter']
+      key = api_instance.prepare_tip_pin counter
+      log UI.fmt "{{v}} Generated key: #{key[:private_key]}"
+
+      res = api_instance.update_pin old_pin: pin.to_s, pin: key[:public_key]
+
+      log({
+        pin: key[:private_key],
+        tip_key_base64: res['tip_key_base64']
+      })
+    rescue StandardError => e
+      log UI.fmt "{{x}} #{e.inspect}"
+    end
+
+    desc 'verify PIN', 'verify pin'
+    option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
+    def verifypin(pin)
+      res = api_instance.verify_pin pin.to_s
+
+      log res
+    rescue StandardError => e
+      log UI.fmt "{{x}} #{e.inspect}"
+    end
+
+    desc 'transfer USER_ID', 'transfer asset to USER_ID'
+    option :asset, type: :string, required: true, desc: 'Asset ID'
+    option :amount, type: :numeric, required: true, desc: 'Amount'
+    option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
+    def transfer(user_id)
+      CLI::UI::Spinner.spin "Transfer #{options[:amount]} #{options[:asset]} to #{user_id}" do |_spinner|
+        api_instance.create_transfer(
+          keystore['pin'],
+          {
+            asset_id: options[:asset],
+            opponent_id: user_id,
+            amount: options[:amount],
+            memo: 'transfer'
+          }
+        )
+      end
+    end
+
+    desc 'saferegister', 'register SAFE network'
+    option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
+    def saferegister
+      res = api_instance.safe_register keystore['pin']
+      log res
+    end
   end
 end
