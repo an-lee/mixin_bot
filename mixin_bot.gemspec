@@ -32,9 +32,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'sha3', '~> 1.0'
   s.add_dependency 'thor', '~> 1.0'
 
-  s.add_dependency 'faraday', '>= 2'
-  s.add_dependency 'faraday-retry', '>= 2'
-
   s.add_development_dependency 'fastimage', '~> 2.2.5'
   s.add_development_dependency 'pry', '~> 0.14'
   s.add_development_dependency 'rake', '~> 13.0'

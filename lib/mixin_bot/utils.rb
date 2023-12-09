@@ -112,6 +112,22 @@ module MixinBot
 
         int
       end
+
+      def generate_ed25519_key
+        ed25519_key = JOSE::JWA::Ed25519.keypair
+        {
+          private_key: Base64.strict_encode64(ed25519_key[1]),
+          public_key: Base64.strict_encode64(ed25519_key[0])
+        }
+      end
+
+      def generate_rsa_key
+        rsa_key = OpenSSL::PKey::RSA.new 1024
+        {
+          private_key: rsa_key.to_pem,
+          public_key: rsa_key.public_key.to_pem
+        }
+      end
     end
   end
 end

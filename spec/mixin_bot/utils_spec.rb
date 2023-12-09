@@ -101,4 +101,14 @@ describe MixinBot::Utils do
 
     expect(described_class.generate_trace_from_hash(hash)).to eq(trace_id)
   end
+
+  it 'generate rsa key' do
+    res = described_class.generate_rsa_key
+    expect(res).to have_key(:public_key)
+  end
+
+  it 'generate ed25519 key' do
+    res = described_class.generate_ed25519_key
+    expect(res).to have_key(:public_key)
+  end
 end
