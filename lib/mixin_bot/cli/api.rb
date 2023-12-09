@@ -74,7 +74,7 @@ module MixinBot
       log UI.fmt "{{v}} #{profile['full_name']}, TIP counter: #{profile['tip_counter']}"
 
       counter = profile['tip_counter']
-      key = api_instance.prepare_tip_pin counter
+      key = api_instance.prepare_tip_key counter
       log UI.fmt "{{v}} Generated key: #{key[:private_key]}"
 
       res = api_instance.update_pin old_pin: pin.to_s, pin: key[:public_key]

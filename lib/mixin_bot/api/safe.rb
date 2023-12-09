@@ -10,7 +10,7 @@ module MixinBot
         public_key = key[0].unpack1('H*')
 
         hex = SHA3::Digest::SHA256.hexdigest client_id
-        signature = Base64.urlsafe_encode64 JOSE::JWA::Ed25519.sign(hex, key[1])
+        signature = Base64.urlsafe_encode64 JOSE::JWA::Ed25519.sign(hex, key[1]), padding: false
         pin_base64 = encrypt_tip_pin pin, 'SEQUENCER:REGISTER:', client_id, public_key
 
         payload = {

@@ -9,10 +9,12 @@ module MixinBot
 
         payload = 
           if pin.length > 6
-            data = build_tip_pin_verification_msg pin
+            timestamp = Time.now.utc.to_i
+            pin_base64 = encrypt_tip_pin pin, 'TIP:VERIFY:', timestamp.to_s.rjust(32, '0')
+
             {
-              pin_base64: encrypt_pin(data[:signature]),
-              timestamp: data[:timestamp]
+              pin_base64: pin_base64,
+              timestamp: timestamp,
             }
           else 
             {
@@ -43,7 +45,7 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      def prepare_tip_pin(counter = 0)
+      def prepare_tip_key(counter = 0)
         ed25519_key = JOSE::JWA::Ed25519.keypair
 
         private_key = ed25519_key[1].unpack1('H*')
@@ -52,21 +54,6 @@ module MixinBot
         {
           private_key: private_key,
           public_key: public_key
-        }
-      end
-
-      def build_tip_pin_verification_msg(private_key)
-        private_key = [private_key].pack('H*') if private_key.length > 64
-
-        raise ArgumentError if private_key.size != 64
-
-        timestamp = Time.now.utc.to_i
-        msg = "TIP:VERIFY:#{timestamp.to_s.rjust(32, '0')}"
-        signature = JOSE::JWA::Ed25519.sign(msg, private_key).unpack1('H*')
-
-        {
-          signature: signature,
-          timestamp: timestamp
         }
       end
 
