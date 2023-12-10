@@ -102,7 +102,7 @@ module MixinBot
         aes.iv = iv
         cipher = aes.update(padded_content)
         msg = iv + cipher
-        Base64.strict_encode64 msg
+        Base64.urlsafe_encode64 msg, padding: false
       end
     end
 

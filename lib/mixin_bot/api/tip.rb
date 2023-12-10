@@ -30,6 +30,11 @@ module MixinBot
 
         private_key = [pin].pack('H*')
         msg = action + params.join
+
+        if action != 'TIP:VERIFY:'
+          msg = [Digest::SHA256.hexdigest(msg)].pack('H*')
+        end
+
         signature = JOSE::JWA::Ed25519.sign msg, private_key
 
         encrypt_pin signature.unpack1('H*')

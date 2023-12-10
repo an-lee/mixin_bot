@@ -87,7 +87,7 @@ module MixinBot
       log UI.fmt "{{x}} #{e.inspect}"
     end
 
-    desc 'verify PIN', 'verify pin'
+    desc 'verifypin PIN', 'verify pin'
     option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
     def verifypin(pin)
       res = api_instance.verify_pin pin.to_s
@@ -102,8 +102,10 @@ module MixinBot
     option :amount, type: :numeric, required: true, desc: 'Amount'
     option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
     def transfer(user_id)
-      CLI::UI::Spinner.spin "Transfer #{options[:amount]} #{options[:asset]} to #{user_id}" do |_spinner|
-        api_instance.create_transfer(
+      res = {}
+
+      CLI::UI::Spinner.spin "Try to transfer #{options[:amount]} #{options[:asset]} to #{user_id}" do |_spinner|
+        res = api_instance.create_transfer(
           keystore['pin'],
           {
             asset_id: options[:asset],
@@ -112,6 +114,10 @@ module MixinBot
             memo: 'transfer'
           }
         )
+      end
+
+      if res['snapshot_id'].present?
+        log UI.fmt "{{v}} Finished: https://mixin.one/snapshots/#{res['snapshot_id']}"
       end
     end
 
