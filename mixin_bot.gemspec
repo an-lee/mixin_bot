@@ -21,7 +21,9 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'activesupport', '>= 5'
   s.add_dependency 'awesome_print', '~> 1.8'
+  s.add_dependency 'blake3-rb', '~> 1.5'
   s.add_dependency 'bcrypt', '~> 3.1'
+  s.add_dependency 'base58', '~> 0.2'
   s.add_dependency 'cli-ui', '~> 2.2'
   s.add_dependency 'eth', '~> 0.5'
   s.add_dependency 'faye-websocket', '>= 0.11'

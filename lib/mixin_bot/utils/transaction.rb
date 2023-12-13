@@ -3,10 +3,11 @@
 module MixinBot
   module Utils
     class Transaction
-      DEAULT_VERSION = 3
+      DEAULT_VERSION = 5
       MAGIC = [0x77, 0x77]
       TX_VERSION = 2
       MAX_ENCODE_INT = 0xFFFF
+      MAX_EXTRA_SIZE = 512
       NULL_BYTES = [0x00, 0x00]
       AGGREGATED_SIGNATURE_PREFIX = 0xFF01
       AGGREGATED_SIGNATURE_ORDINAY_MASK = [0x00]
@@ -19,7 +20,7 @@ module MixinBot
         @asset = kwargs[:asset]
         @inputs = kwargs[:inputs]
         @outputs = kwargs[:outputs]
-        @extra = kwargs[:extra]
+        @extra = kwargs[:extra].to_s
         @hex = kwargs[:hex]
         @signatures = kwargs[:signatures]
         @aggregated = kwargs[:aggregated]
@@ -47,9 +48,13 @@ module MixinBot
         # output
         bytes += encode_outputs
 
+        # placeholder for `references`
+        bytes += NULL_BYTES
+
         # extra
-        extra_bytes = [extra].pack('H*').bytes
-        bytes += MixinBot::Utils.encode_int extra_bytes.size
+        extra_bytes = extra.bytes
+        raise InvalidTransactionFormatError, 'extra is too long' if extra_bytes.size > MAX_EXTRA_SIZE
+        bytes += MixinBot::Utils.encode_unit_32 extra_bytes.size
         bytes += extra_bytes
 
         # aggregated
@@ -85,8 +90,14 @@ module MixinBot
         # read outputs
         decode_outputs
 
-        extra_size = @bytes.shift(2).reverse.pack('C*').unpack1('S*')
-        @extra = @bytes.shift(extra_size).pack('C*').unpack1('H*')
+        # TODO:
+        # read references
+        @bytes.shift 2
+
+        # read extra
+        # unsigned 32 endian for extra size
+        extra_size = @bytes.shift(4).reverse.pack('C*').unpack1('L*')
+        @extra = @bytes.shift(extra_size).pack('C*')
 
         num = @bytes.shift(2).reverse.pack('C*').unpack1('S*')
         if num == MAX_ENCODE_INT
@@ -123,7 +134,13 @@ module MixinBot
         else
           if !@bytes.empty? && @bytes[...2] != NULL_BYTES
             signatures_size = @bytes.shift(2).reverse.pack('C*').unpack1('S*')
-            @signatures = @bytes.shift(signatures_size).pack('C*').unpack1('H*')
+            return if signatures_size == 0
+
+            @signatures = {}
+            signatures_size.times.with_index do |index|
+              length = 64
+              @signatures[index] = @bytes.shift(length).pack('C*').unpack1('H*')
+            end
           end
         end
 
@@ -335,8 +352,9 @@ module MixinBot
         if sl > 0
           bytes += MixinBot::Utils.encode_int signatures.keys.size
           signatures.keys.sort.each do |key|
+            signature_bytes = [signatures[key]].pack('H*').bytes
             bytes += MixinBot::Utils.encode_int key
-            bytes += [signatures[key]].pack('H*').bytes
+            bytes += signature_bytes
           end
         end
 
@@ -423,7 +441,7 @@ module MixinBot
           output['type'] = type
 
           amount_size = @bytes.shift(2).reverse.pack('C*').unpack1('S*')
-          output['amount'] = format('%.8f', MixinBot::Utils.bytes_to_int(@bytes.shift(amount_size)).to_f / 1e8)
+          output['amount'] = format('%.8f', MixinBot::Utils.bytes_to_int(@bytes.shift(amount_size)).to_f / 1e8).gsub(/\.?0+$/, '')
 
           output['keys'] = []
           keys_size = @bytes.shift(2).reverse.pack('C*').unpack1('S*')

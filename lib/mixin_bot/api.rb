@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './client'
+require_relative './api/address'
 require_relative './api/app'
 require_relative './api/asset'
 require_relative './api/attachment'
@@ -49,8 +50,8 @@ module MixinBot
       end
     end
 
-    def sign_raw_transaction(tx)
-      MixinBot::Utils.sign_raw_transaction tx
+    def encode_raw_transaction(tx)
+      MixinBot::Utils.encode_raw_transaction tx
     end
 
     def decode_raw_transaction(raw)
@@ -58,7 +59,7 @@ module MixinBot
     end
 
     # Use a mixin software to implement transaction build
-    def sign_raw_transaction_native(json)
+    def encode_raw_transaction_native(json)
       ensure_mixin_command_exist
       command = format("mixin signrawtransaction --raw '%<arg>s'", arg: json)
 
@@ -79,6 +80,7 @@ module MixinBot
       JSON.parse output.chomp
     end
 
+    include MixinBot::API::Address
     include MixinBot::API::App
     include MixinBot::API::Asset
     include MixinBot::API::Attachment

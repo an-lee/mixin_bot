@@ -3,10 +3,12 @@
 # third-party dependencies
 require 'English'
 require 'active_support/all'
+require 'base58'
 require 'base64'
 require 'bigdecimal'
 require 'bigdecimal/util'
 require 'digest'
+require 'digest/blake3'
 require 'faye/websocket'
 require 'http'
 require 'jose'

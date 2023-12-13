@@ -100,6 +100,7 @@ module MixinBot
     desc 'transfer USER_ID', 'transfer asset to USER_ID'
     option :asset, type: :string, required: true, desc: 'Asset ID'
     option :amount, type: :numeric, required: true, desc: 'Amount'
+    option :memo, type: :string, required: false, desc: 'memo'
     option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
     def transfer(user_id)
       res = {}
@@ -111,7 +112,7 @@ module MixinBot
             asset_id: options[:asset],
             opponent_id: user_id,
             amount: options[:amount],
-            memo: 'transfer'
+            memo: options[:memo]
           }
         )
       end
@@ -126,6 +127,100 @@ module MixinBot
     def saferegister
       res = api_instance.safe_register keystore['pin']
       log res
+    end
+
+    desc 'pay USER_ID', 'generate pay url'
+    option :asset, type: :string, required: true, desc: 'Asset ID'
+    option :amount, type: :numeric, required: true, desc: 'Amount'
+    option :trace, type: :string, required: false, desc: 'Trace ID'
+    option :memo, type: :string, required: false, desc: 'memo'
+    def pay(user_id)
+      trace = options[:trace] || SecureRandom.uuid
+      log "https://mixin.one/pay/#{user_id}?asset=#{options[:asset]}&amount=#{options[:amount]}&trace=#{trace}&memo=#{options[:memo]}"
+    end
+
+    desc 'safetransfer USER_ID', 'transfer asset to USER_ID with SAFE network'
+    option :asset, type: :string, required: true, desc: 'Asset ID'
+    option :amount, type: :numeric, required: true, desc: 'Amount'
+    option :trace, type: :string, required: false, desc: 'Trace ID'
+    option :memo, type: :string, required: false, desc: 'memo'
+    option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
+    def safetransfer(user_id)
+      amount = options[:amount].to_d
+      asset = options[:asset]
+
+      # step 1: select inputs
+      utxos = api_instance.safe_outputs(state: 'unspent')['data']
+      utxos = utxos.filter(&->(input) { input['asset_id'] == asset })
+      balance = utxos.sum(&->(input) { input['amount'].to_d })
+      log UI.fmt "Step 1/7: {{v}} Found #{utxos.count} unspent outputs, balance: #{balance}"
+
+      change = balance - amount
+      if change.negative?
+        log UI.fmt "{{x}} Insufficient balance: #{balance}"
+        return
+      end
+
+      # step 2: build recipients address
+      recipient = api_instance.build_safe_recipients(
+        members: [user_id],
+        threshold: 1,
+        amount: amount
+      )
+      recipients = [recipient]
+
+      if change.positive?
+        change_recipient = api_instance.build_safe_recipients(
+          members: utxos[0]['receivers'],
+          threshold: utxos[0]['receivers_threshold'],
+          amount: change
+        )
+        recipients << change_recipient
+      end
+      log UI.fmt "Step 2/7: {{v}} build safe recipient: #{recipients}"
+
+      # step 3: create ghost keys for outputs(mask & keys)
+      payload = recipients.map.with_index do |r, index|  
+        {
+          receivers: r[:members],
+          index: index,
+          hint: SecureRandom.uuid
+        }
+      end
+      ghosts = api_instance.create_safe_keys(*payload)['data']
+      log UI.fmt "Step 3/7: {{v}} create ghost keys: #{ghosts}"
+
+      # step 4: build transaction
+      memo = options[:memo] || ''
+      tx = api_instance.build_safe_transaction(
+        utxos: utxos,
+        recipients: recipients,
+        ghosts: ghosts,
+        extra: memo
+      )
+
+      raw = MixinBot::Utils.encode_raw_transaction tx
+      log UI.fmt "Step 4/7: {{v}} Build tx: #{tx}, raw: #{raw}"
+
+      # step 5: verify transaction
+      request_id = SecureRandom.uuid
+      request = api_instance.create_safe_transaction_request(request_id, raw)['data']
+      log UI.fmt "Step 5/7: {{v}} Verified transaction: #{request}"
+
+      # step 6: sign transaction
+      signed_raw = api_instance.sign_safe_transaction(
+        raw: raw,
+        utxos: utxos,
+        request: request[0],
+      )
+      log UI.fmt "Step 6/7: {{v}} Signed transaction: #{signed_raw}"
+
+      # step 7: submit transaction
+      r = api_instance.send_safe_transaction(
+        request_id,
+        signed_raw
+      )
+      log UI.fmt "Step 7/7: {{v}} Submit transaction: #{r}"
     end
   end
 end

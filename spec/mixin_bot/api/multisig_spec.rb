@@ -34,7 +34,7 @@ describe MixinBot::API::Multisig do
       hint: SecureRandom.uuid
     )
 
-    raw = MixinBot.api.sign_raw_transaction tx
+    raw = MixinBot.api.encode_raw_transaction tx
 
     res = MixinBot.api.create_sign_multisig_request raw
 

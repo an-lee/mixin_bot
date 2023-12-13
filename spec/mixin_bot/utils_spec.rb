@@ -48,8 +48,8 @@ describe MixinBot::Utils do
       extra: '74657374206f66207369676e2072657175657374'
     }
 
-    native_raw = MixinBot.api.sign_raw_transaction_native tx.to_json
-    signed_raw = described_class.sign_raw_transaction tx
+    native_raw = MixinBot.api.encode_raw_transaction_native tx.to_json
+    signed_raw = described_class.encode_raw_transaction tx
 
     expect(signed_raw).to eq(native_raw)
   end

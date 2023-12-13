@@ -32,7 +32,7 @@ module MixinBot
         msg = action + params.join
 
         if action != 'TIP:VERIFY:'
-          msg = [Digest::SHA256.hexdigest(msg)].pack('H*')
+          msg = Digest::SHA256.digest msg
         end
 
         signature = JOSE::JWA::Ed25519.sign msg, private_key

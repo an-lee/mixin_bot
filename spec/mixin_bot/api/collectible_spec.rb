@@ -35,7 +35,7 @@ describe MixinBot::API::Collectible do
       threshold: 1
     )
 
-    raw = MixinBot.api.sign_raw_transaction tx
+    raw = MixinBot.api.encode_raw_transaction tx
     puts '== signing =='
     request = MixinBot.api.create_sign_collectible_request raw
     expect(request['request_id']).not_to be_nil
