@@ -148,6 +148,7 @@ module MixinBot
     def safetransfer(user_id)
       amount = options[:amount].to_d
       asset = options[:asset]
+      memo = options[:memo] || ''
 
       # step 1: select inputs
       utxos = api_instance.safe_outputs(state: 'unspent')['data']
@@ -155,72 +156,38 @@ module MixinBot
       balance = utxos.sum(&->(input) { input['amount'].to_d })
       log UI.fmt "Step 1/7: {{v}} Found #{utxos.count} unspent outputs, balance: #{balance}"
 
-      change = balance - amount
-      if change.negative?
-        log UI.fmt "{{x}} Insufficient balance: #{balance}"
-        return
-      end
-
-      # step 2: build recipients address
-      recipient = api_instance.build_safe_recipient(
-        members: [user_id],
-        threshold: 1,
-        amount: amount
-      )
-      recipients = [recipient]
-
-      if change.positive?
-        change_recipient = api_instance.build_safe_recipient(
-          members: utxos[0]['receivers'],
-          threshold: utxos[0]['receivers_threshold'],
-          amount: change
-        )
-        recipients << change_recipient
-      end
-      log UI.fmt "Step 2/7: {{v}} build safe recipient: (#{recipient[:threshold]}/#{recipient[:members].size}) #{recipient[:members]}, amount: #{recipient[:amount]}"
-
-      # step 3: create ghost keys for outputs(mask & keys)
-      payload = recipients.map.with_index do |r, index|  
-        {
-          receivers: r[:members],
-          index: index,
-          hint: SecureRandom.uuid
-        }
-      end
-      ghosts = api_instance.create_safe_keys(*payload)['data']
-      log UI.fmt "Step 3/7: {{v}} create ghost keys"
-
-      # step 4: build transaction
-      memo = options[:memo] || ''
+      # step 2: build transaction
       tx = api_instance.build_safe_transaction(
         utxos: utxos,
-        recipients: recipients,
-        ghosts: ghosts,
+        receivers: [
+          members: [user_id],
+          threshold: 1,
+          amount: amount
+        ],
         extra: memo
       )
-
       raw = MixinBot::Utils.encode_raw_transaction tx
-      log UI.fmt "Step 4/7: {{v}} Built raw: #{raw}"
+      log UI.fmt "Step 2/5: {{v}} Built raw: #{raw}"
 
-      # step 5: verify transaction
+      # step 3: verify transaction
       request_id = SecureRandom.uuid
       request = api_instance.create_safe_transaction_request(request_id, raw)['data']
-      log UI.fmt "Step 5/7: {{v}} Verified transaction, request_id: #{request[0]['request_id']}"
+      log UI.fmt "Step 3/5: {{v}} Verified transaction, request_id: #{request[0]['request_id']}"
 
-      # step 6: sign transaction
+      # step 4: sign transaction
       signed_raw = api_instance.sign_safe_transaction(
         raw: raw,
         utxos: utxos,
         request: request[0],
       )
-      log UI.fmt "Step 6/7: {{v}} Signed transaction: #{signed_raw}"
+      log UI.fmt "Step 4/5: {{v}} Signed transaction: #{signed_raw}"
 
-      # step 7: submit transaction
+      # step 5: submit transaction
       r = api_instance.send_safe_transaction(
         request_id,
         signed_raw
       )
-      log UI.fmt "Step 7/7: {{v}} Submit transaction, hash: #{r['data'].first['transaction_hash']}"
+      log UI.fmt "Step 5/5: {{v}} Submit transaction, hash: #{r['data'].first['transaction_hash']}"
     rescue StandardError => e
       log UI.fmt "{{x}} #{e.inspect}"
     end

@@ -93,21 +93,48 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      SAFE_RAW_TRANSACTION_ARGUMENTS = %i[utxos recipients ghosts].freeze
+      # kwargs:
+      # {
+      #  utxos: [ utxo ],
+      #  receivers: [ {
+      #   members: [ uuid ],
+      #   threshold: integer,
+      #   amount: string,
+      #  } ],
+      #  ghosts: [ ghost ],
+      #  extra: string,
+      # }
+      SAFE_RAW_TRANSACTION_ARGUMENTS = %i[utxos receivers].freeze
       def build_safe_transaction(**kwargs)
         raise ArgumentError, "#{SAFE_RAW_TRANSACTION_ARGUMENTS.join(', ')} are needed for build safe transaction" unless SAFE_RAW_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
 
         utxos = kwargs[:utxos].map(&:with_indifferent_access)
-        recipients = kwargs[:recipients].map(&:with_indifferent_access)
-        ghosts = kwargs[:ghosts].map(&:with_indifferent_access)
+        receivers = kwargs[:receivers].map(&:with_indifferent_access)
 
         raise ArgumentError, 'utxos should not be empty' if utxos.size == 0
         raise ArgumentError, 'utxos too many' if utxos.size > 256
-        raise ArgumentError, 'recipients too many' if recipients.size > 256
+
+        recipients = receivers.map do |receiver|
+          build_safe_recipient(
+            members: receiver[:members],
+            threshold: receiver[:threshold],
+            amount: receiver[:amount]
+          ).with_indifferent_access
+        end
 
         inputs_sum = utxos.sum(&->(utxo) { utxo['amount'].to_d })
         outputs_sum = recipients.sum(&->(recipient) { recipient['amount'].to_d })
-        raise ArgumentError, 'inputs sum not equal outputs sum' unless inputs_sum == outputs_sum
+        change = inputs_sum - outputs_sum
+        raise InsufficientBalanceError, "inputs sum: #{inputs_sum}" if change.negative?
+
+        if change.positive?
+          recipients << build_safe_recipient(
+            members: utxos[0]['receivers'],
+            threshold: utxos[0]['receivers_threshold'],
+            amount: change
+          ).with_indifferent_access
+        end
+        raise ArgumentError, 'recipients too many' if recipients.size > 256
 
         asset = utxos[0]['asset']
         inputs = []
@@ -119,6 +146,15 @@ module MixinBot
             index: utxo['output_index'],
           }
         end
+
+        ghost_payload = recipients.map.with_index do |r, index|  
+          {
+            receivers: r[:members],
+            index: index,
+            hint: SecureRandom.uuid
+          }
+        end 
+        ghosts = create_safe_keys(*ghost_payload)['data']
 
         outputs = []
         recipients.each_with_index do |recipient, index|
@@ -250,58 +286,30 @@ module MixinBot
         # step 1: select inputs
         utxos = safe_outputs(state: 'unspent')['data']
         utxos = utxos.filter(&->(utxo) { utxo['asset_id'] == asset_id })
-        balance = utxos.sum(&->(utxo) { utxo['amount'].to_d })
-        change = balance - amount
-        raise InsufficientBalanceError if change.negative?
 
-        # step 2: build recipients address
-        recipient = build_safe_recipient(
-          members: members,
-          threshold: threshold,
-          amount: amount
-        )
-        recipients = [recipient]
-
-        if change.positive?
-          change_recipient = build_safe_recipient(
-            members: utxos[0]['receivers'],
-            threshold: utxos[0]['receivers_threshold'],
-            amount: change
-          )
-          recipients << change_recipient
-        end
-
-        # step 3: create ghost keys for outputs(mask & keys)
-        payload = recipients.map.with_index do |r, index|  
-          {
-            receivers: r[:members],
-            index: index,
-            hint: SecureRandom.uuid
-          }
-        end
-        ghosts = create_safe_keys(*payload)['data']
-
-        # step 4: build transaction
+        # step 2: build transaction
         tx = build_safe_transaction(
           utxos: utxos,
-          recipients: recipients,
-          ghosts: ghosts,
+          receivers: [{
+            members: members,
+            threshold: threshold,
+            amount: amount
+          }],
           extra: memo
         )
-
         raw = MixinBot::Utils.encode_raw_transaction tx
 
-        # step 5: verify transaction
+        # step 3: verify transaction
         request = create_safe_transaction_request(request_id, raw)['data']
 
-        # step 6: sign transaction
+        # step 4: sign transaction
         signed_raw = sign_safe_transaction(
           raw: raw,
           utxos: utxos,
           request: request[0],
         )
 
-        # step 7: submit transaction
+        # step 5: submit transaction
         send_safe_transaction(
           request_id,
           signed_raw
