@@ -338,7 +338,7 @@ module MixinBot
         }
       end
 
-      def safe_payment_url(**kwargs)
+      def safe_pay_url(**kwargs)
         members = kwargs[:members]
         threshold = kwargs[:threshold]
         asset_id = kwargs[:asset_id]

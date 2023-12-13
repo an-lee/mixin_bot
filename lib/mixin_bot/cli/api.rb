@@ -137,7 +137,7 @@ module MixinBot
     option :trace, type: :string, required: false, desc: 'Trace ID'
     option :memo, type: :string, required: false, desc: 'memo'
     def pay
-      url = api_instance.safe_payment_url(
+      url = api_instance.safe_pay_url(
         members: options[:members],
         threshold: options[:threshold],
         asset_id: options[:asset],
