@@ -52,19 +52,19 @@ module MixinBot
         UUID.new(hex: hex).unpacked
       end
 
-      def sign_raw_transaction(tx)
-        tx = JSON.parse tx if tx.is_a? String
-        raise ArgumentError, "#{tx} is not a valid json" unless tx.is_a? Hash
+      def encode_raw_transaction(tx)
+        if tx.is_a? String
+          begin
+            tx = JSON.parse tx
+          rescue JSON::ParserError
+            tx
+          end
+        end
 
+        raise ArgumentError, "#{tx} is not a valid json" unless tx.is_a? Hash
         tx = tx.with_indifferent_access
 
-        Transaction.new(
-          asset: tx[:asset],
-          inputs: tx[:inputs],
-          outputs: tx[:outputs],
-          extra: tx[:extra],
-          version: tx[:version]
-        ).encode.hex
+        Transaction.new(**tx).encode.hex
       end
 
       def decode_raw_transaction(hex)
@@ -79,18 +79,43 @@ module MixinBot
         ).mint_memo
       end
 
-      def encode_int(int)
+      def encode_uint_16(int)
         raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
-        raise ArgumentError, "int #{int} is larger than MAX_ENCODE_INT #{MAX_ENCODE_INT}" if int > MAX_ENCODE_INT
 
         [int].pack('S*').bytes.reverse
       end
 
-      def encode_unit_64(int)
+      def decode_uint_16(bytes)
+        raise ArgumentError, "only support bytes #{bytes}" unless bytes.is_a?(Array)
+
+        bytes.reverse.pack('C*').unpack1('S*')
+      end
+
+      def encode_uint_32(int)
+        raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
+
+        [int].pack('L*').bytes.reverse
+      end
+
+      def decode_uint_32(bytes)
+        raise ArgumentError, "only support bytes #{bytes}" unless bytes.is_a?(Array)
+
+        bytes.reverse.pack('C*').unpack1('L*')
+      end
+
+      def encode_uint_64(int)
+        raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
+
         [int].pack('Q*').bytes.reverse
       end
 
-      def bytes_of(int)
+      def decode_uint_64(bytes)
+        raise ArgumentError, "only support bytes #{bytes}" unless bytes.is_a?(Array)
+
+        bytes.reverse.pack('C*').unpack1('Q*')
+      end
+
+      def int_to_bytes(int)
         raise ArgumentError, 'not integer' unless int.is_a?(Integer)
 
         bytes = []
@@ -111,6 +136,61 @@ module MixinBot
         end
 
         int
+      end
+
+      def generate_ed25519_key
+        ed25519_key = JOSE::JWA::Ed25519.keypair
+        {
+          private_key: Base64.strict_encode64(ed25519_key[1]),
+          public_key: Base64.strict_encode64(ed25519_key[0])
+        }
+      end
+
+      def generate_rsa_key
+        rsa_key = OpenSSL::PKey::RSA.new 1024
+        {
+          private_key: rsa_key.to_pem,
+          public_key: rsa_key.public_key.to_pem
+        }
+      end
+
+      def generate_public_key(key)
+        point = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(key.reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        )
+
+        (JOSE::JWA::Edwards25519Point.stdbase * (point.x.to_i)).encode
+      end
+
+      def sign(msg, key:)
+        msg = Digest::Blake3.digest msg
+
+        pub = self.generate_public_key key
+        
+        y_point = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(key.reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        )
+
+        key_digest = Digest::SHA512.digest key
+        msg_digest = Digest::SHA512.digest(key_digest[-32...] + msg)
+
+        z_point = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(msg_digest[...64].reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        )
+
+        r_point = JOSE::JWA::Edwards25519Point.stdbase * (z_point.x.to_i)
+        hram_digest = Digest::SHA512.digest(r_point.encode + pub + msg)
+
+        x_point = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(hram_digest[...64].reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        )
+        s_point = (x_point * y_point) + z_point
+
+        r_point.encode + s_point.to_bytes(36)
       end
     end
   end

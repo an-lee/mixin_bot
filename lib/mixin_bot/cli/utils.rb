@@ -31,5 +31,15 @@ module MixinBot
     def nftmemo
       log MixinBot::Utils.nft(options[:collection], options[:token], options[:hash])
     end
+
+    desc 'rsa', 'generate RSA key'
+    def rsa
+      log MixinBot::Utils.generate_rsa_key
+    end
+
+    desc 'ed25519', 'generate Ed25519 key'
+    def ed25519
+      log MixinBot::Utils.generate_ed25519_key
+    end
   end
 end

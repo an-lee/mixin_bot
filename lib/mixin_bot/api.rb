@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './client'
+require_relative './api/address'
 require_relative './api/app'
 require_relative './api/asset'
 require_relative './api/attachment'
@@ -15,7 +16,9 @@ require_relative './api/multisig'
 require_relative './api/payment'
 require_relative './api/pin'
 require_relative './api/rpc'
+require_relative './api/safe'
 require_relative './api/snapshot'
+require_relative './api/tip'
 require_relative './api/transaction'
 require_relative './api/transfer'
 require_relative './api/user'
@@ -38,6 +41,7 @@ module MixinBot
           ''
         end
       _private_key = options[:private_key] || MixinBot.private_key
+
       if /^-----BEGIN RSA PRIVATE KEY-----/.match? _private_key
         @private_key = _private_key.gsub('\\r\\n', "\n").gsub("\r\n", "\n")
         @key_type = :rsa
@@ -45,10 +49,12 @@ module MixinBot
         @private_key = Base64.urlsafe_decode64 _private_key
         @key_type = :ed25519
       end
+    rescue StandardError
+      nil
     end
 
-    def sign_raw_transaction(tx)
-      MixinBot::Utils.sign_raw_transaction tx
+    def encode_raw_transaction(tx)
+      MixinBot::Utils.encode_raw_transaction tx
     end
 
     def decode_raw_transaction(raw)
@@ -56,7 +62,7 @@ module MixinBot
     end
 
     # Use a mixin software to implement transaction build
-    def sign_raw_transaction_native(json)
+    def encode_raw_transaction_native(json)
       ensure_mixin_command_exist
       command = format("mixin signrawtransaction --raw '%<arg>s'", arg: json)
 
@@ -77,6 +83,7 @@ module MixinBot
       JSON.parse output.chomp
     end
 
+    include MixinBot::API::Address
     include MixinBot::API::App
     include MixinBot::API::Asset
     include MixinBot::API::Attachment
@@ -91,7 +98,9 @@ module MixinBot
     include MixinBot::API::Payment
     include MixinBot::API::Pin
     include MixinBot::API::Rpc
+    include MixinBot::API::Safe
     include MixinBot::API::Snapshot
+    include MixinBot::API::Tip
     include MixinBot::API::Transaction
     include MixinBot::API::Transfer
     include MixinBot::API::User

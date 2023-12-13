@@ -48,8 +48,8 @@ describe MixinBot::Utils do
       extra: '74657374206f66207369676e2072657175657374'
     }
 
-    native_raw = MixinBot.api.sign_raw_transaction_native tx.to_json
-    signed_raw = described_class.sign_raw_transaction tx
+    native_raw = MixinBot.api.encode_raw_transaction_native tx.to_json
+    signed_raw = described_class.encode_raw_transaction tx
 
     expect(signed_raw).to eq(native_raw)
   end
@@ -100,5 +100,15 @@ describe MixinBot::Utils do
     trace_id = '9fd4e5b8-7dba-3145-a2a6-914930a77cb7'
 
     expect(described_class.generate_trace_from_hash(hash)).to eq(trace_id)
+  end
+
+  it 'generate rsa key' do
+    res = described_class.generate_rsa_key
+    expect(res).to have_key(:public_key)
+  end
+
+  it 'generate ed25519 key' do
+    res = described_class.generate_ed25519_key
+    expect(res).to have_key(:public_key)
   end
 end

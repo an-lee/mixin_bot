@@ -207,10 +207,9 @@ module MixinBot
           end
         end
 
-        extra ||= Digest.hexencode(memo.to_s.slice(0, 140))
+        # extra ||= Digest.hexencode(memo.to_s.slice(0, 140))
         asset = asset_mixin_id || SHA3::Digest::SHA256.hexdigest(asset_id)
         tx = {
-          version: 3,
           asset: asset,
           inputs: inputs,
           outputs: outputs,
