@@ -49,7 +49,7 @@ module MixinBot
         ed25519_key = JOSE::JWA::Ed25519.keypair
 
         private_key = ed25519_key[1].unpack1('H*')
-        public_key = (ed25519_key[0].bytes + MixinBot::Utils.encode_unit_64(counter + 1)).pack('c*').unpack1('H*')
+        public_key = (ed25519_key[0].bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
 
         {
           private_key: private_key,

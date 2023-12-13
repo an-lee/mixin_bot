@@ -102,8 +102,8 @@ module MixinBot
         ghosts = kwargs[:ghosts].map(&:with_indifferent_access)
 
         raise ArgumentError, 'utxos should not be empty' if utxos.size == 0
-        raise ArgumentError, 'utxos too many' if utxos.size > 255
-        raise ArgumentError, 'recipients too many' if recipients.size > 255
+        raise ArgumentError, 'utxos too many' if utxos.size > 256
+        raise ArgumentError, 'recipients too many' if recipients.size > 256
 
         inputs_sum = utxos.sum(&->(utxo) { utxo['amount'].to_d })
         outputs_sum = recipients.sum(&->(recipient) { recipient['amount'].to_d })

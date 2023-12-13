@@ -54,7 +54,7 @@ module MixinBot
         # extra
         extra_bytes = extra.bytes
         raise InvalidTransactionFormatError, 'extra is too long' if extra_bytes.size > MAX_EXTRA_SIZE
-        bytes += MixinBot::Utils.encode_unit_32 extra_bytes.size
+        bytes += MixinBot::Utils.encode_uint_32 extra_bytes.size
         bytes += extra_bytes
 
         # aggregated
@@ -197,7 +197,7 @@ module MixinBot
             bytes += MixinBot::Utils.encode_int transaction_bytes.size
             bytes += transaction_bytes
 
-            bytes += MixinBot::Utils.encode_unit_64 deposit['index']
+            bytes += MixinBot::Utils.encode_uint_64 deposit['index']
 
             amount_bytes = MixinBot::Utils.bytes_of deposit['amount']
             bytes +=  MixinBot::Utils.encode_int amount_bytes.size
@@ -221,9 +221,9 @@ module MixinBot
               bytes += group_bytes
             end
 
-            bytes += MixinBot::Utils.encode_unit_64 mint['batch']
+            bytes += MixinBot::Utils.encode_uint_64 mint['batch']
 
-            amount_bytes = MixinBot::Utils.bytes_of mint['amount']
+            amount_bytes = MixinBot::Utils.int_to_bytes mint['amount']
             bytes +=  MixinBot::Utils.encode_int amount_bytes.size
             bytes +=  amount_bytes
           end
@@ -242,7 +242,7 @@ module MixinBot
           bytes += [0x00, type]
 
           # amount
-          amount_bytes = MixinBot::Utils.bytes_of (output['amount'].to_d * 1e8).round
+          amount_bytes = MixinBot::Utils.int_to_bytes (output['amount'].to_d * 1e8).round
           bytes +=  MixinBot::Utils.encode_int amount_bytes.size
           bytes +=  amount_bytes
 

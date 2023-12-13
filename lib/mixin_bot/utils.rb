@@ -79,22 +79,22 @@ module MixinBot
         ).mint_memo
       end
 
-      def encode_int(int)
+      def encode_uint_16(int)
         raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
         raise ArgumentError, "int #{int} is larger than MAX_ENCODE_INT #{MAX_ENCODE_INT}" if int > MAX_ENCODE_INT
 
         [int].pack('S*').bytes.reverse
       end
 
-      def encode_unit_32(int)
+      def encode_uint_32(int)
         [int].pack('L*').bytes.reverse
       end
 
-      def encode_unit_64(int)
+      def encode_uint_64(int)
         [int].pack('Q*').bytes.reverse
       end
 
-      def bytes_of(int)
+      def int_to_bytes(int)
         raise ArgumentError, 'not integer' unless int.is_a?(Integer)
 
         bytes = []
