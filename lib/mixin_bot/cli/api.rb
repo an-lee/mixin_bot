@@ -162,7 +162,7 @@ module MixinBot
       end
 
       # step 2: build recipients address
-      recipient = api_instance.build_safe_recipients(
+      recipient = api_instance.build_safe_recipient(
         members: [user_id],
         threshold: 1,
         amount: amount
@@ -170,14 +170,14 @@ module MixinBot
       recipients = [recipient]
 
       if change.positive?
-        change_recipient = api_instance.build_safe_recipients(
+        change_recipient = api_instance.build_safe_recipient(
           members: utxos[0]['receivers'],
           threshold: utxos[0]['receivers_threshold'],
           amount: change
         )
         recipients << change_recipient
       end
-      log UI.fmt "Step 2/7: {{v}} build safe recipient: #{recipients}"
+      log UI.fmt "Step 2/7: {{v}} build safe recipient: (#{recipient[:threshold]}/#{recipient[:members].size}) #{recipient[:members]}, amount: #{recipient[:amount]}"
 
       # step 3: create ghost keys for outputs(mask & keys)
       payload = recipients.map.with_index do |r, index|  
@@ -188,7 +188,7 @@ module MixinBot
         }
       end
       ghosts = api_instance.create_safe_keys(*payload)['data']
-      log UI.fmt "Step 3/7: {{v}} create ghost keys: #{ghosts}"
+      log UI.fmt "Step 3/7: {{v}} create ghost keys"
 
       # step 4: build transaction
       memo = options[:memo] || ''
@@ -200,12 +200,12 @@ module MixinBot
       )
 
       raw = MixinBot::Utils.encode_raw_transaction tx
-      log UI.fmt "Step 4/7: {{v}} Build tx: #{tx}, raw: #{raw}"
+      log UI.fmt "Step 4/7: {{v}} Built raw: #{raw}"
 
       # step 5: verify transaction
       request_id = SecureRandom.uuid
       request = api_instance.create_safe_transaction_request(request_id, raw)['data']
-      log UI.fmt "Step 5/7: {{v}} Verified transaction: #{request}"
+      log UI.fmt "Step 5/7: {{v}} Verified transaction, request_id: #{request[0]['request_id']}"
 
       # step 6: sign transaction
       signed_raw = api_instance.sign_safe_transaction(
@@ -220,7 +220,9 @@ module MixinBot
         request_id,
         signed_raw
       )
-      log UI.fmt "Step 7/7: {{v}} Submit transaction: #{r}"
+      log UI.fmt "Step 7/7: {{v}} Submit transaction, hash: #{r['data'].first['transaction_hash']}"
+    rescue StandardError => e
+      log UI.fmt "{{x}} #{e.inspect}"
     end
   end
 end
