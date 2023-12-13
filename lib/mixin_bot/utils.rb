@@ -81,17 +81,38 @@ module MixinBot
 
       def encode_uint_16(int)
         raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
-        raise ArgumentError, "int #{int} is larger than MAX_ENCODE_INT #{MAX_ENCODE_INT}" if int > MAX_ENCODE_INT
 
         [int].pack('S*').bytes.reverse
       end
 
+      def decode_uint_16(bytes)
+        raise ArgumentError, "only support bytes #{bytes}" unless bytes.is_a?(Array)
+
+        bytes.reverse.pack('C*').unpack1('S*')
+      end
+
       def encode_uint_32(int)
+        raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
+
         [int].pack('L*').bytes.reverse
       end
 
+      def decode_uint_32(bytes)
+        raise ArgumentError, "only support bytes #{bytes}" unless bytes.is_a?(Array)
+
+        bytes.reverse.pack('C*').unpack1('L*')
+      end
+
       def encode_uint_64(int)
+        raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
+
         [int].pack('Q*').bytes.reverse
+      end
+
+      def decode_uint_64(bytes)
+        raise ArgumentError, "only support bytes #{bytes}" unless bytes.is_a?(Array)
+
+        bytes.reverse.pack('C*').unpack1('Q*')
       end
 
       def int_to_bytes(int)
