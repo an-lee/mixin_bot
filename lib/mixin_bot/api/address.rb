@@ -87,6 +87,38 @@ module MixinBot
           threshold: threshold
         }
       end
+
+      def build_safe_recipient(**kwargs)
+        members = kwargs[:members]
+        threshold = kwargs[:threshold]
+        amount = kwargs[:amount]
+
+        members = [members] if members.is_a? String
+        amount = format('%.8f', amount.to_d.to_r).gsub(/\.?0+$/, '')
+
+        {
+          members:,
+          threshold:,
+          amount:,
+          mix_address: build_mix_address(members, threshold)
+        }
+      end
+
+      def safe_deposit_entries(chain_id, members, threshold = 1, **options)
+        path = '/safe/deposit/entries'
+        members = [members] if members.is_a? String
+        p members
+
+        payload = {
+          members: members,
+          threshold: threshold,
+          chain_id: chain_id
+        }
+
+        access_token = options[:access_token] || access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
     end
   end
 end

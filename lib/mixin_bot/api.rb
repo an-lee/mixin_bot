@@ -13,10 +13,10 @@ require_relative './api/encrypted_message'
 require_relative './api/me'
 require_relative './api/message'
 require_relative './api/multisig'
+require_relative './api/output'
 require_relative './api/payment'
 require_relative './api/pin'
 require_relative './api/rpc'
-require_relative './api/safe'
 require_relative './api/snapshot'
 require_relative './api/tip'
 require_relative './api/transaction'
@@ -61,6 +61,10 @@ module MixinBot
       MixinBot::Utils.decode_raw_transaction raw
     end
 
+    def generate_trace_from_hash(hash, output_index = 0)
+      MixinBot::Utils.generate_trace_from_hash hash, output_index
+    end
+
     # Use a mixin software to implement transaction build
     def encode_raw_transaction_native(json)
       ensure_mixin_command_exist
@@ -95,10 +99,10 @@ module MixinBot
     include MixinBot::API::Me
     include MixinBot::API::Message
     include MixinBot::API::Multisig
+    include MixinBot::API::Output
     include MixinBot::API::Payment
     include MixinBot::API::Pin
     include MixinBot::API::Rpc
-    include MixinBot::API::Safe
     include MixinBot::API::Snapshot
     include MixinBot::API::Tip
     include MixinBot::API::Transaction

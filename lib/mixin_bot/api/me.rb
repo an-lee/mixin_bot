@@ -34,6 +34,13 @@ module MixinBot
         client.get(path, headers: { 'Authorization': authorization })
       end
       alias read_friends friends
+
+      def safe_me(**options)
+        path = '/safe/me'
+        access_token = options[:access_token] || access_token('GET', path)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.get(path, headers: { 'Authorization': authorization })
+      end
     end
   end
 end
