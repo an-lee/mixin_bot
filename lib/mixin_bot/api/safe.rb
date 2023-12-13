@@ -337,6 +337,19 @@ module MixinBot
           mix_address: build_mix_address(members, threshold)
         }
       end
+
+      def safe_payment_url(**kwargs)
+        members = kwargs[:members]
+        threshold = kwargs[:threshold]
+        asset_id = kwargs[:asset_id]
+        amount = kwargs[:amount]
+        memo = kwargs[:memo] || ''
+        trace_id = kwargs[:trace_id] || SecureRandom.uuid
+
+        mix_address = build_mix_address(members, threshold)
+
+        "https://mixin.one/pay/#{mix_address}?amount=#{amount}&asset=#{asset_id}&memo=#{memo}&trace=#{trace_id}"
+      end
     end
   end
 end

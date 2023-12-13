@@ -129,14 +129,24 @@ module MixinBot
       log res
     end
 
-    desc 'pay USER_ID', 'generate pay url'
+    desc 'pay', 'generate payment url'
+    option :members, type: :array, required: true, desc: 'Reveivers, maybe multisig'
+    option :threshold, type: :numeric, required: false, default: 1, desc: 'Threshold of multisig'
     option :asset, type: :string, required: true, desc: 'Asset ID'
     option :amount, type: :numeric, required: true, desc: 'Amount'
     option :trace, type: :string, required: false, desc: 'Trace ID'
     option :memo, type: :string, required: false, desc: 'memo'
-    def pay(user_id)
-      trace = options[:trace] || SecureRandom.uuid
-      log "https://mixin.one/pay/#{user_id}?asset=#{options[:asset]}&amount=#{options[:amount]}&trace=#{trace}&memo=#{options[:memo]}"
+    def pay
+      url = api_instance.safe_payment_url(
+        members: options[:members],
+        threshold: options[:threshold],
+        asset_id: options[:asset],
+        amount: options[:amount],
+        trace_id: options[:trace],
+        memo: options[:memo]
+      )
+
+      log UI.fmt "{{v}} #{url}"
     end
 
     desc 'safetransfer USER_ID', 'transfer asset to USER_ID with SAFE network'

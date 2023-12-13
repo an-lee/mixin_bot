@@ -21,7 +21,10 @@ module MixinBot
 
     def initialize(*args)
       super
-      return if options[:keystore].blank?
+      if options[:keystore].blank?
+        @api_instance = MixinBot::API.new
+        return
+      end
 
       keystore =
         if File.file? options[:keystore]

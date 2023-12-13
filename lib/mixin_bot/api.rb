@@ -41,6 +41,7 @@ module MixinBot
           ''
         end
       _private_key = options[:private_key] || MixinBot.private_key
+
       if /^-----BEGIN RSA PRIVATE KEY-----/.match? _private_key
         @private_key = _private_key.gsub('\\r\\n', "\n").gsub("\r\n", "\n")
         @key_type = :rsa
@@ -48,6 +49,8 @@ module MixinBot
         @private_key = Base64.urlsafe_decode64 _private_key
         @key_type = :ed25519
       end
+    rescue StandardError
+      nil
     end
 
     def encode_raw_transaction(tx)
