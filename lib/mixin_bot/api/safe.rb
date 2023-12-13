@@ -111,6 +111,12 @@ module MixinBot
         utxos = kwargs[:utxos].map(&:with_indifferent_access)
         receivers = kwargs[:receivers].map(&:with_indifferent_access)
 
+        senders = utxos.map { |utxo| utxo['receivers'] }.uniq
+        raise ArgumentError, 'utxos should have same senders' if senders.size > 1
+
+        senders_threshold = utxos.map { |utxo| utxo['receivers_threshold'] }.uniq
+        raise ArgumentError, 'utxos should have same senders_threshold' if senders_threshold.size > 1
+
         raise ArgumentError, 'utxos should not be empty' if utxos.size == 0
         raise ArgumentError, 'utxos too many' if utxos.size > 256
 
