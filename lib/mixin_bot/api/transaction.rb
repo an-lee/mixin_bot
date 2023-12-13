@@ -107,10 +107,9 @@ module MixinBot
         asset_id = options[:asset_id]
         receivers = options[:receivers]
         threshold = options[:threshold]
-        amount = options[:amount].to_d
+        amount = format('%.8f', options[:amount].to_d.to_r),
         memo = options[:memo]
         trace_id = options[:trace_id] || SecureRandom.uuid
-        encrypted_pin = options[:encrypted_pin] || encrypt_pin(pin)
 
         path = '/transactions'
         payload = {
@@ -119,11 +118,16 @@ module MixinBot
             receivers: receivers,
             threshold: threshold
           },
-          pin: encrypted_pin,
-          amount: format('%.8f', amount.to_r),
+          amount: amount,
           trace_id: trace_id,
           memo: memo
         }
+
+        if pin.length > 6
+          payload[:pin_base64] = encrypt_tip_pin(pin, 'TIP:TRANSACTION:CREATE:', asset_id, receivers.join, threshold, amount, trace_id, memo)
+        else
+          payload[:pin] = encrypt_pin(pin)
+        end
 
         access_token = options[:access_token]
         access_token ||= access_token('POST', path, payload.to_json)
@@ -139,7 +143,7 @@ module MixinBot
 
         asset_id = options[:asset_id]
         opponent_key = options[:opponent_key]
-        amount = options[:amount].to_d
+        amount = format('%.8f', options[:amount].to_d.to_r),
         memo = options[:memo]
         trace_id = options[:trace_id] || SecureRandom.uuid
         encrypted_pin = options[:encrypted_pin] || encrypt_pin(pin)
@@ -148,11 +152,16 @@ module MixinBot
         payload = {
           asset_id: asset_id,
           opponent_key: opponent_key,
-          pin: encrypted_pin,
-          amount: format('%.8f', amount.to_r),
+          amount: amount,
           trace_id: trace_id,
           memo: memo
         }
+
+        if pin.length > 6
+          payload[:pin_base64] = encrypt_tip_pin(pin, 'TIP:TRANSACTION:CREATE:', asset_id, opponent_key, amount, trace_id, memo)
+        else
+          payload[:pin] = encrypt_pin(pin)
+        end
 
         access_token = options[:access_token]
         access_token ||= access_token('POST', path, payload.to_json)

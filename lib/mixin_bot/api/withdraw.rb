@@ -6,26 +6,20 @@ module MixinBot
       # https://developers.mixin.one/api/alpha-mixin-network/create-address/
       def create_withdraw_address(options, access_token: nil)
         path = '/addresses'
-        encrypted_pin = encrypt_pin(options[:pin])
+        pin = options[:pin]
         payload =
-          # for EOS withdraw, account_name & account_tag must be valid
-          if options[:public_key].nil?
-            {
-              asset_id: options[:asset_id],
-              account_name: options[:account_name],
-              account_tag: options[:account_tag],
-              label: options[:label],
-              pin: encrypted_pin
-            }
-          # for other withdraw
-          else
-            {
-              asset_id: options[:asset_id],
-              public_key: options[:public_key],
-              label: options[:label],
-              pin: encrypted_pin
-            }
-          end
+          {
+            asset_id: options[:asset_id],
+            destination: options[:destination],
+            tag: options[:tag],
+            label: options[:label],
+          }
+        
+        if pin.length > 6
+          payload[:pin_base64] = encrypt_tip_pin pin, 'TIP:ADDRESS:ADD:', payload[:asset_id], payload[:destination], payload[:tag], payload[:label]
+        else
+          payload[:pin] = encrypt_pin pin
+        end
 
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
@@ -43,9 +37,16 @@ module MixinBot
       # https://developers.mixin.one/api/alpha-mixin-network/delete-address/
       def delete_withdraw_address(address, pin, access_token: nil)
         path = format('/addresses/%<address>s/delete', address: address)
-        payload = {
-          pin: encrypt_pin(pin)
-        }
+        payload = 
+          if pin.length > 6
+            {
+              pin_base64: encrypt_tip_pin(pin, 'TIP:ADDRESS:REMOVE:', address)
+            }
+          else
+            {
+              pin: encrypt_pin(pin)
+            }
+          end
 
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
@@ -56,7 +57,7 @@ module MixinBot
       def withdrawals(options, access_token: nil)
         address_id = options[:address_id]
         pin = options[:pin]
-        amount = options[:amount]
+        amount = format('%.8f', options[:amount].to_d.to_r)
         trace_id = options[:trace_id]
         memo = options[:memo]
 
@@ -66,8 +67,14 @@ module MixinBot
           amount: amount,
           trace_id: trace_id,
           memo: memo,
-          pin: encrypt_pin(pin)
         }
+
+        if pin.length > 6
+          fee = '0'
+          payload[:pin_base64] = encrypt_tip_pin pin, 'TIP:WITHDRAW:', address_id, amount, fee, trace_id, memo
+        else
+          payload[:pin] = encrypt_pin pin
+        end
 
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
