@@ -132,6 +132,45 @@ module MixinBot
           public_key: rsa_key.public_key.to_pem
         }
       end
+
+      def generate_public_key(key)
+        point = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(key.reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        )
+
+        (JOSE::JWA::Edwards25519Point.stdbase * (point.x.to_i)).encode
+      end
+
+      def sign(msg, key:)
+        msg = Digest::Blake3.digest msg
+
+        pub = self.generate_public_key key
+        
+        y_point = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(key.reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        )
+
+        key_digest = Digest::SHA512.digest key
+        msg_digest = Digest::SHA512.digest(key_digest[-32...] + msg)
+
+        z_point = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(msg_digest[...64].reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        )
+
+        r_point = JOSE::JWA::Edwards25519Point.stdbase * (z_point.x.to_i)
+        hram_digest = Digest::SHA512.digest(r_point.encode + pub + msg)
+
+        x_point = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(hram_digest[...64].reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        )
+        s_point = (x_point * y_point) + z_point
+
+        r_point.encode + s_point.to_bytes(36)
+      end
     end
   end
 end

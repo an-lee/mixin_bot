@@ -189,11 +189,11 @@ module MixinBot
         utxos = kwargs[:utxos]
         request = kwargs[:request]
 
-        msg = Digest::Blake3.digest [raw].pack('H*')
-        spenty = Digest::SHA512.digest private_key[...32]
+        msg = [raw].pack('H*')
+        spend_key = Digest::SHA512.digest private_key[...32]
 
         y_point = JOSE::JWA::FieldElement.new(
-          JOSE::JWA::X25519.clamp_scalar(spenty[...32]).x, 
+          JOSE::JWA::X25519.clamp_scalar(spend_key[...32]).x, 
           JOSE::JWA::Edwards25519Point::L
         )
 
@@ -210,34 +210,16 @@ module MixinBot
           )
 
           t_point = x_point + y_point
-
-          pub = (JOSE::JWA::Edwards25519Point.stdbase * t_point.x.to_i).encode
           key = t_point.to_bytes(JOSE::JWA::Edwards25519Point::B)
+
+          pub = MixinBot::Utils.generate_public_key key
           key_index = utxo['keys'].index pub.unpack1('H*')
+          raise ArgumentError, 'cannot find valid key' unless key_index.is_a? Integer
 
-          key_digest = Digest::SHA512.digest key
-
-          msg_digest = Digest::SHA512.digest(key_digest[-32...] + msg)
-
-          z_point = JOSE::JWA::FieldElement.new(
-            OpenSSL::BN.new(msg_digest[...64].reverse, 2),
-            JOSE::JWA::Edwards25519Point::L
-          )
-
-          r_point = JOSE::JWA::Edwards25519Point.stdbase * z_point.x.to_i
-
-          hram_digest = Digest::SHA512.digest(r_point.encode + pub + msg)
-          _x_point = JOSE::JWA::FieldElement.new(
-            OpenSSL::BN.new(hram_digest[...64].reverse, 2),
-            JOSE::JWA::Edwards25519Point::L
-          )
-          s_point = (_x_point * t_point) + z_point
-
-          sig = r_point.encode + s_point.to_bytes(36)
-          tx[:signatures][key_index] = sig.unpack1('H*')
+          signature = MixinBot::Utils.sign msg, key: key
+          tx[:signatures][key_index] = signature.unpack1('H*')
         end
 
-        p tx
         MixinBot::Utils.encode_raw_transaction tx
       end
 
