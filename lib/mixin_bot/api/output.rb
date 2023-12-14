@@ -81,6 +81,13 @@ module MixinBot
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
+
+      def safe_output(id)
+        path = format('/safe/outputs/%<id>s', id: id)
+        access_token ||= access_token('GET', path, '')
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.get(path, headers: { 'Authorization': authorization })
+      end
     end
   end
 end
