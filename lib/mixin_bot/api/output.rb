@@ -58,6 +58,7 @@ module MixinBot
       end
 
       def safe_outputs(**kwargs)
+        asset = kwargs[:asset]
         limit = kwargs[:limit] || 500
         offset = kwargs[:offset] || ''
         state = kwargs[:state] || ''
@@ -69,7 +70,8 @@ module MixinBot
         members_hash = SHA3::Digest::SHA256.hexdigest(members&.sort&.join)
 
         path = format(
-          '/safe/outputs?limit=%<limit>s&offset=%<offset>s&state=%<state>s&members=%<members_hash>s&threshold=%<threshold>s&order=%<order>s',
+          '/safe/outputs?asset=%<asset>s&limit=%<limit>s&offset=%<offset>s&state=%<state>s&members=%<members_hash>s&threshold=%<threshold>s&order=%<order>s',
+          asset: asset,
           limit: limit,
           offset: offset,
           state: state,
