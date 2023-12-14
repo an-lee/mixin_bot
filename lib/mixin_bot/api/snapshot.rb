@@ -42,6 +42,22 @@ module MixinBot
         client.get(path, headers: { 'Authorization': authorization })
       end
       alias read_network_snapshot network_snapshot
+
+      def safe_snapshots(**options)
+        path = format(
+          '/safe/snapshots?limit=%<limit>s&offset=%<offset>s&asset=%<asset>s&opponent=%<opponent>s&app=%<app>s&order=%<order>s',
+          limit: options[:limit],
+          offset: options[:offset],
+          asset: options[:asset],
+          opponent: options[:opponent],
+          app: options[:app_id],
+          order: options[:order]
+        )
+
+        access_token = options[:access_token] || access_token('GET', path)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.get(path, headers: { 'Authorization': authorization })
+      end
     end
   end
 end
