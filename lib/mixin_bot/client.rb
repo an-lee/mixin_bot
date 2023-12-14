@@ -71,6 +71,7 @@ module MixinBot
           # 500	30103	Insufficient pool.
           # 500	7000	WebSocket server error.
           # 500	7001	WebSocket operation timeout.
+          # 500 10404   The user is not registered.
           case result['error']['code']
           when 401, 20121
             raise UnauthorizedError, errmsg
@@ -86,6 +87,7 @@ module MixinBot
             raise PinError, errmsg
           when 30103
             raise InsufficientPoolError, errmsg
+          when 10404
           else
             raise ResponseError, errmsg
           end
