@@ -88,6 +88,7 @@ module MixinBot
           when 30103
             raise InsufficientPoolError, errmsg
           when 10404
+            raise UserNotFoundError, errmsg
           else
             raise ResponseError, errmsg
           end
