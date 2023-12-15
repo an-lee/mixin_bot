@@ -353,7 +353,7 @@ module MixinBot
           JOSE::JWA::Edwards25519Point::L
         )
 
-        tx[:signatures] = {}
+        tx[:signatures] = []
         tx[:inputs].each_with_index do |input, index|
           utxo = utxos[index]
           raise ArgumentError, 'utxo not match' unless input['hash'] == utxo['transaction_hash'] && input['index'] == utxo['output_index']
@@ -373,7 +373,10 @@ module MixinBot
           raise ArgumentError, 'cannot find valid key' unless key_index.is_a? Integer
 
           signature = MixinBot::Utils.sign msg, key: key
-          tx[:signatures][key_index] = signature.unpack1('H*')
+          signature = signature.unpack1('H*')
+          sig = {}
+          sig[key_index] = signature
+          tx[:signatures] << sig
         end
 
         MixinBot::Utils.encode_raw_transaction tx

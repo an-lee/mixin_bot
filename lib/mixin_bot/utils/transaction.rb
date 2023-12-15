@@ -13,7 +13,7 @@ module MixinBot
       AGGREGATED_SIGNATURE_ORDINAY_MASK = [0x00]
       AGGREGATED_SIGNATURE_SPARSE_MASK = [0x01]
 
-      attr_accessor :version, :asset, :inputs, :outputs, :extra, :signatures, :aggregated, :hex, :hash
+      attr_accessor :version, :asset, :inputs, :outputs, :extra, :signatures, :aggregated, :references, :hex, :hash
 
       def initialize(**kwargs)
         @version = kwargs[:version] || DEAULT_VERSION
@@ -24,6 +24,7 @@ module MixinBot
         @hex = kwargs[:hex]
         @signatures = kwargs[:signatures]
         @aggregated = kwargs[:aggregated]
+        @references = kwargs[:references]
       end
 
       def encode
@@ -92,7 +93,8 @@ module MixinBot
 
         # TODO:
         # read references
-        @bytes.shift 2
+        references_size = @bytes.shift 2
+        raise ArgumentError, 'Not support references yet' unless references_size == NULL_BYTES
 
         # read extra
         # unsigned 32 endian for extra size
@@ -131,16 +133,19 @@ module MixinBot
               aggregated['signers'].push MixinBot::Utils.decode_uint_16(@bytes.shift(2))
             end
           end
-        else
-          if !@bytes.empty? && @bytes[...2] != NULL_BYTES
-            signatures_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
-            return if signatures_size == 0
+        elsif num.present? && num > 0 && @bytes.size > 0
+          @signatures = []
+          num.times do
+            signature = {}
 
-            @signatures = {}
-            signatures_size.times.with_index do |index|
-              length = 64
-              @signatures[index] = @bytes.shift(length).pack('C*').unpack1('H*')
+            keys_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+
+            keys_size.times do
+              index = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+              signature[index] = @bytes.shift(64).pack('C*').unpack1('H*')
             end
+
+            @signatures << signature
           end
         end
 
@@ -156,7 +161,8 @@ module MixinBot
           extra: extra,
           signatures: signatures,
           aggregated: aggregated,
-          hash: hash
+          hash: hash,
+          references: references
         }.compact
       end
 
@@ -340,8 +346,8 @@ module MixinBot
         bytes = []
 
         sl =
-          if signatures.is_a? Hash
-            signatures.keys.size
+          if signatures.is_a? Array
+            signatures.size
           else
             0
           end
@@ -350,11 +356,14 @@ module MixinBot
         bytes += MixinBot::Utils.encode_uint_16 sl
 
         if sl > 0
-          bytes += MixinBot::Utils.encode_uint_16 signatures.keys.size
-          signatures.keys.sort.each do |key|
-            signature_bytes = [signatures[key]].pack('H*').bytes
-            bytes += MixinBot::Utils.encode_uint_16 key
-            bytes += signature_bytes
+          signatures.each do |signature|
+            bytes += MixinBot::Utils.encode_uint_16 signature.keys.size
+
+            signature.keys.sort.each do |key|
+              signature_bytes = [signature[key]].pack('H*').bytes
+              bytes += MixinBot::Utils.encode_uint_16 key
+              bytes += signature_bytes
+            end
           end
         end
 
