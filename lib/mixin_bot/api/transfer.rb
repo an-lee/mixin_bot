@@ -71,7 +71,7 @@ module MixinBot
         memo = kwargs[:memo] || ''
 
         # step 1: select inputs
-        outputs = safe_outputs(state: 'unspent', asset_id: asset_id, limit: 500)['data'].sort_by { |o| o['amount'].to_d }
+        outputs = safe_outputs(state: 'unspent', asset: asset_id, limit: 500)['data'].sort_by { |o| o['amount'].to_d }
 
         utxos = []
         outputs.each do |output|

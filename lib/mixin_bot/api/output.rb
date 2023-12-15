@@ -58,7 +58,7 @@ module MixinBot
       end
 
       def safe_outputs(**kwargs)
-        asset = kwargs[:asset]
+        asset = kwargs[:asset] || kwargs[:asset_id]
         limit = kwargs[:limit] || 500
         offset = kwargs[:offset] || ''
         state = kwargs[:state] || ''
