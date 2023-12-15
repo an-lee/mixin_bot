@@ -161,10 +161,18 @@ module MixinBot
       memo = options[:memo] || ''
 
       # step 1: select inputs
-      utxos = api_instance.safe_outputs(state: 'unspent')['data']
-      utxos = utxos.filter(&->(input) { input['asset_id'] == asset })
-      balance = utxos.sum(&->(input) { input['amount'].to_d })
-      log UI.fmt "Step 1/7: {{v}} Found #{utxos.count} unspent outputs, balance: #{balance}"
+      outputs = api_instance.safe_outputs(state: 'unspent', asset_id: asset, limit: 500)['data'].sort_by { |o| o['amount'].to_d }
+      balance = outputs.sum(&->(output) { output['amount'].to_d })
+
+      utxos = []
+      outputs.each do |output|
+        break if utxos.sum { |o| o['amount'].to_d } >= amount
+
+        utxos.shift if utxos.size >= 255
+        utxos << output
+      end
+
+      log UI.fmt "Step 1/7: {{v}} Found #{outputs.count} unspent outputs, balance: #{balance}, selected #{utxos.count} outputs"
 
       # step 2: build transaction
       tx = api_instance.build_safe_transaction(

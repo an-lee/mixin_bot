@@ -77,10 +77,8 @@ module MixinBot
         outputs.each do |output|
           break if utxos.sum { |o| o['amount'].to_d } >= amount
 
-          if utxos.size >= 255
-            utxos.shift
-            utxos << output
-          end
+          utxos.shift if utxos.size >= 255
+          utxos << output
         end
 
         # step 2: build transaction
