@@ -345,7 +345,8 @@ module MixinBot
         request = kwargs[:request]
 
         msg = [raw].pack('H*')
-        spend_key = Digest::SHA512.digest private_key[...32]
+        spend_key = kwargs[:spend_key] || private_key
+        spend_key = Digest::SHA512.digest spend_key[...32]
 
         y_point = JOSE::JWA::FieldElement.new(
           JOSE::JWA::X25519.clamp_scalar(spend_key[...32]).x, 

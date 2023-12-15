@@ -101,6 +101,7 @@ module MixinBot
           raw: raw,
           utxos: utxos,
           request: request[0],
+          spend_key: kwargs[:spend_key]
         )
 
         # step 5: submit transaction

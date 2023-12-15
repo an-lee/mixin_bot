@@ -59,10 +59,11 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      def safe_register(pin)
+      def safe_register(pin, spend_key: nil)
         path = '/safe/users'
 
-        key = JOSE::JWA::Ed25519.keypair private_key[...32]
+        spend_key ||= private_key
+        key = JOSE::JWA::Ed25519.keypair spend_key[...32]
         public_key = key[0].unpack1('H*')
 
         hex = SHA3::Digest::SHA256.hexdigest client_id
