@@ -28,6 +28,7 @@ module MixinBot
       end
 
       def unique_uuid(*uuids)
+        uuids = uuids.flatten.compact
         uuids.sort
         r = uuids.first
         uuids.each_with_index do |uuid, i|
