@@ -77,7 +77,7 @@ module MixinBot
         outputs.each do |output|
           break if utxos.sum { |o| o['amount'].to_d } >= amount
 
-          utxos.shift if utxos.size >= 255
+          utxos.shift if utxos.size >= 256
           utxos << output
         end
 
