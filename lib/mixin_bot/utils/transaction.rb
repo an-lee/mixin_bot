@@ -81,8 +81,8 @@ module MixinBot
         magic = @bytes.shift(2)
         raise ArgumentError, 'Not valid raw' unless magic == MAGIC
 
-        version = @bytes.shift(2)
-        @version = MixinBot::Utils.bytes_to_int version
+        _version = @bytes.shift(2)
+        @version = MixinBot::Utils.bytes_to_int _version
 
         asset = @bytes.shift(32)
         @asset = asset.pack('C*').unpack1('H*')
