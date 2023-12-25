@@ -3,6 +3,7 @@
 module MixinBot
   class API
     module Transaction
+      LEGACY_TX_VERSION = 0x04
       SAFE_TX_VERSION = 0x05
       OUTPUT_TYPE_SCRIPT = 0x00
       OUTPUT_TYPE_WITHDRAW_SUBMIT = 0xa1
@@ -36,7 +37,7 @@ module MixinBot
         access_token        = kwargs[:access_token]
         outputs             = kwargs[:outputs] || []
         hint                = kwargs[:hint]
-        version             = kwargs[:version] || 3
+        version             = kwargs[:version] || LEGACY_TX_VERSION
 
         raise 'access_token required!' if access_token.nil? && !senders.include?(client_id)
 
