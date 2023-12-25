@@ -112,7 +112,7 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      def unlock_safe_multisig_request(request_id, raw)
+      def unlock_safe_multisig_request(request_id)
         path = format('/safe/multisigs/%<request_id>s/unlock', request_id: request_id)
 
         access_token = access_token('POST', path, '')
