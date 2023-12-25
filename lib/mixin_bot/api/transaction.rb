@@ -36,6 +36,7 @@ module MixinBot
         access_token        = kwargs[:access_token]
         outputs             = kwargs[:outputs] || []
         hint                = kwargs[:hint]
+        version             = kwargs[:version] || 3
 
         raise 'access_token required!' if access_token.nil? && !senders.include?(client_id)
 
@@ -89,7 +90,7 @@ module MixinBot
         # extra ||= Digest.hexencode(memo.to_s.slice(0, 140))
         asset = asset_mixin_id || SHA3::Digest::SHA256.hexdigest(asset_id)
         tx = {
-          version: 3,
+          version: version,
           asset: asset,
           inputs: inputs,
           outputs: outputs,
