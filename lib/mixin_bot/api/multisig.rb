@@ -88,6 +88,37 @@ module MixinBot
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
+
+      def create_safe_multisig_request(request_id, raw)
+        path = '/safe/multisigs'
+        payload = [{
+          request_id: request_id,
+          raw: raw
+        }]
+
+        access_token = access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
+
+      def sign_safe_multisig_request(request_id, raw)
+        path = format('/safe/multisigs/%<request_id>s/sign', request_id: request_id)
+
+        payload = {
+          raw: raw
+        }
+        access_token = access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
+
+      def unlock_safe_multisig_request(request_id, raw)
+        path = format('/safe/multisigs/%<request_id>s/unlock', request_id: request_id)
+
+        access_token = access_token('POST', path, '')
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.post(path, headers: { 'Authorization': authorization })
+      end
     end
   end
 end
