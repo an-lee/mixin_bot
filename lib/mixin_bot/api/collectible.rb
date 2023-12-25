@@ -97,16 +97,6 @@ module MixinBot
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
-
-      def cancel_collectible_request(request_id, pin)
-        path = format('/collectibles/requests/%<request_id>s/cancel', request_id: request_id)
-        payload = {
-          pin: encrypt_pin(pin)
-        }
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
-      end
     end
 
     # collectible = {

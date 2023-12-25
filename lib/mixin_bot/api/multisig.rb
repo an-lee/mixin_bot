@@ -30,9 +30,16 @@ module MixinBot
 
       def sign_multisig_request(request_id, pin)
         path = format('/multisigs/requests/%<request_id>s/sign', request_id: request_id)
-        payload = {
-          pin: encrypt_pin(pin)
-        }
+        payload = 
+          if pin.length > 6
+            {
+              pin_base64: encrypt_tip_pin(pin, 'TIP:MULTISIG:REQUEST:SIGN', request_id)
+            }
+          else
+            {
+              pin: encrypt_pin(pin)
+            }
+          end
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
@@ -40,19 +47,16 @@ module MixinBot
 
       def unlock_multisig_request(request_id, pin)
         path = format('/multisigs/requests/%<request_id>s/unlock', request_id: request_id)
-        payload = {
-          pin: encrypt_pin(pin)
-        }
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
-      end
-
-      def cancel_multisig_request(request_id, pin)
-        path = format('/multisigs/requests/%<request_id>s/cancel', request_id: request_id)
-        payload = {
-          pin: encrypt_pin(pin)
-        }
+        payload = 
+          if pin.length > 6
+            {
+              pin_base64: encrypt_tip_pin(pin, 'TIP:MULTISIG:REQUEST:UNLOCK', request_id)
+            }
+          else
+            {
+              pin: encrypt_pin(pin)
+            }
+          end
         access_token ||= access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
