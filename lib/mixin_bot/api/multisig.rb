@@ -33,7 +33,7 @@ module MixinBot
         payload = 
           if pin.length > 6
             {
-              pin_base64: encrypt_tip_pin(pin, 'TIP:MULTISIG:REQUEST:SIGN', request_id)
+              pin_base64: encrypt_tip_pin(pin, 'TIP:MULTISIG:REQUEST:SIGN:', request_id)
             }
           else
             {
@@ -50,7 +50,7 @@ module MixinBot
         payload = 
           if pin.length > 6
             {
-              pin_base64: encrypt_tip_pin(pin, 'TIP:MULTISIG:REQUEST:UNLOCK', request_id)
+              pin_base64: encrypt_tip_pin(pin, 'TIP:MULTISIG:REQUEST:UNLOCK:', request_id)
             }
           else
             {
