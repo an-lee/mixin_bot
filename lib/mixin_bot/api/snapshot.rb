@@ -58,6 +58,20 @@ module MixinBot
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.get(path, headers: { 'Authorization': authorization })
       end
+
+      def create_safe_snapshot_notification(**kwargs)
+        path = '/safe/snapshots/notifications'
+
+        payload = {
+          transaction_hash: kwargs[:transaction_hash],
+          output_index: kwargs[:output_index],
+          receiver_id: kwargs[:receiver_id]
+        }
+
+        access_token = access_token('POST', path, payload.to_json)
+        authorization = format('Bearer %<access_token>s', access_token: access_token)
+        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+      end
     end
   end
 end
