@@ -3,6 +3,8 @@
 module MixinBot
   module Utils
     class Transaction
+      REFERENCES_TX_VERSION = 0x04
+      SAFE_TX_VERSION = 0x05
       DEAULT_VERSION = 5
       MAGIC = [0x77, 0x77]
       TX_VERSION = 2
@@ -50,7 +52,7 @@ module MixinBot
         bytes += encode_outputs
 
         # placeholder for `references`
-        bytes += NULL_BYTES
+        bytes += NULL_BYTES if version >= REFERENCES_TX_VERSION
 
         # extra
         extra_bytes = extra.bytes
@@ -93,8 +95,10 @@ module MixinBot
 
         # TODO:
         # read references
-        references_size = @bytes.shift 2
-        raise ArgumentError, 'Not support references yet' unless references_size == NULL_BYTES
+        if version >= REFERENCES_TX_VERSION
+          references_size = @bytes.shift 2
+          raise ArgumentError, 'Not support references yet' unless references_size == NULL_BYTES
+        end
 
         # read extra
         # unsigned 32 endian for extra size
