@@ -109,17 +109,19 @@ module MixinBot
       end
     end
 
+    private
+
     def _generate_aes_key
       if config.server_public_key.size == 32
         JOSE::JWA::X25519.x25519(
-          JOSE::JWA::Ed25519.secret_to_curve25519(session_private_key[0..31]),
+          JOSE::JWA::Ed25519.secret_to_curve25519(config.session_private_key[0..31]),
           config.server_public_key
         )
       else
         JOSE::JWA::PKCS1.rsaes_oaep_decrypt(
           'SHA256',
           config.server_public_key,
-          OpenSSL::PKey::RSA.new(session_private_key),
+          OpenSSL::PKey::RSA.new(config.session_private_key),
           session_id
         )
       end
