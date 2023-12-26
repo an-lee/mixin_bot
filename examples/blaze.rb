@@ -6,11 +6,11 @@ require 'yaml'
 
 CONFIG = YAML.load_file("#{File.dirname __FILE__}/config.yml")
 MixinBot.configure do
-  app_id = CONFIG['app_id']
-  client_secret = CONFIG['client_secret']
-  session_id = CONFIG['session_id']
-  server_public_key = CONFIG['server_public_key']
-  session_private_key = CONFIG['session_private_key']
+  self.app_id = CONFIG['app_id']
+  self.client_secret = CONFIG['client_secret']
+  self.session_id = CONFIG['session_id']
+  self.server_public_key = CONFIG['server_public_key']
+  self.session_private_key = CONFIG['session_private_key']
 end
 
 # default connect
