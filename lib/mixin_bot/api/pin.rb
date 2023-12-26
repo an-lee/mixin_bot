@@ -6,6 +6,7 @@ module MixinBot
       # https://developers.mixin.one/api/alpha-mixin-network/verify-pin/
       def verify_pin(pin = nil)
         pin ||= MixinBot.config.pin
+        raise ArgumentError, 'invalid pin' if pin.blank?
 
         path = '/pin/verify'
 

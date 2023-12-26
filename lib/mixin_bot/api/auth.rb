@@ -18,11 +18,13 @@ module MixinBot
           scp: scp
         }
 
-        if config.session_private_key.size == 64
+        if config.session_private_key.blank?
+          raise ConfigurationNotValidError, 'session_private_key is required'
+        elsif config.session_private_key.size == 64
           jwk = JOSE::JWK.from_okp [:Ed25519, config.session_private_key]
           jws = JOSE::JWS.from({ 'alg' => 'EdDSA' })
         else
-          jwk = JOSE::JWK.from_pem private_key
+          jwk = JOSE::JWK.from_pem config.session_private_key
           jws = JOSE::JWS.from({ 'alg' => 'RS512' })
         end
 

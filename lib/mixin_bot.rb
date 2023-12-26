@@ -43,7 +43,6 @@ module MixinBot
     def configure(&block)
       config.instance_exec(&block)
     end
-
   end
 
   class Error < StandardError; end
@@ -61,4 +60,5 @@ module MixinBot
   class InvalidNfoFormatError < Error; end
   class InvalidUuidFormatError < Error; end
   class InvalidTransactionFormatError < Error; end
+  class ConfigurationNotValidError < Error; end
 end

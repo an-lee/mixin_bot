@@ -23,21 +23,51 @@ module MixinBot
       @session_private_key = decode_key kwargs[:session_private_key] || kwargs[:private_key]
       @server_public_key = decode_key kwargs[:server_public_key] || kwargs[:pin_token]
       @spend_key = decode_key kwargs[:spend_key]
-      @pin = kwargs[:pin].present? ? decode_key(kwargs[:pin]) : @spend_key
+      @pin = decode_key(kwargs[:pin]) || @spend_key
     end
 
     def session_private_key=(key)
-      @session_private_key = decode_key key
+      _private_key = decode_key key
+
+      @session_private_key =
+        if _private_key.size == 32
+          JOSE::JWA::Ed25519.keypair(_private_key).last
+        else
+          _private_key
+        end
+
     end
 
     def server_public_key=(key)
       @server_public_key = decode_key key
     end
 
+    def spend_key=(key)
+      _private_key = decode_key key
+
+      @spend_key =
+        if _private_key.size == 32
+          JOSE::JWA::Ed25519.keypair(_private_key).last
+        else
+          _private_key
+        end
+    end
+
+    def pin=(key)
+      _private_key = decode_key key
+
+      @pin =
+        if _private_key.size == 32
+          JOSE::JWA::Ed25519.keypair(_private_key).last
+        else
+          _private_key
+        end
+    end
+
     private
 
     def decode_key(key)
-      MixinBot::Utils.decode_key(key)
+      MixinBot::Utils.decode_key key
     end
   end
 end

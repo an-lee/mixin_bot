@@ -27,6 +27,8 @@ require_relative './api/withdraw'
 
 module MixinBot
   class API
+    attr_reader :config, :client
+
     def initialize(**kwargs)
       @config = 
         if kwargs.present?
