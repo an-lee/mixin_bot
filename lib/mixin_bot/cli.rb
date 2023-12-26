@@ -47,17 +47,17 @@ module MixinBot
 
       return unless @keystore
 
-      MixinBot.api_host = options[:apihost]
+      MixinBot.config.api_host = options[:apihost]
       @api_instance ||=
         begin
           MixinBot::API.new(
-            app_id: @keystore['app_id'],
+            app_id: @keystore['app_id'] || @keystore['client_id'],
             session_id: @keystore['session_id'],
-            server_public_key: @keystore['server_public_key'],
-            session_private_key: @keystore['session_private_key']
+            server_public_key: @keystore['server_public_key'] || @keystore['pin_token'],
+            session_private_key: @keystore['session_private_key'] || @keystore['private_key'],
           )
         rescue StandardError => e
-          log UI.fmt '{{x}}: Failed to initialize api, maybe your keystore is incorrect.'
+          log UI.fmt '{{x}}: Failed to initialize api, maybe your keystore is incorrect: %<error>s', error: e.message
         end
     end
 

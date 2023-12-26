@@ -20,15 +20,16 @@ module MixinBot
       @api_host = kwargs[:api_host] || 'api.mixin.one'
       @blaze_host = kwargs[:blaze_host] || 'blaze.mixin.one'
 
-      @session_private_key = decode_key kwargs[:session_private_key] || kwargs[:private_key]
-      @server_public_key = decode_key kwargs[:server_public_key] || kwargs[:pin_token]
-      @spend_key = decode_key kwargs[:spend_key]
-      @pin = decode_key(kwargs[:pin]) || @spend_key
+      self.session_private_key = kwargs[:session_private_key] || kwargs[:private_key]
+      self.server_public_key = kwargs[:server_public_key] || kwargs[:pin_token]
+      self.spend_key = kwargs[:spend_key]
+      self.pin = kwargs[:pin] || spend_key
     end
 
     def session_private_key=(key)
-      _private_key = decode_key key
+      return if key.blank?
 
+      _private_key = decode_key key
       @session_private_key =
         if _private_key.size == 32
           JOSE::JWA::Ed25519.keypair(_private_key).last
@@ -43,8 +44,9 @@ module MixinBot
     end
 
     def spend_key=(key)
-      _private_key = decode_key key
+      return if key.blank?
 
+      _private_key = decode_key key
       @spend_key =
         if _private_key.size == 32
           JOSE::JWA::Ed25519.keypair(_private_key).last
@@ -54,8 +56,9 @@ module MixinBot
     end
 
     def pin=(key)
-      _private_key = decode_key key
+      return if key.blank?
 
+      _private_key = decode_key key
       @pin =
         if _private_key.size == 32
           JOSE::JWA::Ed25519.keypair(_private_key).last

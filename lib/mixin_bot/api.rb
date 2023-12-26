@@ -32,7 +32,7 @@ module MixinBot
     def initialize(**kwargs)
       @config = 
         if kwargs.present?
-          MixinBot.configuration.new kwargs
+          MixinBot::Configuration.new **kwargs
         else
           MixinBot.config
         end
