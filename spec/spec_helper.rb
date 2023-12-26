@@ -7,7 +7,6 @@ require './lib/mixin_bot'
 require 'yaml'
 
 CONFIG = YAML.load_file("#{File.dirname __FILE__}/config.yml")
-PIN_CODE = CONFIG['pin'].to_s
 TEST_UID = '7ed9292d-7c95-4333-aa48-a8c640064186'
 TEST_UID_2 = 'a67c6e87-1c9e-4a1c-b81c-47a9f4f1bff1'
 TEST_MIXIN_ID = '37230199'
@@ -26,10 +25,11 @@ MULTI_SIGN_THRESHOLD = 2
 NFO_MTG = %w[4b188942-9fb0-4b99-b4be-e741a06d1ebf dd655520-c919-4349-822f-af92fabdbdf4 047061e6-496d-4c35-b06b-b0424a8a400d acf65344-c778-41ee-bacb-eb546bacfb9f a51006d0-146b-4b32-a2ce-7defbf0d7735 cf4abd9c-2cfa-4b5a-b1bd-e2b61a83fabd 50115496-7247-4e2c-857b-ec8680756bee].freeze
 NFO_THRESHOLD = 5
 
-MixinBot.client_id = CONFIG['client_id']
-MixinBot.client_secret = CONFIG['client_secret']
-MixinBot.session_id = CONFIG['session_id']
-MixinBot.pin_token = CONFIG['pin_token']
-MixinBot.private_key = CONFIG['private_key']
-# MixinBot.api_host = 'mixin-api.zeromesh.net'
-# MixinBot.blaze_host = 'mixin-blaze.zeromesh.net'
+MixinBot.configure do
+  self.app_id = CONFIG['app_id']
+  self.client_secret = CONFIG['client_secret']
+  self.session_id = CONFIG['session_id']
+  self.server_public_key = CONFIG['server_public_key']
+  self.session_private_key = CONFIG['session_private_key']
+end
+PIN_CODE = CONFIG['pin'].to_s

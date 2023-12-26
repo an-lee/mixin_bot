@@ -15,6 +15,22 @@ module MixinBot
       AGGREGATED_SIGNATURE_ORDINAY_MASK = [0x00].freeze
       AGGREGATED_SIGNATURE_SPARSE_MASK = [0x01].freeze
 
+      def decode_key(key)
+        return if key.blank?
+
+        if key.match?(/\A[a-f0-9]+\z/i)
+          [key].pack('H*')
+        elsif key.match?(/\A[a-zA-Z0-9\-\_]+\z/)
+          Base64.urlsafe_decode64 key
+        elsif key.match?(/^-----BEGIN RSA PRIVATE KEY-----/)
+          key.gsub('\\r\\n', "\n").gsub("\r\n", "\n")
+        elsif key.size % 32 == 0
+          key
+        else
+          raise ArgumentError, "Invalid key: #{e.message}"
+        end
+      end
+
       def generate_unique_uuid(uuid_1, uuid_2)
         md5 = Digest::MD5.new
         md5 << [uuid_1, uuid_2].min

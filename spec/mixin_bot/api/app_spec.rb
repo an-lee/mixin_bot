@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe MixinBot::API::App do
   it 'read favorite apps' do
-    res = MixinBot.api.favorite_apps(MixinBot.client_id)
+    res = MixinBot.api.favorite_apps(MixinBot.config.app_id)
     expect(res['data']).not_to be_nil
   end
 

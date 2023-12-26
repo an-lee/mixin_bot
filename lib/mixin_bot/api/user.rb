@@ -14,17 +14,9 @@ module MixinBot
 
       # https://developers.mixin.one/api/alpha-mixin-network/app-user/
       # Create a new Mixin Network user (like a normal Mixin Messenger user). You should keep PrivateKey which is used to sign an AuthenticationToken and encrypted PIN for the user.
-      def create_user(full_name, key_type: 'RSA', rsa_key: nil, ed25519_key: nil)
-        case key_type
-        when 'RSA'
-          rsa_key ||= MixinBot::Utils.generate_rsa_key
-          session_secret = rsa_key[:public_key].gsub(/^-----.*PUBLIC KEY-----$/, '').strip
-        when 'Ed25519'
-          ed25519_key ||= MixinBot::Utils.generate_ed25519_key
-          session_secret = ed25519_key[:public_key]
-        else
-          raise 'Only RSA and Ed25519 are supported'
-        end
+      def create_user(full_name, key: nil)
+        key ||= MixinBot::Utils.generate_ed25519_key
+        session_secret = ed25519_key[:public_key]
 
         payload = {
           full_name: full_name,
@@ -59,17 +51,16 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      def safe_register(pin, spend_key: nil)
+      def safe_register(pin, spend_key:)
         path = '/safe/users'
 
-        spend_key ||= private_key
         key = JOSE::JWA::Ed25519.keypair spend_key[...32]
         public_key = key[0].unpack1('H*')
 
-        hex = SHA3::Digest::SHA256.hexdigest client_id
+        hex = SHA3::Digest::SHA256.hexdigest config.app_id
         signature = Base64.urlsafe_encode64 JOSE::JWA::Ed25519.sign([hex].pack('H*'), key[1]), padding: false
 
-        pin_base64 = encrypt_tip_pin pin, 'SEQUENCER:REGISTER:', client_id, public_key
+        pin_base64 = encrypt_tip_pin pin, 'SEQUENCER:REGISTER:', config.app_id, public_key
 
         payload = {
           public_key: public_key,

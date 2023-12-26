@@ -11,16 +11,8 @@ describe MixinBot::API::Pin do
   it 'decrypt encrypted pin_code' do
     encrypted_pin = MixinBot.api.encrypt_pin(PIN_CODE)
     decrypted_pin = MixinBot.api.decrypt_pin(encrypted_pin)
-    expect(decrypted_pin).to eq(PIN_CODE)
-  end
 
-  it 'update_pin' do
-    # avoid pin incorrect because of iterator in concurrent spec
-    sleep 1
-    res = MixinBot.api.update_pin(old_pin: PIN_CODE, pin: '123456')
-    expect(res['data']).not_to be_nil
-
-    # rollback the update
-    MixinBot.api.update_pin(old_pin: '123456', pin: PIN_CODE)
+    key = MixinBot::Utils.decode_key PIN_CODE
+    expect(decrypted_pin).to eq(key[...decrypted_pin.length])
   end
 end

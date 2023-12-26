@@ -21,13 +21,11 @@ module MixinBot
           memo: memo
         }
 
-        encrypted_pin = options[:encrypted_pin]
         if pin.length > 6
-          encrypted_pin ||= 
-            encrypt_tip_pin pin, 'TIP:TRANSFER:CREATE:', asset_id, opponent_id, amount, trace_id, memo
-          payload[:pin_base64] = encrypted_pin
+          pin_base64 = encrypt_tip_pin pin, 'TIP:TRANSFER:CREATE:', asset_id, opponent_id, amount, trace_id, memo
+          payload[:pin_base64] = pin_base64
         else
-          encrypted_pin ||= encrypt_pin pin
+          encrypted_pin = encrypt_pin pin
           payload[:pin] = encrypted_pin
         end
 
@@ -97,11 +95,12 @@ module MixinBot
         request = create_safe_transaction_request(request_id, raw)['data']
 
         # step 4: sign transaction
+        spend_key = MixinBot::Utils.decode_key(kwargs[:spend_key]) || config.spend_key
         signed_raw = sign_safe_transaction(
           raw: raw,
           utxos: utxos,
           request: request[0],
-          spend_key: kwargs[:spend_key]
+          spend_key: spend_key
         )
 
         # step 5: submit transaction

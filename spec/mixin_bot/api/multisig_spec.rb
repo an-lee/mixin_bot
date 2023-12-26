@@ -48,7 +48,7 @@ describe MixinBot::API::Multisig do
       amount: 1,
       memo: 'test for multi sign',
       receivers: [
-        MixinBot.client_id,
+        MixinBot.config.app_id,
         TEST_UID,
         TEST_UID_2
       ],

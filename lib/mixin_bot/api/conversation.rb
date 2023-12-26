@@ -123,7 +123,7 @@ module MixinBot
       end
 
       def unique_uuid(user_id, opponent_id = nil)
-        opponent_id ||= client_id
+        opponent_id ||= config.app_id
         MixinBot::Utils.unique_uuid user_id, opponent_id
       end
       alias unique_conversation_id unique_uuid

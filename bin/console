@@ -9,14 +9,17 @@ require "mixin_bot"
 
 require 'yaml'
 CONFIG = YAML.load_file("#{File.expand_path "../../spec/config.yml", __FILE__}")
-MixinBot.client_id = CONFIG['client_id']
-MixinBot.client_secret = CONFIG['client_secret']
-MixinBot.session_id = CONFIG['session_id']
-MixinBot.pin_token = CONFIG['pin_token']
-MixinBot.private_key = CONFIG['private_key']
-PIN_CODE = CONFIG['pin_code'].to_s
-# MixinBot.api_host = 'mixin-api.zeromesh.net'
-# MixinBot.blaze_host = 'mixin-blaze.zeromesh.net'
+MixinBot.configure do
+  self.app_id = CONFIG['app_id']
+  self.client_secret = CONFIG['client_secret']
+  self.session_id = CONFIG['session_id']
+  self.server_public_key = CONFIG['server_public_key']
+  self.session_private_key = CONFIG['session_private_key']
+  self.spend_key = CONFIG['spend_key']
+  self.pin = CONFIG['pin']
+end
+
+PIN = CONFIG['pin'].to_s
 
 # (If you use this, don't forget to add pry to your Gemfile!)
 # require "pry"

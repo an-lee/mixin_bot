@@ -4,12 +4,15 @@ module MixinBot
   class API
     module Pin
       # https://developers.mixin.one/api/alpha-mixin-network/verify-pin/
-      def verify_pin(pin)
+      def verify_pin(pin = nil)
+        pin ||= MixinBot.config.pin
+        raise ArgumentError, 'invalid pin' if pin.blank?
+
         path = '/pin/verify'
 
         payload = 
           if pin.length > 6
-            timestamp = Time.now.utc.to_i
+            timestamp = (Time.now.utc.to_f * 1e9).to_i
             pin_base64 = encrypt_tip_pin pin, 'TIP:VERIFY:', timestamp.to_s.rjust(32, '0')
 
             {
@@ -28,7 +31,8 @@ module MixinBot
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/create-pin/
-      def update_pin(old_pin:, pin:)
+      def update_pin(old_pin: nil, pin:)
+        old_pin ||= MixinBot.config.pin
         raise ArgumentError, 'invalid old pin' if old_pin.present? && old_pin.length != 6
 
         path = '/pin/update'
@@ -59,7 +63,7 @@ module MixinBot
 
       # decrypt the encrpted pin, just for test
       def decrypt_pin(msg)
-        msg = Base64.strict_decode64 msg
+        msg = Base64.urlsafe_decode64 msg
         iv = msg[0..15]
         cipher = msg[16..47]
         alg = 'AES-256-CBC'
@@ -68,12 +72,14 @@ module MixinBot
         decode_cipher.iv = iv
         decode_cipher.key = _generate_aes_key
         decoded = decode_cipher.update(cipher)
-        decoded[0..5]
+        decoded
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/encrypted-pin/
       # use timestamp(timestamp) for iterator as default: must be bigger than the previous, the first time must be greater than 0. After a new session created, it will be reset to 0.
       def encrypt_pin(pin, iterator: nil)
+        pin = MixinBot::Utils.decode_key pin
+
         iterator ||= Time.now.utc.to_i
         tszero = iterator % 0x100
         tsone = (iterator % 0x10000) >> 8
@@ -82,7 +88,7 @@ module MixinBot
         tsstring = "#{tszero.chr}#{tsone.chr}#{tstwo.chr}#{tsthree.chr}\u0000\u0000\u0000\u0000"
         encrypt_content = 
           if pin.length > 6
-            [pin].pack('H*') + tsstring + tsstring
+            pin + tsstring + tsstring
           else
             pin + tsstring + tsstring
           end
@@ -106,17 +112,19 @@ module MixinBot
       end
     end
 
+    private
+
     def _generate_aes_key
-      if pin_token.size == 32
+      if config.server_public_key.size == 32
         JOSE::JWA::X25519.x25519(
-          JOSE::JWA::Ed25519.secret_to_curve25519(private_key[0..31]),
-          pin_token
+          config.session_private_key_curve25519,
+          config.server_public_key_curve25519
         )
       else
         JOSE::JWA::PKCS1.rsaes_oaep_decrypt(
           'SHA256',
-          pin_token,
-          OpenSSL::PKey::RSA.new(private_key),
+          config.server_public_key,
+          OpenSSL::PKey::RSA.new(config.session_private_key),
           session_id
         )
       end
