@@ -12,7 +12,6 @@ module MixinBot
         amount = format('%.8f', options[:amount].to_d.to_r).gsub(/\.?0+$/, '')
         trace_id = options[:trace_id] || SecureRandom.uuid
         memo = options[:memo] || ''
-        pin = MixinBot::Utils.decode_key pin
 
         payload = {
           asset_id: asset_id,
@@ -22,13 +21,11 @@ module MixinBot
           memo: memo
         }
 
-        encrypted_pin = options[:encrypted_pin]
         if pin.length > 6
-          encrypted_pin ||= 
-            encrypt_tip_pin pin, 'TIP:TRANSFER:CREATE:', asset_id, opponent_id, amount, trace_id, memo
-          payload[:pin_base64] = encrypted_pin
+          pin_base64 = encrypt_tip_pin pin, 'TIP:TRANSFER:CREATE:', asset_id, opponent_id, amount, trace_id, memo
+          payload[:pin_base64] = pin_base64
         else
-          encrypted_pin ||= encrypt_pin pin
+          encrypted_pin = encrypt_pin pin
           payload[:pin] = encrypted_pin
         end
 

@@ -111,7 +111,6 @@ module MixinBot
         amount = format('%.8f', options[:amount].to_d.to_r),
         memo = options[:memo]
         trace_id = options[:trace_id] || SecureRandom.uuid
-        pin = MixinBot::Utils.decode_key pin
 
         path = '/transactions'
         payload = {
@@ -148,7 +147,6 @@ module MixinBot
         amount = format('%.8f', options[:amount].to_d.to_r),
         memo = options[:memo]
         trace_id = options[:trace_id] || SecureRandom.uuid
-        pin = MixinBot::Utils.decode_key pin
 
         path = '/transactions'
         payload = {

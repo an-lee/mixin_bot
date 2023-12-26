@@ -6,7 +6,7 @@ module MixinBot
       # https://developers.mixin.one/api/alpha-mixin-network/create-address/
       def create_withdraw_address(**kwargs)
         path = '/addresses'
-        pin = MixinBot::Utils.decode_key kwargs[:pin]
+        pin = kwargs[:pin]
         payload =
           {
             asset_id: kwargs[:asset_id],
@@ -36,7 +36,7 @@ module MixinBot
 
       # https://developers.mixin.one/api/alpha-mixin-network/delete-address/
       def delete_withdraw_address(**kwargs)
-        pin = MixinBot::Utils.decode_key kwargs[:pin]
+        pin = kwargs[:pin]
         address = kwargs[:address]
 
         path = format('/addresses/%<address>s/delete', address: address)
