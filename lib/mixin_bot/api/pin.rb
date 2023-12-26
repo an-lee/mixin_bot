@@ -12,7 +12,7 @@ module MixinBot
 
         payload = 
           if pin.length > 6
-            timestamp = Time.now.utc.to_i
+            timestamp = (Time.now.utc.to_f * 1e9).to_i
             pin_base64 = encrypt_tip_pin pin, 'TIP:VERIFY:', timestamp.to_s.rjust(32, '0')
 
             {
@@ -52,11 +52,11 @@ module MixinBot
       def prepare_tip_key(counter = 0)
         ed25519_key = JOSE::JWA::Ed25519.keypair
 
-        _private_key = ed25519_key[1].unpack1('H*')
+        private_key = ed25519_key[1].unpack1('H*')
         public_key = (ed25519_key[0].bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
 
         {
-          private_key: _private_key,
+          private_key: private_key,
           public_key: public_key
         }
       end
