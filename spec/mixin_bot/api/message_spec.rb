@@ -7,14 +7,14 @@ describe MixinBot::API::Message do
   let(:conversation_id) { MixinBot.api.unique_conversation_id(TEST_UID) }
 
   it 'write msg into bytes' do
-    params = MixinBot.api.plain_text(conversation_id: conversation_id, data: 'test from MixinBot')
-    msg = MixinBot.api.write_ws_message(params: params)
+    params = MixinBot.api.plain_text(conversation_id:, data: 'test from MixinBot')
+    msg = MixinBot.api.write_ws_message(params:)
     expect(msg).not_to be_nil
   end
 
   it 'send text msg via HTTP post request' do
     res = MixinBot.api.send_text_message(
-      conversation_id: conversation_id,
+      conversation_id:,
       data: 'test from MixinBot'
     )
     expect(res['data']&.[]('conversation_id')).to eq(conversation_id)
@@ -22,7 +22,7 @@ describe MixinBot::API::Message do
 
   it 'send post msg via HTTP post request' do
     res = MixinBot.api.send_post_message(
-      conversation_id: conversation_id,
+      conversation_id:,
       data: <<~POST
         # H1
         ## H2
@@ -54,13 +54,13 @@ describe MixinBot::API::Message do
 
   it 'quote a message' do
     res = MixinBot.api.send_text_message(
-      conversation_id: conversation_id,
+      conversation_id:,
       data: 'test from MixinBot'
     )
     message_id = res['data']&.[]('message_id')
     quoted_res =
       MixinBot.api.send_text_message(
-        conversation_id: conversation_id,
+        conversation_id:,
         data: 'quote the last message',
         quote_message_id: message_id
       )
@@ -69,7 +69,7 @@ describe MixinBot::API::Message do
 
   it 'send contact message' do
     res = MixinBot.api.send_contact_message(
-      conversation_id: conversation_id,
+      conversation_id:,
       data: {
         user_id: TEST_UID
       }
@@ -79,7 +79,7 @@ describe MixinBot::API::Message do
 
   it 'send app card message' do
     res = MixinBot.api.send_app_card_message(
-      conversation_id: conversation_id,
+      conversation_id:,
       data: {
         icon_url: 'https://mixin.one/assets/98b586edb270556d1972112bd7985e9e.png',
         title: 'Mixin',
@@ -93,7 +93,7 @@ describe MixinBot::API::Message do
 
   it 'send app card group message' do
     res = MixinBot.api.send_app_button_group_message(
-      conversation_id: conversation_id,
+      conversation_id:,
       data: [
         {
           label: 'Mixin Website',
@@ -113,17 +113,17 @@ describe MixinBot::API::Message do
   it 'send a batch of messages' do
     messages = [
       MixinBot.api.plain_text(
-        conversation_id: conversation_id,
+        conversation_id:,
         recipient_id: TEST_UID,
         data: 'test from MixinBot (1/3)'
       ),
       MixinBot.api.plain_text(
-        conversation_id: conversation_id,
+        conversation_id:,
         recipient_id: TEST_UID,
         data: 'test from MixinBot (2/3)'
       ),
       MixinBot.api.plain_text(
-        conversation_id: conversation_id,
+        conversation_id:,
         recipient_id: TEST_UID,
         data: 'test from MixinBot (3/3)'
       )
@@ -136,14 +136,14 @@ describe MixinBot::API::Message do
   it 'recall message' do
     message_id = SecureRandom.uuid
     MixinBot.api.send_text_message(
-      conversation_id: conversation_id,
+      conversation_id:,
       data: 'test from MixinBot',
-      message_id: message_id
+      message_id:
     )
 
     res = MixinBot.api.recall_message(message_id,
                                       recipient_id: TEST_UID,
-                                      conversation_id: conversation_id)
+                                      conversation_id:)
 
     expect(res['error']).to be_nil
   end
@@ -158,7 +158,7 @@ describe MixinBot::API::Message do
     attachment = MixinBot.api.upload_attachment(image)
 
     res = MixinBot.api.send_image_message(
-      conversation_id: conversation_id,
+      conversation_id:,
       data: {
         attachment_id: attachment['attachment_id'],
         mime_type: "images/#{image_type}",
@@ -177,7 +177,7 @@ describe MixinBot::API::Message do
     attachment = MixinBot.api.upload_attachment(file)
 
     res = MixinBot.api.send_file_message(
-      conversation_id: conversation_id,
+      conversation_id:,
       data: {
         attachment_id: attachment['attachment_id'],
         size: file.size,

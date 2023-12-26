@@ -47,7 +47,7 @@ describe MixinBot::Utils::Nfo do
     memo = 'TkZPAAEAAAAAAAAAAUPWHc3kE0UNgLgQHV6QM1cUPIwWGhiuLIsU_aEhb_99qIxBm10QTW1Rcd5gTfq7yoByst-H2AFFIP8gz81L50ehZewm8Xe5ta5oeOuZB0NPTZNtC-92BktK'
     extra = 'ff20cfcd4be747a165ec26f177b9b5ae6878eb9907434f4d936d0bef76064b4a'
 
-    nfo = described_class.new memo: memo
+    nfo = described_class.new(memo:)
 
     nfo.decode
 
@@ -58,7 +58,7 @@ describe MixinBot::Utils::Nfo do
     hex = '4e464f0001000000000000000143d61dcde413450d80b8101d5e903357143c8c161a18ae2c8b14fda1216fff7da88c419b5d100000000000000000000000000000000010a1acad756a3a4cb7ace88b750e2d82e620217fdcd1febd5f60a541ae3d91abd14bc00c3ea0004e767ed49b6cfec9c564a3'
     extra = '217fdcd1febd5f60a541ae3d91abd14bc00c3ea0004e767ed49b6cfec9c564a3'
 
-    nfo = described_class.new hex: hex
+    nfo = described_class.new(hex:)
 
     nfo.decode
 

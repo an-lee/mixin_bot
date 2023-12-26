@@ -14,15 +14,15 @@ module MixinBot
 
         path = format(
           '/multisigs/outputs?limit=%<limit>s&offset=%<offset>s&state=%<state>s&members=%<members>s&threshold=%<threshold>s',
-          limit: limit,
-          offset: offset,
-          state: state,
-          members: members,
-          threshold: threshold
+          limit:,
+          offset:,
+          state:,
+          members:,
+          threshold:
         )
         access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
       alias multisigs outputs
       alias multisig_outputs outputs
@@ -30,17 +30,17 @@ module MixinBot
       def create_output(receivers:, index:, hint: nil, access_token: nil)
         path = '/outputs'
         payload = {
-          receivers: receivers,
-          index: index,
-          hint: hint
+          receivers:,
+          index:,
+          hint:
         }
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def build_output(receivers:, index:, amount:, threshold:, hint: nil)
-        _output = create_output receivers: receivers, index: index, hint: hint
+        _output = create_output(receivers:, index:, hint:)
         {
           amount: format('%.8f', amount.to_d.to_r),
           script: build_threshold_script(threshold),
@@ -51,7 +51,7 @@ module MixinBot
 
       def build_threshold_script(threshold)
         s = threshold.to_s(16)
-        s = s.length == 1 ? "0#{s}" : s
+        s = "0#{s}" if s.length == 1
         raise 'NVALID THRESHOLD' if s.length > 2
 
         "fffe#{s}"
@@ -71,24 +71,24 @@ module MixinBot
 
         path = format(
           '/safe/outputs?asset=%<asset>s&limit=%<limit>s&offset=%<offset>s&state=%<state>s&members=%<members_hash>s&threshold=%<threshold>s&order=%<order>s',
-          asset: asset,
-          limit: limit,
-          offset: offset,
-          state: state,
-          members_hash: members_hash,
-          threshold: threshold,
-          order: order
+          asset:,
+          limit:,
+          offset:,
+          state:,
+          members_hash:,
+          threshold:,
+          order:
         )
         access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
 
       def safe_output(id)
-        path = format('/safe/outputs/%<id>s', id: id)
+        path = format('/safe/outputs/%<id>s', id:)
         access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
     end
   end

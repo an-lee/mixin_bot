@@ -10,28 +10,28 @@ module MixinBot
 
         path = '/pin/verify'
 
-        payload = 
+        payload =
           if pin.length > 6
             timestamp = (Time.now.utc.to_f * 1e9).to_i
             pin_base64 = encrypt_tip_pin pin, 'TIP:VERIFY:', timestamp.to_s.rjust(32, '0')
 
             {
-              pin_base64: pin_base64,
-              timestamp: timestamp,
+              pin_base64:,
+              timestamp:
             }
-          else 
+          else
             {
               pin: encrypt_pin(pin)
             }
           end
 
         access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/create-pin/
-      def update_pin(old_pin: nil, pin:)
+      def update_pin(pin:, old_pin: nil)
         old_pin ||= MixinBot.config.pin
         raise ArgumentError, 'invalid old pin' if old_pin.present? && old_pin.length != 6
 
@@ -45,8 +45,8 @@ module MixinBot
         }
 
         access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def prepare_tip_key(counter = 0)
@@ -56,8 +56,8 @@ module MixinBot
         public_key = (ed25519_key[0].bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
 
         {
-          private_key: private_key,
-          public_key: public_key
+          private_key:,
+          public_key:
         }
       end
 
@@ -71,8 +71,7 @@ module MixinBot
         decode_cipher.decrypt
         decode_cipher.iv = iv
         decode_cipher.key = _generate_aes_key
-        decoded = decode_cipher.update(cipher)
-        decoded
+        decode_cipher.update(cipher)
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/encrypted-pin/
@@ -86,16 +85,12 @@ module MixinBot
         tstwo = (iterator % 0x1000000) >> 16
         tsthree = (iterator % 0x100000000) >> 24
         tsstring = "#{tszero.chr}#{tsone.chr}#{tstwo.chr}#{tsthree.chr}\u0000\u0000\u0000\u0000"
-        encrypt_content = 
-          if pin.length > 6
-            pin + tsstring + tsstring
-          else
-            pin + tsstring + tsstring
-          end
-        pad_count = 16 - encrypt_content.length % 16
+        encrypt_content =
+          pin + tsstring
+        pad_count = 16 - (encrypt_content.length % 16)
         padded_content =
           if pad_count.positive?
-            encrypt_content + pad_count.chr * pad_count
+            encrypt_content + (pad_count.chr * pad_count)
           else
             encrypt_content
           end

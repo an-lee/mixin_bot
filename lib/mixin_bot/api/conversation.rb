@@ -4,10 +4,10 @@ module MixinBot
   class API
     module Conversation
       def conversation(conversation_id)
-        path = format('/conversations/%<conversation_id>s', conversation_id: conversation_id)
+        path = format('/conversations/%<conversation_id>s', conversation_id:)
         access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
       alias read_conversation conversation
 
@@ -20,24 +20,24 @@ module MixinBot
       def create_conversation(category:, conversation_id:, participants:, name: nil, access_token: nil)
         path = '/conversations'
         payload = {
-          category: category,
+          category:,
           conversation_id: conversation_id || SecureRandom.uuid,
-          name: name,
-          participants: participants
+          name:,
+          participants:
         }
 
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def create_group_conversation(user_ids:, name:, conversation_id: nil, access_token: nil)
         create_conversation(
           category: 'GROUP',
-          conversation_id: conversation_id,
-          name: name,
+          conversation_id:,
+          name:,
           participants: user_ids.map(&->(participant) { { user_id: participant } }),
-          access_token: access_token
+          access_token:
         )
       end
 
@@ -47,33 +47,33 @@ module MixinBot
           conversation_id: unique_conversation_id(user_id),
           participants: [
             {
-              user_id: user_id
+              user_id:
             }
           ],
-          access_token: access_token
+          access_token:
         )
       end
 
       def update_group_conversation_name(name:, conversation_id:, access_token: nil)
         path = format('/conversations/%<id>s', id: conversation_id)
         payload = {
-          name: name
+          name:
         }
 
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def update_group_conversation_announcement(announcement:, conversation_id:, access_token: nil)
         path = format('/conversations/%<id>s', id: conversation_id)
         payload = {
-          announcement: announcement
+          announcement:
         }
 
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       # participants = [{ user_id: "" }]
@@ -82,8 +82,8 @@ module MixinBot
         payload = user_ids.map(&->(participant) { { user_id: participant } })
 
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       # participants = [{ user_id: "" }]
@@ -92,24 +92,24 @@ module MixinBot
         payload = user_ids.map(&->(participant) { { user_id: participant } })
 
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def exit_conversation(conversation_id, access_token: nil)
         path = format('/conversations/%<id>s/exit', id: conversation_id)
 
         access_token ||= access_token('POST', path)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization })
       end
 
       def rotate_conversation(conversation_id, access_token: nil)
         path = format('/conversations/%<id>s/rotate', id: conversation_id)
 
         access_token ||= access_token('POST', path)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization })
       end
 
       # participants = [{ user_id: "", role: "ADMIN" }]
@@ -118,8 +118,8 @@ module MixinBot
         payload = participants
 
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def unique_uuid(user_id, opponent_id = nil)

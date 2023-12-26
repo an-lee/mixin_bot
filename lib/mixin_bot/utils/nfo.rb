@@ -54,7 +54,7 @@ module MixinBot
 
         hex = digest.pack('c*').unpack1('H*')
 
-        MixinBot::Utils::UUID.new(hex: hex).unpacked
+        MixinBot::Utils::UUID.new(hex:).unpacked
       end
 
       def mark(*indexes)
@@ -71,7 +71,9 @@ module MixinBot
         bytes += prefix.bytes
         bytes += [version]
 
-        if mask != 0
+        if mask.zero?
+          bytes += [0]
+        else
           bytes += [1]
           bytes += MixinBot::Utils.encode_uint_64 mask
           bytes += MixinBot::Utils::UUID.new(hex: chain).packed.bytes
@@ -88,8 +90,6 @@ module MixinBot
           token_bytes = MixinBot::Utils.int_to_bytes token
           bytes += MixinBot::Utils.int_to_bytes token_bytes.size
           bytes += token_bytes
-        else
-          bytes += [0]
         end
 
         extra_bytes = [extra].pack('H*').bytes
@@ -153,16 +153,16 @@ module MixinBot
 
       def to_h
         hash = {
-          prefix: prefix,
-          version: version,
-          mask: mask,
-          chain: chain,
+          prefix:,
+          version:,
+          mask:,
+          chain:,
           class: nm_class,
-          collection: collection,
-          token: token,
-          extra: extra,
-          memo: memo,
-          hex: hex
+          collection:,
+          token:,
+          extra:,
+          memo:,
+          hex:
         }
 
         hash.each do |key, value|

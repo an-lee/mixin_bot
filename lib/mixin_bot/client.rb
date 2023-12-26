@@ -101,8 +101,8 @@ module MixinBot
     def uri_for(path)
       uri_options = {
         scheme: SERVER_SCHEME,
-        host: host,
-        path: path
+        host:,
+        path:
       }
       Addressable::URI.new(uri_options)
     end

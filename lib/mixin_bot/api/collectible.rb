@@ -8,15 +8,15 @@ module MixinBot
       def collectible(id, access_token: nil)
         path = "/collectibles/tokens/#{id}"
         access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
 
       def collection(id, access_token: nil)
         path = "/collectibles/collections/#{id}"
         access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
 
       def collectible_outputs(**kwargs)
@@ -30,15 +30,15 @@ module MixinBot
 
         path = format(
           '/collectibles/outputs?limit=%<limit>s&offset=%<offset>s&state=%<state>s&members=%<members>s&threshold=%<threshold>s',
-          limit: limit,
-          offset: offset,
-          state: state,
-          members: members,
-          threshold: threshold
+          limit:,
+          offset:,
+          state:,
+          members:,
+          threshold:
         )
         access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
       alias collectibles collectible_outputs
 
@@ -48,25 +48,25 @@ module MixinBot
 
         path = '/collectibles/requests'
         payload = {
-          action: action,
-          raw: raw
+          action:,
+          raw:
         }
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def create_sign_collectible_request(raw, access_token: nil)
-        create_collectible_request 'sign', raw, access_token: access_token
+        create_collectible_request 'sign', raw, access_token:
       end
 
       def create_unlock_collectible_request(raw, access_token: nil)
-        create_collectible_request 'unlock', raw, access_token: access_token
+        create_collectible_request 'unlock', raw, access_token:
       end
 
       def sign_collectible_request(request_id, pin)
-        path = format('/collectibles/requests/%<request_id>s/sign', request_id: request_id)
-        payload = 
+        path = format('/collectibles/requests/%<request_id>s/sign', request_id:)
+        payload =
           if pin.length > 6
             {
               pin_base64: encrypt_tip_pin(pin, 'TIP:COLLECTIBLE:REQUEST:SIGN:', request_id)
@@ -77,13 +77,13 @@ module MixinBot
             }
           end
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def unlock_collectible_request(request_id, pin)
-        path = format('/collectibles/requests/%<request_id>s/unlock', request_id: request_id)
-        payload = 
+        path = format('/collectibles/requests/%<request_id>s/unlock', request_id:)
+        payload =
           if pin.length > 6
             {
               pin_base64: encrypt_tip_pin(pin, 'TIP:COLLECTIBLE:REQUEST:UNLOCK:', request_id)
@@ -94,8 +94,8 @@ module MixinBot
             }
           end
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
     end
 

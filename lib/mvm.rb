@@ -4,11 +4,11 @@ require 'active_support/all'
 require 'http'
 require 'eth'
 
-require_relative './mvm/bridge'
-require_relative './mvm/client'
-require_relative './mvm/nft'
-require_relative './mvm/registry'
-require_relative './mvm/scan'
+require_relative 'mvm/bridge'
+require_relative 'mvm/client'
+require_relative 'mvm/nft'
+require_relative 'mvm/registry'
+require_relative 'mvm/scan'
 
 module MVM
   RPC_URL = 'https://geth.mvm.dev'

@@ -29,8 +29,8 @@ describe MixinBot::API::Collectible do
     nfo = MixinBot.api.collectible(collectible['token_id'])['data']['nfo']
     puts collectible
     tx = MixinBot.api.build_collectible_transaction(
-      collectible: collectible,
-      nfo: nfo,
+      collectible:,
+      nfo:,
       receivers: [TEST_UID],
       threshold: 1
     )
@@ -85,7 +85,7 @@ describe MixinBot::API::Collectible do
     payment = MixinBot.api.create_multisig_payment(
       asset_id: XIN_ASSET_ID,
       amount: 0.001,
-      memo: memo,
+      memo:,
       receivers: NFO_MTG,
       threshold: NFO_THRESHOLD
     )

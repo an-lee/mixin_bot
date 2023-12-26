@@ -5,8 +5,8 @@ require 'spec_helper'
 describe MixinBot::Utils do
   it 'build raw transaction' do
     tx = {
-      'version': 3,
-      'asset': 'b9f49cf777dc4d03bc54cd1367eebca319f8603ea1ce18910d09e2c540c630d8',
+      version: 3,
+      asset: 'b9f49cf777dc4d03bc54cd1367eebca319f8603ea1ce18910d09e2c540c630d8',
       inputs: [
         {
           hash: '750540f569de3878bd384b1f107d69ce7619a84e29e353530b9d1c5506cf7bc8',

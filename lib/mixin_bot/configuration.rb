@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MixinBot
   class Configuration
     CONFIGURABLE_ATTRS = %i[
@@ -13,7 +15,7 @@ module MixinBot
       session_private_key_curve25519
       server_public_key_curve25519
     ].freeze
-    attr_accessor *CONFIGURABLE_ATTRS
+    attr_accessor(*CONFIGURABLE_ATTRS)
 
     def initialize(**kwargs)
       @app_id = kwargs[:app_id] || kwargs[:client_id]

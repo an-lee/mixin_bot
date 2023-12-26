@@ -1,38 +1,38 @@
 # frozen_string_literal: true
 
-require_relative './client'
-require_relative './configuration'
-require_relative './api/address'
-require_relative './api/app'
-require_relative './api/asset'
-require_relative './api/attachment'
-require_relative './api/auth'
-require_relative './api/blaze'
-require_relative './api/collectible'
-require_relative './api/conversation'
-require_relative './api/encrypted_message'
-require_relative './api/me'
-require_relative './api/message'
-require_relative './api/multisig'
-require_relative './api/output'
-require_relative './api/payment'
-require_relative './api/pin'
-require_relative './api/rpc'
-require_relative './api/snapshot'
-require_relative './api/tip'
-require_relative './api/transaction'
-require_relative './api/transfer'
-require_relative './api/user'
-require_relative './api/withdraw'
+require_relative 'client'
+require_relative 'configuration'
+require_relative 'api/address'
+require_relative 'api/app'
+require_relative 'api/asset'
+require_relative 'api/attachment'
+require_relative 'api/auth'
+require_relative 'api/blaze'
+require_relative 'api/collectible'
+require_relative 'api/conversation'
+require_relative 'api/encrypted_message'
+require_relative 'api/me'
+require_relative 'api/message'
+require_relative 'api/multisig'
+require_relative 'api/output'
+require_relative 'api/payment'
+require_relative 'api/pin'
+require_relative 'api/rpc'
+require_relative 'api/snapshot'
+require_relative 'api/tip'
+require_relative 'api/transaction'
+require_relative 'api/transfer'
+require_relative 'api/user'
+require_relative 'api/withdraw'
 
 module MixinBot
   class API
     attr_reader :config, :client
 
     def initialize(**kwargs)
-      @config = 
+      @config =
         if kwargs.present?
-          MixinBot::Configuration.new **kwargs
+          MixinBot::Configuration.new(**kwargs)
         else
           MixinBot.config
         end

@@ -16,7 +16,7 @@ module MVM
       path = '/users'
 
       payload = {
-        public_key: public_key
+        public_key:
       }
 
       client.post path, json: payload
@@ -28,9 +28,9 @@ module MVM
       path = '/extra'
 
       payload = {
-        receivers: receivers,
-        threshold: threshold,
-        extra: extra
+        receivers:,
+        threshold:,
+        extra:
       }
 
       client.post path, json: payload

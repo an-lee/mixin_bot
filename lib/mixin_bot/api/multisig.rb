@@ -9,29 +9,29 @@ module MixinBot
 
         path = '/multisigs/requests'
         payload = {
-          action: action,
-          raw: raw
+          action:,
+          raw:
         }
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       # transfer from the multisig address
       def create_sign_multisig_request(raw, access_token: nil)
-        create_multisig_request 'sign', raw, access_token: access_token
+        create_multisig_request 'sign', raw, access_token:
       end
 
       # transfer from the multisig address
       # create a request for unlock a multi-sign
       def create_unlock_multisig_request(raw, access_token: nil)
-        create_multisig_request 'unlock', raw, access_token: access_token
+        create_multisig_request 'unlock', raw, access_token:
       end
 
       def sign_multisig_request(request_id, pin = nil)
         pin ||= config.pin
-        path = format('/multisigs/requests/%<request_id>s/sign', request_id: request_id)
-        payload = 
+        path = format('/multisigs/requests/%<request_id>s/sign', request_id:)
+        payload =
           if pin.length > 6
             {
               pin_base64: encrypt_tip_pin(pin, 'TIP:MULTISIG:REQUEST:SIGN:', request_id)
@@ -42,15 +42,15 @@ module MixinBot
             }
           end
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def unlock_multisig_request(request_id, pin = nil)
         pin ||= config.pin
 
-        path = format('/multisigs/requests/%<request_id>s/unlock', request_id: request_id)
-        payload = 
+        path = format('/multisigs/requests/%<request_id>s/unlock', request_id:)
+        payload =
           if pin.length > 6
             {
               pin_base64: encrypt_tip_pin(pin, 'TIP:MULTISIG:REQUEST:UNLOCK:', request_id)
@@ -61,8 +61,8 @@ module MixinBot
             }
           end
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       # pay to the multisig address
@@ -81,54 +81,54 @@ module MixinBot
         }
         access_token = kwargs[:access_token]
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def verify_multisig(code_id, access_token: nil)
-        path = format('/codes/%<code_id>s', code_id: code_id)
+        path = format('/codes/%<code_id>s', code_id:)
         access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
 
       def create_safe_multisig_request(request_id, raw)
         path = '/safe/multisigs'
         payload = [{
-          request_id: request_id,
-          raw: raw
+          request_id:,
+          raw:
         }]
 
         access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def sign_safe_multisig_request(request_id, raw)
-        path = format('/safe/multisigs/%<request_id>s/sign', request_id: request_id)
+        path = format('/safe/multisigs/%<request_id>s/sign', request_id:)
 
         payload = {
-          raw: raw
+          raw:
         }
         access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def unlock_safe_multisig_request(request_id)
-        path = format('/safe/multisigs/%<request_id>s/unlock', request_id: request_id)
+        path = format('/safe/multisigs/%<request_id>s/unlock', request_id:)
 
         access_token = access_token('POST', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization })
       end
 
       def safe_multisig_request(request_id)
-        path = format('/safe/multisigs/%<request_id>s', request_id: request_id)
+        path = format('/safe/multisigs/%<request_id>s', request_id:)
 
         access_token = access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
     end
   end

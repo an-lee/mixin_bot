@@ -6,37 +6,37 @@ module MixinBot
       # https://developers.mixin.one/api/beta-mixin-message/read-user/
       def read_user(user_id)
         # user_id: Mixin User UUID
-        path = format('/users/%<user_id>s', user_id: user_id)
+        path = format('/users/%<user_id>s', user_id:)
         access_token = access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/app-user/
       # Create a new Mixin Network user (like a normal Mixin Messenger user). You should keep PrivateKey which is used to sign an AuthenticationToken and encrypted PIN for the user.
       def create_user(full_name, key: nil)
-        key ||= MixinBot::Utils.generate_ed25519_key
+        key || MixinBot::Utils.generate_ed25519_key
         session_secret = ed25519_key[:public_key]
 
         payload = {
-          full_name: full_name,
-          session_secret: session_secret
+          full_name:,
+          session_secret:
         }
         access_token = access_token('POST', '/users', payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        res = client.post('/users', headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        res = client.post('/users', headers: { Authorization: authorization }, json: payload)
 
-        res.merge(rsa_key: rsa_key, ed25519_key: ed25519_key)
+        res.merge(rsa_key:, ed25519_key:)
       end
 
       # https://developers.mixin.one/api/beta-mixin-message/search-user/
       # search by Mixin Id or Phone Number
       def search_user(query)
-        path = format('/search/%<query>s', query: query)
+        path = format('/search/%<query>s', query:)
 
         access_token = access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
 
       # https://developers.mixin.one/api/beta-mixin-message/read-users/
@@ -47,8 +47,8 @@ module MixinBot
         payload = user_ids
 
         access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def safe_register(pin, spend_key:)
@@ -63,14 +63,14 @@ module MixinBot
         pin_base64 = encrypt_tip_pin pin, 'SEQUENCER:REGISTER:', config.app_id, public_key
 
         payload = {
-          public_key: public_key,
-          signature: signature,
-          pin_base64: pin_base64 
+          public_key:,
+          signature:,
+          pin_base64:
         }
 
         access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
     end
   end

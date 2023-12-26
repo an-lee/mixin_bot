@@ -10,10 +10,10 @@ module MixinBot
 
       def acknowledge_message_receipt(message_id)
         params = {
-          message_id: message_id,
+          message_id:,
           status: 'READ'
         }
-        write_ws_message(action: 'ACKNOWLEDGE_MESSAGE_RECEIPT', params: params)
+        write_ws_message(action: 'ACKNOWLEDGE_MESSAGE_RECEIPT', params:)
       end
 
       def plain_text(options)
@@ -72,7 +72,7 @@ module MixinBot
         options.merge!(
           category: 'MESSAGE_RECALL',
           data: {
-            message_id: message_id
+            message_id:
           }
         )
         base_message_params(options)
@@ -107,8 +107,8 @@ module MixinBot
       def write_ws_message(params:, action: 'CREATE_MESSAGE')
         msg = {
           id: SecureRandom.uuid,
-          action: action,
-          params: params
+          action:,
+          params:
         }.to_json
 
         io = StringIO.new 'wb'
@@ -159,8 +159,8 @@ module MixinBot
       def send_message(payload)
         path = '/messages'
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
     end
   end

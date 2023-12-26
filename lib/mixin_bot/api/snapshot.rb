@@ -13,8 +13,8 @@ module MixinBot
         )
 
         access_token = options[:access_token] || access_token('GET', path)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
       alias read_network_snapshots network_snapshots
 
@@ -29,17 +29,17 @@ module MixinBot
         )
 
         access_token = options[:access_token] || access_token('GET', path)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
       alias read_snapshots snapshots
 
       def network_snapshot(snapshot_id, **options)
-        path = format('/network/snapshots/%<snapshot_id>s', snapshot_id: snapshot_id)
+        path = format('/network/snapshots/%<snapshot_id>s', snapshot_id:)
 
         access_token = options[:access_token] || access_token('GET', path)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
       alias read_network_snapshot network_snapshot
 
@@ -55,8 +55,8 @@ module MixinBot
         )
 
         access_token = options[:access_token] || access_token('GET', path)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
 
       def create_safe_snapshot_notification(**kwargs)
@@ -69,8 +69,8 @@ module MixinBot
         }
 
         access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
     end
   end

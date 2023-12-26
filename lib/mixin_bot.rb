@@ -18,14 +18,14 @@ require 'openssl'
 require 'rbnacl'
 require 'sha3'
 
-require_relative './mixin_bot/api'
-require_relative './mixin_bot/cli'
-require_relative './mixin_bot/utils'
-require_relative './mixin_bot/version'
-require_relative './mvm'
+require_relative 'mixin_bot/api'
+require_relative 'mixin_bot/cli'
+require_relative 'mixin_bot/utils'
+require_relative 'mixin_bot/version'
+require_relative 'mvm'
 
 module MixinBot
-  class<< self
+  class << self
     def api
       return @api if defined?(@api)
 
@@ -40,8 +40,8 @@ module MixinBot
       @config
     end
 
-    def configure(&block)
-      config.instance_exec(&block)
+    def configure(&)
+      config.instance_exec(&)
     end
   end
 

@@ -14,11 +14,11 @@ module MixinBot
         memo = options[:memo] || ''
 
         payload = {
-          asset_id: asset_id,
-          opponent_id: opponent_id,
-          amount: amount,
-          trace_id: trace_id,
-          memo: memo
+          asset_id:,
+          opponent_id:,
+          amount:,
+          trace_id:,
+          memo:
         }
 
         if pin.length > 6
@@ -32,15 +32,15 @@ module MixinBot
         path = '/transfers'
         access_token = options[:access_token]
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def transfer(trace_id, access_token: nil)
-        path = format('/transfers/trace/%<trace_id>s', trace_id: trace_id)
+        path = format('/transfers/trace/%<trace_id>s', trace_id:)
         access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
       alias read_transfer transfer
 
@@ -81,11 +81,11 @@ module MixinBot
 
         # step 2: build transaction
         tx = build_safe_transaction(
-          utxos: utxos,
+          utxos:,
           receivers: [{
-            members: members,
-            threshold: threshold,
-            amount: amount
+            members:,
+            threshold:,
+            amount:
           }],
           extra: memo
         )
@@ -97,10 +97,10 @@ module MixinBot
         # step 4: sign transaction
         spend_key = MixinBot::Utils.decode_key(kwargs[:spend_key]) || config.spend_key
         signed_raw = sign_safe_transaction(
-          raw: raw,
-          utxos: utxos,
+          raw:,
+          utxos:,
           request: request[0],
-          spend_key: spend_key
+          spend_key:
         )
 
         # step 5: submit transaction

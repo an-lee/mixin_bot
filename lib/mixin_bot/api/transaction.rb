@@ -32,7 +32,7 @@ module MixinBot
         asset_id            = kwargs[:asset_id]
         asset_mixin_id      = kwargs[:asset_mixin_id]
         utxos               = kwargs[:utxos]
-        memo                = kwargs[:memo]
+        kwargs[:memo]
         extra               = kwargs[:extra]
         access_token        = kwargs[:access_token]
         outputs             = kwargs[:outputs] || []
@@ -51,8 +51,8 @@ module MixinBot
         if input_amount < amount
           raise format(
             'not enough amount! %<input_amount>s < %<amount>s',
-            input_amount: input_amount,
-            amount: amount
+            input_amount:,
+            amount:
           )
         end
 
@@ -68,11 +68,11 @@ module MixinBot
         if outputs.empty?
           receivers_threshold = 1 if receivers.size == 1
           output0 = build_output(
-            receivers: receivers,
+            receivers:,
             index: 0,
-            amount: amount,
+            amount:,
             threshold: receivers_threshold,
-            hint: hint
+            hint:
           )
           outputs.push output0
 
@@ -82,7 +82,7 @@ module MixinBot
               index: 1,
               amount: input_amount - amount,
               threshold: senders_threshold,
-              hint: hint
+              hint:
             )
             outputs.push output1
           end
@@ -90,12 +90,12 @@ module MixinBot
 
         # extra ||= Digest.hexencode(memo.to_s.slice(0, 140))
         asset = asset_mixin_id || SHA3::Digest::SHA256.hexdigest(asset_id)
-        tx = {
-          version: version,
-          asset: asset,
-          inputs: inputs,
-          outputs: outputs,
-          extra: extra
+        {
+          version:,
+          asset:,
+          inputs:,
+          outputs:,
+          extra:
         }
       end
 
@@ -109,19 +109,19 @@ module MixinBot
         receivers = options[:receivers]
         threshold = options[:threshold]
         amount = format('%.8f', options[:amount].to_d.to_r),
-        memo = options[:memo]
+                 memo = options[:memo]
         trace_id = options[:trace_id] || SecureRandom.uuid
 
         path = '/transactions'
         payload = {
-          asset_id: asset_id,
+          asset_id:,
           opponent_multisig: {
-            receivers: receivers,
-            threshold: threshold
+            receivers:,
+            threshold:
           },
-          amount: amount,
-          trace_id: trace_id,
-          memo: memo
+          amount:,
+          trace_id:,
+          memo:
         }
 
         if pin.length > 6
@@ -132,8 +132,8 @@ module MixinBot
 
         access_token = options[:access_token]
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       # @DEPRECATED
@@ -145,16 +145,16 @@ module MixinBot
         asset_id = options[:asset_id]
         opponent_key = options[:opponent_key]
         amount = format('%.8f', options[:amount].to_d.to_r),
-        memo = options[:memo]
+                 memo = options[:memo]
         trace_id = options[:trace_id] || SecureRandom.uuid
 
         path = '/transactions'
         payload = {
-          asset_id: asset_id,
-          opponent_key: opponent_key,
-          amount: amount,
-          trace_id: trace_id,
-          memo: memo
+          asset_id:,
+          opponent_key:,
+          amount:,
+          trace_id:,
+          memo:
         }
 
         if pin.length > 6
@@ -165,8 +165,8 @@ module MixinBot
 
         access_token = options[:access_token]
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       # @DEPRECATED
@@ -187,13 +187,14 @@ module MixinBot
       #########################
       # Safe Network Protocol #
       # #######################
-      
+
       # ghost keys
       def create_safe_keys(*payload, access_token: nil)
         raise ArgumentError, 'payload should be an array' unless payload.is_a? Array
-        raise ArgumentError, 'payload should not be empty' unless payload.size > 0
-        raise ArgumentError, 'invalid payload' unless payload.all?(&->(param) {
-          param.has_key?(:receivers) && param.has_key?(:index) })
+        raise ArgumentError, 'payload should not be empty' unless payload.size.positive?
+        raise ArgumentError, 'invalid payload' unless payload.all?(&lambda { |param|
+                                                                      param.key?(:receivers) && param.key?(:index)
+                                                                    })
 
         payload.each do |param|
           param[:hint] ||= SecureRandom.uuid
@@ -201,8 +202,8 @@ module MixinBot
 
         path = '/safe/keys'
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
       alias create_ghost_keys create_safe_keys
 
@@ -230,7 +231,7 @@ module MixinBot
         senders_threshold = utxos.map { |utxo| utxo['receivers_threshold'] }.uniq
         raise ArgumentError, 'utxos should have same senders_threshold' if senders_threshold.size > 1
 
-        raise ArgumentError, 'utxos should not be empty' if utxos.size == 0
+        raise ArgumentError, 'utxos should not be empty' if utxos.empty?
         raise ArgumentError, 'utxos too many' if utxos.size > 256
 
         recipients = receivers.map do |receiver|
@@ -262,39 +263,39 @@ module MixinBot
 
           inputs << {
             hash: utxo['transaction_hash'],
-            index: utxo['output_index'],
+            index: utxo['output_index']
           }
         end
 
-        ghost_payload = recipients.map.with_index do |r, index|  
+        ghost_payload = recipients.map.with_index do |r, index|
           {
             receivers: r[:members],
-            index: index,
+            index:,
             hint: SecureRandom.uuid
           }
-        end 
+        end
         ghosts = create_safe_keys(*ghost_payload)['data']
 
         outputs = []
         recipients.each_with_index do |recipient, index|
-          if recipient['destination']
-            outputs << {
-              type: OUTPUT_TYPE_WITHDRAW_SUBMIT,
-              amount: recipient['amount'],
-              withdrawal: {
-                address: recipient['destination'],
-                tag: recipient['tag'] || '',
-              }
-            }
-          else
-            outputs << {
-              type: OUTPUT_TYPE_SCRIPT,
-              amount: recipient['amount'],
-              keys: ghosts[index]['keys'],
-              mask: ghosts[index]['mask'],
-              script: build_threshold_script(recipient['threshold'])
-            }
-          end
+          outputs << if recipient['destination']
+                       {
+                         type: OUTPUT_TYPE_WITHDRAW_SUBMIT,
+                         amount: recipient['amount'],
+                         withdrawal: {
+                           address: recipient['destination'],
+                           tag: recipient['tag'] || ''
+                         }
+                       }
+                     else
+                       {
+                         type: OUTPUT_TYPE_SCRIPT,
+                         amount: recipient['amount'],
+                         keys: ghosts[index]['keys'],
+                         mask: ghosts[index]['mask'],
+                         script: build_threshold_script(recipient['threshold'])
+                       }
+                     end
         end
 
         {
@@ -302,40 +303,40 @@ module MixinBot
           asset:,
           inputs:,
           outputs:,
-          extra: kwargs[:extra] || '',
+          extra: kwargs[:extra] || ''
         }
       end
 
       def create_safe_transaction_request(request_id, raw)
         path = '/safe/transaction/requests'
         payload = [{
-          request_id: request_id,
-          raw: raw
+          request_id:,
+          raw:
         }]
 
         access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def send_safe_transaction(request_id, raw)
         path = '/safe/transactions'
         payload = [{
-          request_id: request_id,
-          raw: raw
+          request_id:,
+          raw:
         }]
 
         access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def safe_transaction(request_id)
-        path = format('/safe/transactions/%<request_id>s', request_id: request_id)
+        path = format('/safe/transactions/%<request_id>s', request_id:)
 
         access_token = access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
 
       SIGN_SAFE_TRANSACTION_ARGUMENTS = %i[raw utxos request spend_key].freeze
@@ -352,7 +353,7 @@ module MixinBot
         msg = [raw].pack('H*')
 
         y_point = JOSE::JWA::FieldElement.new(
-          JOSE::JWA::X25519.clamp_scalar(spend_key[...32]).x, 
+          JOSE::JWA::X25519.clamp_scalar(spend_key[...32]).x,
           JOSE::JWA::Edwards25519Point::L
         )
 
@@ -375,7 +376,7 @@ module MixinBot
           key_index = utxo['keys'].index pub.unpack1('H*')
           raise ArgumentError, 'cannot find valid key' unless key_index.is_a? Integer
 
-          signature = MixinBot::Utils.sign msg, key: key
+          signature = MixinBot::Utils.sign(msg, key:)
           signature = signature.unpack1('H*')
           sig = {}
           sig[key_index] = signature

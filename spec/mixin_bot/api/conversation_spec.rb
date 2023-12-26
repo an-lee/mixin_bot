@@ -42,7 +42,7 @@ describe MixinBot::API::Conversation do
     res = MixinBot
           .api
           .update_group_conversation_name(
-            name: name,
+            name:,
             conversation_id: group_conversation_id
           )
     expect(res['data']['name']).to eq(name)
@@ -53,7 +53,7 @@ describe MixinBot::API::Conversation do
     res = MixinBot
           .api
           .update_group_conversation_announcement(
-            announcement: announcement,
+            announcement:,
             conversation_id: group_conversation_id
           )
     expect(res['data']['announcement']).to eq(announcement)

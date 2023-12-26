@@ -5,9 +5,9 @@ require 'cli/ui'
 require 'thor'
 require 'yaml'
 require 'json'
-require_relative './cli/api'
-require_relative './cli/node'
-require_relative './cli/utils'
+require_relative 'cli/api'
+require_relative 'cli/node'
+require_relative 'cli/utils'
 
 module MixinBot
   class CLI < Thor
@@ -36,7 +36,7 @@ module MixinBot
       @keystore =
         begin
           JSON.parse keystore
-        rescue JSON::ParserError => e
+        rescue JSON::ParserError
           log UI.fmt(
             format(
               '{{x}} falied to parse keystore.json: %<keystore>s',
@@ -54,7 +54,7 @@ module MixinBot
             app_id: @keystore['app_id'] || @keystore['client_id'],
             session_id: @keystore['session_id'],
             server_public_key: @keystore['server_public_key'] || @keystore['pin_token'],
-            session_private_key: @keystore['session_private_key'] || @keystore['private_key'],
+            session_private_key: @keystore['session_private_key'] || @keystore['private_key']
           )
         rescue StandardError => e
           log UI.fmt '{{x}}: Failed to initialize api, maybe your keystore is incorrect: %<error>s', error: e.message

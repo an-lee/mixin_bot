@@ -11,11 +11,11 @@ module MixinBot
         payload = {
           uid: config.app_id,
           sid: config.session_id,
-          iat: iat,
-          exp: exp,
-          jti: jti,
-          sig: sig,
-          scp: scp
+          iat:,
+          exp:,
+          jti:,
+          sig:,
+          scp:
         }
 
         if config.session_private_key.blank?
@@ -37,7 +37,7 @@ module MixinBot
         payload = {
           client_id: config.app_id,
           client_secret: config.client_secret,
-          code: code
+          code:
         }
         r = client.post(path, json: payload)
 
@@ -51,7 +51,7 @@ module MixinBot
         format(
           'https://mixin.one/oauth/authorize?client_id=%<app_id>s&scope=%<scope>s',
           app_id: config.app_id,
-          scope: scope
+          scope:
         )
       end
 
@@ -70,8 +70,8 @@ module MixinBot
 
         access_token = kwargs[:access_token]
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def authorization_data(user_id, scope = ['PROFILE:READ'])

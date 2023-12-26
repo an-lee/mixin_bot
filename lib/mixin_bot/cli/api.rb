@@ -34,16 +34,16 @@ module MixinBot
         end
 
       access_token = options[:accesstoken] || api_instance.access_token(options[:method].upcase, path, payload.blank? ? '' : payload.to_json)
-      authorization = format('Bearer %<access_token>s', access_token: access_token)
+      authorization = format('Bearer %<access_token>s', access_token:)
       res = {}
 
       CLI::UI::Spinner.spin("#{options[:method]} #{path}, payload: #{payload}") do |_spinner|
         res =
           case options[:method].downcase.to_sym
           when :post
-            api_instance.client.post(path, headers: { 'Authorization': authorization }, json: payload)
+            api_instance.client.post(path, headers: { Authorization: authorization }, json: payload)
           when :get
-            api_instance.client.get(path, headers: { 'Authorization': authorization })
+            api_instance.client.get(path, headers: { Authorization: authorization })
           end
       end
 
@@ -80,9 +80,9 @@ module MixinBot
       res = api_instance.update_pin old_pin: pin.to_s, pin: key[:public_key]
 
       log({
-        pin: key[:private_key],
-        tip_key_base64: res['tip_key_base64']
-      })
+            pin: key[:private_key],
+            tip_key_base64: res['tip_key_base64']
+          })
     rescue StandardError => e
       log UI.fmt "{{x}} #{e.inspect}"
     end
@@ -117,9 +117,9 @@ module MixinBot
         )
       end
 
-      if res['snapshot_id'].present?
-        log UI.fmt "{{v}} Finished: https://mixin.one/snapshots/#{res['snapshot_id']}"
-      end
+      return unless res['snapshot_id'].present?
+
+      log UI.fmt "{{v}} Finished: https://mixin.one/snapshots/#{res['snapshot_id']}"
     end
 
     desc 'saferegister', 'register SAFE network'
@@ -176,11 +176,11 @@ module MixinBot
 
       # step 2: build transaction
       tx = api_instance.build_safe_transaction(
-        utxos: utxos,
+        utxos:,
         receivers: [
           members: [user_id],
           threshold: 1,
-          amount: amount
+          amount:
         ],
         extra: memo
       )
@@ -194,9 +194,9 @@ module MixinBot
 
       # step 4: sign transaction
       signed_raw = api_instance.sign_safe_transaction(
-        raw: raw,
-        utxos: utxos,
-        request: request[0],
+        raw:,
+        utxos:,
+        request: request[0]
       )
       log UI.fmt "Step 4/5: {{v}} Signed transaction: #{signed_raw}"
 

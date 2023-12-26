@@ -49,7 +49,7 @@ module MixinBot
             raise ArgumentError, 'invalid members'
           end
 
-        checksum = SHA3::Digest::SHA256.digest (MIX_ADDRESS_PREFIX + prefix + msg)
+        checksum = SHA3::Digest::SHA256.digest(MIX_ADDRESS_PREFIX + prefix + msg)
 
         data = prefix + msg + checksum[0...4]
         data = Base58.binary_to_base58 data, :bitcoin
@@ -83,8 +83,8 @@ module MixinBot
         end
 
         {
-          members: members,
-          threshold: threshold
+          members:,
+          threshold:
         }
       end
 
@@ -110,14 +110,14 @@ module MixinBot
         p members
 
         payload = {
-          members: members,
-          threshold: threshold,
-          chain_id: chain_id
+          members:,
+          threshold:,
+          chain_id:
         }
 
         access_token = options[:access_token] || access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
     end
   end

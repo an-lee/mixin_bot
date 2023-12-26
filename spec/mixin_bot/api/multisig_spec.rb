@@ -22,7 +22,7 @@ describe MixinBot::API::Multisig do
     utxos = MixinBot.api.outputs(members: MULTI_SIGN_MEMBERS, threshold: MULTI_SIGN_THRESHOLD, state: :unspent)['data']
     utxos = utxos.filter(&->(utxo) { utxo['asset_id'] == CNB_ASSET_ID })
     tx = MixinBot.api.build_raw_transaction(
-      utxos: utxos,
+      utxos:,
       senders: MULTI_SIGN_MEMBERS.sort,
       senders_threshold: MULTI_SIGN_THRESHOLD,
       receivers: [TEST_UID],

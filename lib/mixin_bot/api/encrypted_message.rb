@@ -90,8 +90,8 @@ module MixinBot
           category: options[:category],
           quote_message_id: options[:quote_message_id],
           message_id: options[:message_id] || SecureRandom.uuid,
-          data_base64: data_base64,
-          checksum: checksum,
+          data_base64:,
+          checksum:,
           recipient_sessions: session_ids.map(&->(s) { { session_id: s } }),
           silent: false
         }
@@ -104,10 +104,10 @@ module MixinBot
       # http post request
       def send_encrypted_message(payload)
         path = '/encrypted_messages'
-        payload = [payload] unless payload.is_a?(Array)
+        payload = Array(payload)
         access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: payload)
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: payload)
       end
 
       def encrypt_message(data, sessions = [], sk: nil, pk: nil)
@@ -116,7 +116,7 @@ module MixinBot
         sk = config.session_private_key[0...32]
         pk ||= config.session_private_key[32...]
 
-        checksum = Digest::MD5.hexdigest sessions.map(&->(s) { s['session_id'] }).sort.join
+        Digest::MD5.hexdigest sessions.map(&->(s) { s['session_id'] }).sort.join
         encrypter = OpenSSL::Cipher.new('AES-128-GCM').encrypt
         key = encrypter.random_key
         nounce = encrypter.random_iv
@@ -128,14 +128,14 @@ module MixinBot
         bytes = [1]
         bytes += [sessions.size].pack('v*').bytes
         bytes += JOSE::JWA::Ed25519.pk_to_curve25519(pk).bytes
-        
+
         sessions.each do |session|
           aes_key = JOSE::JWA::X25519.shared_secret(
             Base64.urlsafe_decode64(session['public_key']),
             JOSE::JWA::Ed25519.secret_to_curve25519(sk)
           )
 
-          padding = 16 - key.size % 16
+          padding = 16 - (key.size % 16)
           padtext = ([padding] * padding).pack('C*')
 
           encrypter = OpenSSL::Cipher.new('AES-256-CBC').encrypt
@@ -163,7 +163,7 @@ module MixinBot
         return '' if bytes.size < 1 + 2 + 32 + size + 12
 
         session_length = bytes[1...3].pack('v*').unpack1('C*')
-        prefix_size = 35 + session_length * size
+        prefix_size = 35 + (session_length * size)
 
         i = 35
         key = ''

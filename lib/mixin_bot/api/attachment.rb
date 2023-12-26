@@ -17,8 +17,8 @@ module MixinBot
       def create_attachment
         path = '/attachments'
         access_token ||= access_token('POST', path, {}.to_json)
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.post(path, headers: { 'Authorization': authorization }, json: {})
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.post(path, headers: { Authorization: authorization }, json: {})
       end
 
       def upload_attachment(file)
@@ -44,8 +44,8 @@ module MixinBot
       def read_attachment(attachment_id)
         path = format('/attachments/%<id>s', id: attachment_id)
         access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token: access_token)
-        client.get(path, headers: { 'Authorization': authorization })
+        authorization = format('Bearer %<access_token>s', access_token:)
+        client.get(path, headers: { Authorization: authorization })
       end
     end
   end

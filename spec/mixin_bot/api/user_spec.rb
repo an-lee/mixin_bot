@@ -20,7 +20,7 @@ describe MixinBot::API::User do
 
   it 'create user with provided rsa_key' do
     rsa_key = MixinBot.api.generate_rsa_key
-    res = MixinBot.api.create_user('Bot User', rsa_key: rsa_key)
+    res = MixinBot.api.create_user('Bot User', rsa_key:)
     expect(res[:rsa_key]).to eq(rsa_key)
   end
 
@@ -31,6 +31,6 @@ describe MixinBot::API::User do
 
   it 'read users' do
     res = MixinBot.api.fetch_users([TEST_UID, MixinBot.config.app_id])
-    expect(res['data']).to be_kind_of Array
+    expect(res['data']).to be_a Array
   end
 end

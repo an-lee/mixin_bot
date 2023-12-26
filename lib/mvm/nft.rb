@@ -6,7 +6,7 @@ module MVM
 
     def initialize(rpc_url: MVM::RPC_URL, mirror_address: MVM::MIRROR_ADDRESS)
       @rpc = Eth::Client.create rpc_url
-      @mirror = Eth::Contract.from_abi name: 'Mirror', address: mirror_address, abi: File.open(File.expand_path('./abis/mirror.json', __dir__)).read
+      @mirror = Eth::Contract.from_abi name: 'Mirror', address: mirror_address, abi: File.read(File.expand_path('./abis/mirror.json', __dir__))
     end
 
     def collection_from_contract(address)
@@ -29,7 +29,7 @@ module MVM
       address = contract_from_collection collection_id
       return if address.blank? || address.to_i(16).zero?
 
-      contract = Eth::Contract.from_abi name: 'Collectible', address: address, abi: File.open(File.expand_path('./abis/erc721.json', __dir__)).read
+      contract = Eth::Contract.from_abi name: 'Collectible', address:, abi: File.read(File.expand_path('./abis/erc721.json', __dir__))
       owner = @rpc.call contract, 'ownerOf', token_id.to_i
       address = Eth::Address.new owner
       return unless address.valid?
@@ -40,7 +40,7 @@ module MVM
     end
 
     def token_of_owner_by_index(contract, owner, index)
-      contract = Eth::Contract.from_abi name: 'Collectible', address: contract, abi: File.open(File.expand_path('./abis/erc721.json', __dir__)).read
+      contract = Eth::Contract.from_abi name: 'Collectible', address: contract, abi: File.read(File.expand_path('./abis/erc721.json', __dir__))
 
       @rpc.call contract, 'tokenOfOwnerByIndex', owner, index
     rescue IOError

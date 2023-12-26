@@ -13,7 +13,7 @@ module MVM
       r = client.get(
         path,
         params: {
-          address: address,
+          address:,
           action: 'tokenlist',
           module: 'account'
         }

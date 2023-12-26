@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative './utils/nfo'
-require_relative './utils/uuid'
-require_relative './utils/transaction'
+require_relative 'utils/nfo'
+require_relative 'utils/uuid'
+require_relative 'utils/transaction'
 
 module MixinBot
   module Utils
@@ -24,7 +24,7 @@ module MixinBot
           Base64.urlsafe_decode64 key
         elsif key.match?(/^-----BEGIN RSA PRIVATE KEY-----/)
           key.gsub('\\r\\n', "\n").gsub("\r\n", "\n")
-        elsif key.size % 32 == 0
+        elsif (key.size % 32).zero?
           key
         else
           raise ArgumentError, "Invalid key: #{e.message}"
@@ -36,8 +36,8 @@ module MixinBot
         md5 << [uuid_1, uuid_2].min
         md5 << [uuid_1, uuid_2].max
         digest = md5.digest
-        digest6 = (digest[6].ord & 0x0f | 0x30).chr
-        digest8 = (digest[8].ord & 0x3f | 0x80).chr
+        digest6 = ((digest[6].ord & 0x0f) | 0x30).chr
+        digest8 = ((digest[8].ord & 0x3f) | 0x80).chr
         cipher = digest[0...6] + digest6 + digest[7] + digest8 + digest[9..]
 
         UUID.new(raw: cipher).unpacked
@@ -66,7 +66,7 @@ module MixinBot
       end
 
       def hex_to_uuid(hex)
-        UUID.new(hex: hex).unpacked
+        UUID.new(hex:).unpacked
       end
 
       def encode_raw_transaction(tx)
@@ -79,20 +79,21 @@ module MixinBot
         end
 
         raise ArgumentError, "#{tx} is not a valid json" unless tx.is_a? Hash
+
         tx = tx.with_indifferent_access
 
         Transaction.new(**tx).encode.hex
       end
 
       def decode_raw_transaction(hex)
-        Transaction.new(hex: hex).decode.to_h
+        Transaction.new(hex:).decode.to_h
       end
 
       def nft_memo(collection, token, extra)
         MixinBot::Utils::Nfo.new(
-          collection: collection,
-          token: token,
-          extra: extra
+          collection:,
+          token:,
+          extra:
         ).mint_memo
       end
 
@@ -140,7 +141,7 @@ module MixinBot
           break if int === 0
 
           bytes.push int & 255
-          int = int / (2**8) | 0
+          int = (int / (2**8)) | 0
         end
 
         bytes.reverse
@@ -149,7 +150,7 @@ module MixinBot
       def bytes_to_int(bytes)
         int = 0
         bytes.each do |byte|
-          int = int * (2**8) + byte
+          int = (int * (2**8)) + byte
         end
 
         int
@@ -177,14 +178,14 @@ module MixinBot
           JOSE::JWA::Edwards25519Point::L
         )
 
-        (JOSE::JWA::Edwards25519Point.stdbase * (point.x.to_i)).encode
+        (JOSE::JWA::Edwards25519Point.stdbase * point.x.to_i).encode
       end
 
       def sign(msg, key:)
         msg = Digest::Blake3.digest msg
 
-        pub = self.generate_public_key key
-        
+        pub = generate_public_key key
+
         y_point = JOSE::JWA::FieldElement.new(
           OpenSSL::BN.new(key.reverse, 2),
           JOSE::JWA::Edwards25519Point::L
@@ -198,7 +199,7 @@ module MixinBot
           JOSE::JWA::Edwards25519Point::L
         )
 
-        r_point = JOSE::JWA::Edwards25519Point.stdbase * (z_point.x.to_i)
+        r_point = JOSE::JWA::Edwards25519Point.stdbase * z_point.x.to_i
         hram_digest = Digest::SHA512.digest(r_point.encode + pub + msg)
 
         x_point = JOSE::JWA::FieldElement.new(
