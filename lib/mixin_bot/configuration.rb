@@ -10,6 +10,8 @@ module MixinBot
       pin
       api_host
       blaze_host
+      session_private_key_curve25519
+      server_public_key_curve25519
     ].freeze
     attr_accessor *CONFIGURABLE_ATTRS
 
@@ -37,10 +39,20 @@ module MixinBot
           _private_key
         end
 
+      @session_private_key_curve25519 = JOSE::JWA::Ed25519.sk_to_curve25519(@session_private_key) if @session_private_key.size == 64
     end
 
     def server_public_key=(key)
+      return if key.blank?
+
       @server_public_key = decode_key key
+      # HEX encoded
+      @server_public_key_curve25519 =
+        if key.match?(/\A[a-f0-9]+\z/i)
+          JOSE::JWA::Ed25519.pk_to_curve25519 @server_public_key
+        else
+          server_public_key
+        end
     end
 
     def spend_key=(key)
