@@ -35,7 +35,7 @@ module MixinBot
       def oauth_token(code)
         path = 'oauth/token'
         payload = {
-          app_id: config.app_id,
+          client_id: config.app_id,
           client_secret: config.client_secret,
           code: code
         }
