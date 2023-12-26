@@ -63,7 +63,7 @@ module MixinBot
 
       # decrypt the encrpted pin, just for test
       def decrypt_pin(msg)
-        msg = Base64.strict_decode64 msg
+        msg = Base64.urlsafe_decode64 msg
         iv = msg[0..15]
         cipher = msg[16..47]
         alg = 'AES-256-CBC'
@@ -72,7 +72,7 @@ module MixinBot
         decode_cipher.iv = iv
         decode_cipher.key = _generate_aes_key
         decoded = decode_cipher.update(cipher)
-        decoded[0..5]
+        decoded
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/encrypted-pin/
@@ -115,7 +115,7 @@ module MixinBot
     def _generate_aes_key
       if config.server_public_key.size == 32
         JOSE::JWA::X25519.x25519(
-          JOSE::JWA::Ed25519.secret_to_curve25519(config.session_private_key[0..31]),
+          JOSE::JWA::Ed25519.secret_to_curve25519(config.session_private_key[0...32]), 
           config.server_public_key
         )
       else

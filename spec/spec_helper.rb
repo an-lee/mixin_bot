@@ -7,7 +7,6 @@ require './lib/mixin_bot'
 require 'yaml'
 
 CONFIG = YAML.load_file("#{File.dirname __FILE__}/config.yml")
-PIN_CODE = CONFIG['pin'].to_s
 TEST_UID = '7ed9292d-7c95-4333-aa48-a8c640064186'
 TEST_UID_2 = 'a67c6e87-1c9e-4a1c-b81c-47a9f4f1bff1'
 TEST_MIXIN_ID = '37230199'
@@ -27,9 +26,10 @@ NFO_MTG = %w[4b188942-9fb0-4b99-b4be-e741a06d1ebf dd655520-c919-4349-822f-af92fa
 NFO_THRESHOLD = 5
 
 MixinBot.configure do
-  app_id = CONFIG['app_id']
-  client_secret = CONFIG['client_secret']
-  session_id = CONFIG['session_id']
-  server_public_key = CONFIG['server_public_key']
-  session_private_key = CONFIG['session_private_key']
+  self.app_id = CONFIG['app_id']
+  self.client_secret = CONFIG['client_secret']
+  self.session_id = CONFIG['session_id']
+  self.server_public_key = CONFIG['server_public_key']
+  self.session_private_key = CONFIG['session_private_key']
 end
+PIN_CODE = CONFIG['pin'].to_s
