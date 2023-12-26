@@ -81,7 +81,7 @@ module MixinBot
               ws.send write_ws_message(
                 action: 'REFRESH_OAUTH_CODE',
                 params: {
-                  app_id: @_app_id,
+                  client_id: @_app_id,
                   scope: @_scope,
                   authorization_id: '',
                   code_challenge: ''
