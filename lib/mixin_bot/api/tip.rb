@@ -37,7 +37,7 @@ module MixinBot
 
         signature = JOSE::JWA::Ed25519.sign msg, _private_key
 
-        encrypt_pin signature.unpack1('H*')
+        encrypt_pin signature
       end
     end
   end
