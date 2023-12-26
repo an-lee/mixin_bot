@@ -51,10 +51,10 @@ module MixinBot
       @api_instance ||=
         begin
           MixinBot::API.new(
-            client_id: @keystore['client_id'],
+            app_id: @keystore['app_id'],
             session_id: @keystore['session_id'],
-            pin_token: @keystore['pin_token'],
-            private_key: @keystore['private_key']
+            server_public_key: @keystore['server_public_key'],
+            session_private_key: @keystore['session_private_key']
           )
         rescue StandardError => e
           log UI.fmt '{{x}}: Failed to initialize api, maybe your keystore is incorrect.'

@@ -4,7 +4,9 @@ module MixinBot
   class API
     module Pin
       # https://developers.mixin.one/api/alpha-mixin-network/verify-pin/
-      def verify_pin(pin)
+      def verify_pin(pin = nil)
+        pin ||= MixinBot.config.pin
+
         path = '/pin/verify'
 
         payload = 
@@ -28,7 +30,8 @@ module MixinBot
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/create-pin/
-      def update_pin(old_pin:, pin:)
+      def update_pin(old_pin: nil, pin:)
+        old_pin ||= MixinBot.config.pin
         raise ArgumentError, 'invalid old pin' if old_pin.present? && old_pin.length != 6
 
         path = '/pin/update'
@@ -48,11 +51,11 @@ module MixinBot
       def prepare_tip_key(counter = 0)
         ed25519_key = JOSE::JWA::Ed25519.keypair
 
-        private_key = ed25519_key[1].unpack1('H*')
+        _private_key = ed25519_key[1].unpack1('H*')
         public_key = (ed25519_key[0].bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
 
         {
-          private_key: private_key,
+          private_key: _private_key,
           public_key: public_key
         }
       end
@@ -107,16 +110,16 @@ module MixinBot
     end
 
     def _generate_aes_key
-      if pin_token.size == 32
+      if server_public_key.size == 32
         JOSE::JWA::X25519.x25519(
-          JOSE::JWA::Ed25519.secret_to_curve25519(private_key[0..31]),
-          pin_token
+          JOSE::JWA::Ed25519.secret_to_curve25519(session_private_key[0..31]),
+          server_public_key
         )
       else
         JOSE::JWA::PKCS1.rsaes_oaep_decrypt(
           'SHA256',
-          pin_token,
-          OpenSSL::PKey::RSA.new(private_key),
+          server_public_key,
+          OpenSSL::PKey::RSA.new(session_private_key),
           session_id
         )
       end

@@ -64,7 +64,7 @@ module MixinBot
         state = kwargs[:state] || ''
         access_token = kwargs[:access_token]
         order = kwargs[:order] || 'ASC'
-        members = kwargs[:members] || [client_id]
+        members = kwargs[:members] || [config.app_id]
         threshold = kwargs[:threshold] || members.length
 
         members_hash = SHA3::Digest::SHA256.hexdigest(members&.sort&.join)

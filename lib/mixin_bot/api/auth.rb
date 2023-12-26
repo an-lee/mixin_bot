@@ -9,19 +9,19 @@ module MixinBot
         exp = (Time.now.utc + exp_in).to_i
         jti = SecureRandom.uuid
         payload = {
-          uid: client_id,
-          sid: session_id,
+          uid: config.app_id,
+          sid: config.session_id,
           iat: iat,
           exp: exp,
           jti: jti,
           sig: sig,
           scp: scp
         }
-        case key_type
-        when :ed25519
-          jwk = JOSE::JWK.from_okp [:Ed25519, private_key]
+
+        if config.session_private_key.size == 64
+          jwk = JOSE::JWK.from_okp [:Ed25519, config.session_private_key]
           jws = JOSE::JWS.from({ 'alg' => 'EdDSA' })
-        when :rsa
+        else
           jwk = JOSE::JWK.from_pem private_key
           jws = JOSE::JWS.from({ 'alg' => 'RS512' })
         end
@@ -33,8 +33,8 @@ module MixinBot
       def oauth_token(code)
         path = 'oauth/token'
         payload = {
-          client_id: client_id,
-          client_secret: client_secret,
+          app_id: config.app_id,
+          client_secret: config.client_secret,
           code: code
         }
         r = client.post(path, json: payload)
@@ -45,10 +45,10 @@ module MixinBot
       end
 
       def request_oauth(scope = nil)
-        scope ||= (MixinBot.scope || 'PROFILE:READ')
+        scope ||= 'PROFILE:READ'
         format(
-          'https://mixin.one/oauth/authorize?client_id=%<client_id>s&scope=%<scope>s',
-          client_id: client_id,
+          'https://mixin.one/oauth/authorize?app_id=%<app_id>s&scope=%<scope>s',
+          app_id: config.app_id,
           scope: scope
         )
       end
@@ -73,7 +73,7 @@ module MixinBot
       end
 
       def authorization_data(user_id, scope = ['PROFILE:READ'])
-        @_client_id = user_id
+        @_app_id = user_id
         @_scope = scope.join(' ')
         EM.run do
           start_blaze_connect do
@@ -81,7 +81,7 @@ module MixinBot
               ws.send write_ws_message(
                 action: 'REFRESH_OAUTH_CODE',
                 params: {
-                  client_id: @_client_id,
+                  app_id: @_app_id,
                   scope: @_scope,
                   authorization_id: '',
                   code_challenge: ''

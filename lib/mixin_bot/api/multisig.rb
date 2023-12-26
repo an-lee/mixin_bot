@@ -28,7 +28,8 @@ module MixinBot
         create_multisig_request 'unlock', raw, access_token: access_token
       end
 
-      def sign_multisig_request(request_id, pin)
+      def sign_multisig_request(request_id, pin = nil)
+        pin ||= config.pin
         path = format('/multisigs/requests/%<request_id>s/sign', request_id: request_id)
         payload = 
           if pin.length > 6
@@ -45,7 +46,9 @@ module MixinBot
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
-      def unlock_multisig_request(request_id, pin)
+      def unlock_multisig_request(request_id, pin = nil)
+        pin ||= config.pin
+
         path = format('/multisigs/requests/%<request_id>s/unlock', request_id: request_id)
         payload = 
           if pin.length > 6

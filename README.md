@@ -49,20 +49,13 @@ $ mixinbot api /me -k ~/.mixinbot/keystore.json
 To use MixinBot api, you should set the keys first.
 
 ```ruby
-MixinBot.client_id = '25696f85-b7b4-4509-8c3f-2684a8fc4a2a'
-MixinBot.client_secret = 'd9dc58107bacde671...'
-MixinBot.session_id ='25696f85-b7b4-4509-8c3f-2684a8fc4a2a'
-MixinBot.pin_token = 'b0pjBUKI0Vp9K+NspaL....'
-MixinBot.private_key = <<~PRIVATE_KEY
------BEGIN RSA PRIVATE KEY-----
-MIICXAIBAAKBgQDQYjiR/Te6Bh/1bk8gWRbQkrX0AIGPja1DLUQHu5Uw9M4P53O3
-f4pDCGoN3R5+LYjODtquOwmEjcMhbhp6XarrnJVXH8WGmJcpjVwGtwIjPTeRMu4Z
-...
------END RSA PRIVATE KEY-----
-PRIVATE_KEY
-
-# pin_code is not necessary unless you need to transfer assets
-MixinBot.pin_code = '431005'
+MixinBot.configure do
+  app_id = '25696f85-b7b4-4509-8c3f-2684a8fc4a2a'
+  client_secret = 'd9dc58107bacde671...'
+  session_id ='25696f85-b7b4-4509-8c3f-2684a8fc4a2a'
+  server_public_key = 'b0pjBUKI0Vp9K+NspaL....'
+  session_private_key = '...'
+end
 ```
 
 ### Call mixin apis
@@ -135,21 +128,19 @@ If you need to manage multiple mixin bot, you can config like this.
 
 ```ruby
 bot1_api = MixinBot::API.new(
-  client_id: '...',
+  app_id: '...',
   client_secret: '...',
   session_id: '...',
-  pin_token: '...',
-  private_key: '...',
-  pin_code: '123456'
+  server_public_key: '...',
+  session_private_key: '...'
 )
 
 bot2_api = MixinBot::API.new(
-  client_id: '...',
+  app_id: '...',
   client_secret: '...',
   session_id: '...',
-  pin_token: '...',
-  private_key: '...',
-  pin_code: '123456'
+  server_public_key: '...',
+  session_private_key: '...'
 )
 
 bot1_api.read_me

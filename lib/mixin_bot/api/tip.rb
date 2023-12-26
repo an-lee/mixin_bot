@@ -28,14 +28,14 @@ module MixinBot
       def encrypt_tip_pin(pin, action, *params)
         raise ArgumentError, 'invalid action' unless TIP_ACTIONS.include? action
 
-        private_key = [pin].pack('H*')
+        _private_key = MixinBot::Utils.decode_key pin
         msg = action + params.map(&:to_s).join
 
         if action != 'TIP:VERIFY:'
           msg = Digest::SHA256.digest msg
         end
 
-        signature = JOSE::JWA::Ed25519.sign msg, private_key
+        signature = JOSE::JWA::Ed25519.sign msg, _private_key
 
         encrypt_pin signature.unpack1('H*')
       end

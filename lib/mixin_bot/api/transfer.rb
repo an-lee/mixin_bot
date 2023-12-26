@@ -12,6 +12,7 @@ module MixinBot
         amount = format('%.8f', options[:amount].to_d.to_r).gsub(/\.?0+$/, '')
         trace_id = options[:trace_id] || SecureRandom.uuid
         memo = options[:memo] || ''
+        pin = MixinBot::Utils.decode_key pin
 
         payload = {
           asset_id: asset_id,
@@ -97,11 +98,12 @@ module MixinBot
         request = create_safe_transaction_request(request_id, raw)['data']
 
         # step 4: sign transaction
+        spend_key = MixinBot::Utils.decode_key(kwargs[:spend_key]) || config.spend_key
         signed_raw = sign_safe_transaction(
           raw: raw,
           utxos: utxos,
           request: request[0],
-          spend_key: kwargs[:spend_key]
+          spend_key: spend_key
         )
 
         # step 5: submit transaction

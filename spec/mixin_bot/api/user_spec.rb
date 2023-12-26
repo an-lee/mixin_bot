@@ -14,7 +14,7 @@ describe MixinBot::API::User do
   end
 
   it 'create user using ed25519' do
-    res = MixinBot.api.create_user('Bot User', key_type: 'Ed25519')
+    res = MixinBot.api.create_user('Bot User')
     expect(res['data']&.[]('full_name')).to eq('Bot User')
   end
 
@@ -30,7 +30,7 @@ describe MixinBot::API::User do
   end
 
   it 'read users' do
-    res = MixinBot.api.fetch_users([TEST_UID, MixinBot.client_id])
+    res = MixinBot.api.fetch_users([TEST_UID, MixinBot.config.app_id])
     expect(res['data']).to be_kind_of Array
   end
 end

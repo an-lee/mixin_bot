@@ -39,7 +39,7 @@ module MixinBot
         hint                = kwargs[:hint]
         version             = kwargs[:version] || LEGACY_TX_VERSION
 
-        raise 'access_token required!' if access_token.nil? && !senders.include?(client_id)
+        raise 'access_token required!' if access_token.nil? && !senders.include?(config.app_id)
 
         amount = amount.to_d.round(8)
         input_amount = utxos.map(
@@ -111,6 +111,7 @@ module MixinBot
         amount = format('%.8f', options[:amount].to_d.to_r),
         memo = options[:memo]
         trace_id = options[:trace_id] || SecureRandom.uuid
+        pin = MixinBot::Utils.decode_key pin
 
         path = '/transactions'
         payload = {
@@ -147,7 +148,7 @@ module MixinBot
         amount = format('%.8f', options[:amount].to_d.to_r),
         memo = options[:memo]
         trace_id = options[:trace_id] || SecureRandom.uuid
-        encrypted_pin = options[:encrypted_pin] || encrypt_pin(pin)
+        pin = MixinBot::Utils.decode_key pin
 
         path = '/transactions'
         payload = {
@@ -339,15 +340,18 @@ module MixinBot
         client.get(path, headers: { 'Authorization': authorization })
       end
 
+      SIGN_SAFE_TRANSACTION_ARGUMENTS = %i[raw utxos request spend_key].freeze
       def sign_safe_transaction(**kwargs)
+        raise ArgumentError, "#{SIGN_SAFE_TRANSACTION_ARGUMENTS.join(', ')} are needed for sign safe transaction" unless SIGN_SAFE_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
+
         raw = kwargs[:raw]
         tx = MixinBot::Utils.decode_raw_transaction raw
         utxos = kwargs[:utxos]
         request = kwargs[:request]
+        spend_key = MixinBot::Utils.decode_key(kwargs[:spend_key]) || config.spend_key
+        spend_key = Digest::SHA512.digest spend_key[...32]
 
         msg = [raw].pack('H*')
-        spend_key = kwargs[:spend_key] || private_key
-        spend_key = Digest::SHA512.digest spend_key[...32]
 
         y_point = JOSE::JWA::FieldElement.new(
           JOSE::JWA::X25519.clamp_scalar(spend_key[...32]).x, 

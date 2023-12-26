@@ -4,15 +4,15 @@ module MixinBot
   class API
     module Withdraw
       # https://developers.mixin.one/api/alpha-mixin-network/create-address/
-      def create_withdraw_address(options, access_token: nil)
+      def create_withdraw_address(**kwargs)
         path = '/addresses'
-        pin = options[:pin]
+        pin = MixinBot::Utils.decode_key kwargs[:pin]
         payload =
           {
-            asset_id: options[:asset_id],
-            destination: options[:destination],
-            tag: options[:tag],
-            label: options[:label],
+            asset_id: kwargs[:asset_id],
+            destination: kwargs[:destination],
+            tag: kwargs[:tag],
+            label: kwargs[:label],
           }
         
         if pin.length > 6
@@ -35,7 +35,10 @@ module MixinBot
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/delete-address/
-      def delete_withdraw_address(address, pin, access_token: nil)
+      def delete_withdraw_address(**kwargs)
+        pin = MixinBot::Utils.decode_key kwargs[:pin]
+        address = kwargs[:address]
+
         path = format('/addresses/%<address>s/delete', address: address)
         payload = 
           if pin.length > 6
@@ -48,18 +51,19 @@ module MixinBot
             }
           end
 
-        access_token ||= access_token('POST', path, payload.to_json)
+        access_token = kwargs[:access_token] || access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/withdrawal-addresses/
-      def withdrawals(options, access_token: nil)
-        address_id = options[:address_id]
-        pin = options[:pin]
-        amount = format('%.8f', options[:amount].to_d.to_r)
-        trace_id = options[:trace_id]
-        memo = options[:memo]
+      def withdrawals(**kwargs)
+        address_id = kwargs[:address_id]
+        pin = kwargs[:pin]
+        amount = format('%.8f', kwargs[:amount].to_d.to_r)
+        trace_id = kwargs[:trace_id]
+        memo = kwargs[:memo]
+        access_token = kwargs[:access_token]
 
         path = '/withdrawals'
         payload = {
@@ -76,7 +80,7 @@ module MixinBot
           payload[:pin] = encrypt_pin pin
         end
 
-        access_token ||= access_token('POST', path, payload.to_json)
+        access_token = kwargs[:access_token] || access_token('POST', path, payload.to_json)
         authorization = format('Bearer %<access_token>s', access_token: access_token)
         client.post(path, headers: { 'Authorization': authorization }, json: payload)
       end

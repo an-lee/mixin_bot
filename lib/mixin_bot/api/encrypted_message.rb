@@ -113,8 +113,8 @@ module MixinBot
       def encrypt_message(data, sessions = [], sk: nil, pk: nil)
         raise ArgumentError, 'Wrong sessions format!' unless sessions.all?(&->(s) { s.key?('session_id') && s.key?('public_key') })
 
-        sk = private_key[0...32]
-        pk ||= private_key[32...]
+        sk = config.session_private_key[0...32]
+        pk ||= config.session_private_key[32...]
 
         checksum = Digest::MD5.hexdigest sessions.map(&->(s) { s['session_id'] }).sort.join
         encrypter = OpenSSL::Cipher.new('AES-128-GCM').encrypt
@@ -157,7 +157,7 @@ module MixinBot
         bytes = Base64.urlsafe_decode64(data).bytes
 
         si ||= session_id
-        sk ||= private_key[0...32]
+        sk ||= config.session_private_key[0...32]
 
         size = 16 + 48
         return '' if bytes.size < 1 + 2 + 32 + size + 12

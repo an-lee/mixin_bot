@@ -26,11 +26,24 @@ require_relative './mvm'
 
 module MixinBot
   class<< self
-    attr_accessor :client_id, :client_secret, :session_id, :pin_token, :private_key, :scope, :api_host, :blaze_host
-  end
+    def api
+      return @api if defined?(@api)
 
-  def self.api
-    @api ||= MixinBot::API.new
+      @api = MixinBot::API.new
+      @api
+    end
+
+    def config
+      return @config if defined?(@config)
+
+      @config = MixinBot::Configuration.new
+      @config
+    end
+
+    def configure(&block)
+      config.instance_exec(&block)
+    end
+
   end
 
   class Error < StandardError; end

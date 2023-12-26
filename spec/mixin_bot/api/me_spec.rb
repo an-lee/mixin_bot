@@ -5,7 +5,7 @@ require 'spec_helper'
 describe MixinBot::API::Me do
   it 'read me' do
     res = MixinBot.api.read_me
-    expect(res['data']&.[]('user_id')).to eq(MixinBot.api.client_id)
+    expect(res['data']&.[]('user_id')).to eq(MixinBot.config.app_id)
   end
 
   it 'read assets' do

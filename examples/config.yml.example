@@ -1,9 +1,9 @@
-client_id: 0508a116-1239-4e28-b150-85a8e3e6b400
+app_id: 0508a116-1239-4e28-b150-85a8e3e6b400
 client_secret: d9dc58107bacde6713c12734663de6bbb2b83e917d5fe62167bda13ca6665b15
 session_id: 25696f85-b7b4-4509-8c3f-2684a8fc4a2a
 pin_code: "431005"
-pin_token: b0pjBUKI0Vp9K+NspaLCKKeV1IzuO5o2Zgzp2uriXYn6bKcKowhZ7nsjNT1mxtq82dsPzGficOM9H9n1HvNyilrKrpW5ndu7/dMsw/r3JvbexDvLZfAGmuAHcZOy+AwbMSJ/XurLJg1lS9w9PVkDltqWWy2TOunUlbe1lWYy/1M=
-private_key: |
+server_public_key: b0pjBUKI0Vp9K+NspaLCKKeV1IzuO5o2Zgzp2uriXYn6bKcKowhZ7nsjNT1mxtq82dsPzGficOM9H9n1HvNyilrKrpW5ndu7/dMsw/r3JvbexDvLZfAGmuAHcZOy+AwbMSJ/XurLJg1lS9w9PVkDltqWWy2TOunUlbe1lWYy/1M=
+session_private_key: |
   -----BEGIN RSA PRIVATE KEY-----
   MIICXAIBAAKBgQDQYjiR/Te6Bh/1bk8gWRbQkrX0AIGPja1DLUQHu5Uw9M4P53O3
   f4pDCGoN3R5+LYjODtquOwmEjcMhbhp6XarrnJVXH8WGmJcpjVwGtwIjPTeRMu4Z

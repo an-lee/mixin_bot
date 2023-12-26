@@ -23,7 +23,7 @@ module MixinBot
         limit = kwargs[:limit] || 100
         offset = kwargs[:offset] || ''
         state = kwargs[:state] || ''
-        members = kwargs[:members] || [client_id]
+        members = kwargs[:members] || [config.app_id]
         threshold = kwargs[:threshold] || 1
         access_token = kwargs[:access_token]
         members = SHA3::Digest::SHA256.hexdigest(members&.sort&.join)
