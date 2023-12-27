@@ -15,6 +15,40 @@ module MixinBot
       AGGREGATED_SIGNATURE_ORDINAY_MASK = [0x00].freeze
       AGGREGATED_SIGNATURE_SPARSE_MASK = [0x01].freeze
 
+      def access_token(method, uri, body = '', **kwargs)
+        sig = Digest::SHA256.hexdigest(method + uri + body.to_s)
+        iat = Time.now.utc.to_i
+        exp = (Time.now.utc + (kwargs[:exp_in] || 600)).to_i
+        scp = kwargs[:scp] || 'FULL'
+        jti = SecureRandom.uuid
+        uid = kwargs[:app_id] || MixinBot.config.app_id
+        sid = kwargs[:session_id] || MixinBot.config.session_id
+        private_key = kwargs[:private_key] || MixinBot.config.session_private_key
+
+        payload = {
+          uid:,
+          sid:,
+          iat:,
+          exp:,
+          jti:,
+          sig:,
+          scp:
+        }
+
+        if private_key.blank?
+          raise ConfigurationNotValidError, 'private_key is required'
+        elsif private_key.size == 64
+          jwk = JOSE::JWK.from_okp [:Ed25519, private_key]
+          jws = JOSE::JWS.from({ 'alg' => 'EdDSA' })
+        else
+          jwk = JOSE::JWK.from_pem private_key
+          jws = JOSE::JWS.from({ 'alg' => 'RS512' })
+        end
+
+        jwt = JOSE::JWT.from payload
+        JOSE::JWT.sign(jwk, jws, jwt).compact
+      end
+
       def decode_key(key)
         return if key.blank?
 

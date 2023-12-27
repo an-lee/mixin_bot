@@ -37,7 +37,7 @@ module MixinBot
           MixinBot.config
         end
 
-      @client = Client.new(@config.api_host)
+      @client = Client.new(@config)
     end
 
     def encode_raw_transaction(tx)
