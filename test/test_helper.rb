@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
-require 'simplecov'
-SimpleCov.start
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
+require 'mixin_bot'
 
-require './lib/mixin_bot'
+require 'minitest/autorun'
+
+require "minitest/reporters"
+Minitest::Reporters.use!
+
 require 'yaml'
 
 CONFIG = YAML.load_file("#{File.dirname __FILE__}/config.yml")

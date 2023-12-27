@@ -136,7 +136,7 @@ module MixinBot
     end
 
     def nft_memo(collection, token_id, meta)
-      MixinBot::Utils.nft_memo collection, token_id, meta
+      MixinBot.utils.nft_memo collection, token_id, meta
     end
   end
 end

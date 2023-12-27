@@ -48,7 +48,7 @@ module MixinBot
       config.instance_exec(&)
     end
 
-    def util
+    def utils
       MixinBot::Utils
     end
   end

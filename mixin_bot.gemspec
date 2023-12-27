@@ -37,10 +37,9 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'fastimage', '~> 2.2.5'
   s.add_development_dependency 'pry', '~> 0.14'
+  s.add_development_dependency "minitest-reporters", "~> 1.6"
   s.add_development_dependency 'rake', '~> 13.0'
-  s.add_development_dependency 'rspec', '~> 3.8'
   s.add_development_dependency 'rubocop', '~> 1'
-  s.add_development_dependency 'rubocop-rspec', '~> 2'
   s.add_development_dependency 'simplecov', '~> 0.22'
   s.metadata['rubygems_mfa_required'] = 'true'
 end

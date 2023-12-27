@@ -18,8 +18,8 @@ module MixinBot
         f.request :json
         f.request :retry
         f.response :raise_error
-        f.response :logger
         f.response :json
+        f.response :logger if config.debug
       end
     end
 
@@ -41,7 +41,7 @@ module MixinBot
 
       path = "#{path}?#{URI.encode_www_form(kwargs)}" if verb == :get && kwargs.present?
       access_token ||=
-        MixinBot.util.access_token(
+        MixinBot.utils.access_token(
           verb.to_s.upcase,
           path,
           body,

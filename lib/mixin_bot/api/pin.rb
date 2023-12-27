@@ -53,7 +53,7 @@ module MixinBot
         ed25519_key = JOSE::JWA::Ed25519.keypair
 
         private_key = ed25519_key[1].unpack1('H*')
-        public_key = (ed25519_key[0].bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
+        public_key = (ed25519_key[0].bytes + MixinBot.utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
 
         {
           private_key:,
@@ -77,7 +77,7 @@ module MixinBot
       # https://developers.mixin.one/api/alpha-mixin-network/encrypted-pin/
       # use timestamp(timestamp) for iterator as default: must be bigger than the previous, the first time must be greater than 0. After a new session created, it will be reset to 0.
       def encrypt_pin(pin, iterator: nil)
-        pin = MixinBot::Utils.decode_key pin
+        pin = MixinBot.utils.decode_key pin
 
         iterator ||= Time.now.utc.to_i
         tszero = iterator % 0x100

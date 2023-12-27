@@ -344,10 +344,10 @@ module MixinBot
         raise ArgumentError, "#{SIGN_SAFE_TRANSACTION_ARGUMENTS.join(', ')} are needed for sign safe transaction" unless SIGN_SAFE_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
 
         raw = kwargs[:raw]
-        tx = MixinBot::Utils.decode_raw_transaction raw
+        tx = MixinBot.utils.decode_raw_transaction raw
         utxos = kwargs[:utxos]
         request = kwargs[:request]
-        spend_key = MixinBot::Utils.decode_key(kwargs[:spend_key]) || config.spend_key
+        spend_key = MixinBot.utils.decode_key(kwargs[:spend_key]) || config.spend_key
         spend_key = Digest::SHA512.digest spend_key[...32]
 
         msg = [raw].pack('H*')
@@ -372,18 +372,18 @@ module MixinBot
           t_point = x_point + y_point
           key = t_point.to_bytes(JOSE::JWA::Edwards25519Point::B)
 
-          pub = MixinBot::Utils.generate_public_key key
+          pub = MixinBot.utils.generate_public_key key
           key_index = utxo['keys'].index pub.unpack1('H*')
           raise ArgumentError, 'cannot find valid key' unless key_index.is_a? Integer
 
-          signature = MixinBot::Utils.sign(msg, key:)
+          signature = MixinBot.utils.sign(msg, key:)
           signature = signature.unpack1('H*')
           sig = {}
           sig[key_index] = signature
           tx[:signatures] << sig
         end
 
-        MixinBot::Utils.encode_raw_transaction tx
+        MixinBot.utils.encode_raw_transaction tx
       end
     end
   end

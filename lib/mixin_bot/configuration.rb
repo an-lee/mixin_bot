@@ -14,6 +14,7 @@ module MixinBot
       blaze_host
       session_private_key_curve25519
       server_public_key_curve25519
+      debug
     ].freeze
     attr_accessor(*CONFIGURABLE_ATTRS)
 
@@ -23,11 +24,18 @@ module MixinBot
       @session_id = kwargs[:session_id]
       @api_host = kwargs[:api_host] || 'api.mixin.one'
       @blaze_host = kwargs[:blaze_host] || 'blaze.mixin.one'
+      @debug = kwargs[:debug] || false
 
       self.session_private_key = kwargs[:session_private_key] || kwargs[:private_key]
       self.server_public_key = kwargs[:server_public_key] || kwargs[:pin_token]
       self.spend_key = kwargs[:spend_key]
       self.pin = kwargs[:pin] || spend_key
+    end
+
+    def valid?
+      %i[app_id session_id session_private_key server_public_key].all? do |attr|
+        send(attr).present?
+      end
     end
 
     def session_private_key=(key)
@@ -84,7 +92,7 @@ module MixinBot
     private
 
     def decode_key(key)
-      MixinBot::Utils.decode_key key
+      MixinBot.utils.decode_key key
     end
   end
 end

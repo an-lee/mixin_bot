@@ -2,19 +2,20 @@
 
 require 'bundler'
 require 'bundler/gem_tasks'
-begin
-  Bundler.setup(:default, :development)
-rescue Bundler::BundlerError => e
-  warn e.message
-  warn 'Run `bundle install` to install missing gems'
-  exit e.status_code
+require 'rake/testtask'
+
+Rake::TestTask.new(:test) do |t|
+  t.libs << 'test'
+  t.libs << 'lib'
+  t.test_files = FileList['test/**/test_*.rb']
+  t.warning = false
 end
 
-require 'rake'
-require 'rspec/core/rake_task'
+require 'rubocop/rake_task'
 
-RSpec::Core::RakeTask.new(:spec)
-task default: :spec
+RuboCop::RakeTask.new
+
+task default: %i[test rubocop]
 
 GEM_NAME = 'mixin_bot'
 GEM_VERSION = MixinBot::VERSION

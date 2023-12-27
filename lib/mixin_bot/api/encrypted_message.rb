@@ -143,7 +143,7 @@ module MixinBot
           iv = encrypter.random_iv
           encrypter.iv = iv
 
-          bytes += (MixinBot::Utils::UUID.new(hex: session['session_id']).packed + iv).bytes
+          bytes += (MixinBot::UUID.new(hex: session['session_id']).packed + iv).bytes
           bytes += encrypter.update(key + padtext).bytes
         end
 
@@ -168,7 +168,7 @@ module MixinBot
         i = 35
         key = ''
         while i < prefix_size
-          uuid = MixinBot::Utils::UUID.new(raw: bytes[i...(i + 16)].pack('C*')).unpacked
+          uuid = MixinBot::UUID.new(raw: bytes[i...(i + 16)].pack('C*')).unpacked
           if uuid == si
             pub = bytes[3...35]
             aes_key = JOSE::JWA::X25519.shared_secret(

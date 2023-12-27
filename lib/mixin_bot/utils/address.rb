@@ -44,7 +44,7 @@ module MixinBot
           if members.all?(&->(member) { member.start_with? MAIN_ADDRESS_PREFIX })
             members.map(&->(member) { parse_main_address(member) }).join
           elsif members.none?(&->(member) { member.start_with? MAIN_ADDRESS_PREFIX })
-            members.map(&->(member) { MixinBot::Utils::UUID.new(hex: member).packed }).join
+            members.map(&->(member) { MixinBot::UUID.new(hex: member).packed }).join
           else
             raise ArgumentError, 'invalid members'
           end
@@ -76,7 +76,7 @@ module MixinBot
 
         if data[3..].length == members_count * 16
           members = data[3..].scan(/.{16}/)
-          members = members.map(&->(member) { MixinBot::Utils::UUID.new(raw: member).unpacked })
+          members = members.map(&->(member) { MixinBot::UUID.new(raw: member).unpacked })
         else
           members = data[3..].scan(/.{64}/)
           members = members.map(&->(member) { build_main_address(member) })

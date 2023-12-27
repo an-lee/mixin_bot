@@ -15,7 +15,7 @@ module MixinBot
       # https://developers.mixin.one/api/alpha-mixin-network/app-user/
       # Create a new Mixin Network user (like a normal Mixin Messenger user). You should keep PrivateKey which is used to sign an AuthenticationToken and encrypted PIN for the user.
       def create_user(full_name, key: nil)
-        key || MixinBot::Utils.generate_ed25519_key
+        key || MixinBot.utils.generate_ed25519_key
         session_secret = ed25519_key[:public_key]
 
         payload = {

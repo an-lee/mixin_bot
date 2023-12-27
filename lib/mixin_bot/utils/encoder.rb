@@ -52,7 +52,7 @@ module MixinBot
       end
 
       def nft_memo(collection, token, extra)
-        MixinBot::Utils::Nfo.new(
+        MixinBot::Nfo.new(
           collection:,
           token:,
           extra:

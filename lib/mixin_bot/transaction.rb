@@ -57,7 +57,7 @@ module MixinBot
       extra_bytes = extra.bytes
       raise InvalidTransactionFormatError, 'extra is too long' if extra_bytes.size > MAX_EXTRA_SIZE
 
-      bytes += MixinBot::Utils.encode_uint_32 extra_bytes.size
+      bytes += MixinBot.utils.encode_uint_32 extra_bytes.size
       bytes += extra_bytes
 
       # aggregated
@@ -82,7 +82,7 @@ module MixinBot
       raise ArgumentError, 'Not valid raw' unless magic == MAGIC
 
       _version = @bytes.shift(2)
-      @version = MixinBot::Utils.decode_int _version
+      @version = MixinBot.utils.decode_int _version
 
       asset = @bytes.shift(32)
       @asset = asset.pack('C*').unpack1('H*')
@@ -102,15 +102,15 @@ module MixinBot
 
       # read extra
       # unsigned 32 endian for extra size
-      extra_size = MixinBot::Utils.decode_uint_32 @bytes.shift(4)
+      extra_size = MixinBot.utils.decode_uint_32 @bytes.shift(4)
       @extra = @bytes.shift(extra_size).pack('C*')
 
-      num = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+      num = MixinBot.utils.decode_uint_16 @bytes.shift(2)
       if num == MAX_ENCODE_INT
         # aggregated
         @aggregated = {}
 
-        raise ArgumentError, 'invalid aggregated' unless MixinBot::Utils.decode_uint_16(@bytes.shift(2)) == AGGREGATED_SIGNATURE_PREFIX
+        raise ArgumentError, 'invalid aggregated' unless MixinBot.utils.decode_uint_16(@bytes.shift(2)) == AGGREGATED_SIGNATURE_PREFIX
 
         @aggregated['signature'] = @bytes.shift(64).pack('C*').unpack1('H*')
 
@@ -118,7 +118,7 @@ module MixinBot
         case byte
         when AGGREGATED_SIGNATURE_ORDINAY_MASK.first
           @aggregated['signers'] = []
-          masks_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+          masks_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
           masks = @bytes.shift(masks_size)
           masks = Array(masks)
 
@@ -129,12 +129,12 @@ module MixinBot
             end
           end
         when AGGREGATED_SIGNATURE_SPARSE_MASK.first
-          signers_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+          signers_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
           return if signers_size.zero?
 
           aggregated['signers'] = []
           signers_size.times do
-            aggregated['signers'].push MixinBot::Utils.decode_uint_16(@bytes.shift(2))
+            aggregated['signers'].push MixinBot.utils.decode_uint_16(@bytes.shift(2))
           end
         end
       elsif num.present? && num.positive? && @bytes.size.positive?
@@ -142,10 +142,10 @@ module MixinBot
         num.times do
           signature = {}
 
-          keys_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+          keys_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
 
           keys_size.times do
-            index = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+            index = MixinBot.utils.decode_uint_16 @bytes.shift(2)
             signature[index] = @bytes.shift(64).pack('C*').unpack1('H*')
           end
 
@@ -175,11 +175,11 @@ module MixinBot
     def encode_inputs
       bytes = []
 
-      bytes += MixinBot::Utils.encode_uint_16(inputs.size)
+      bytes += MixinBot.utils.encode_uint_16(inputs.size)
 
       inputs.each do |input|
         bytes += [input['hash']].pack('H*').bytes
-        bytes += MixinBot::Utils.encode_uint_16(input['index'])
+        bytes += MixinBot.utils.encode_uint_16(input['index'])
 
         # genesis
         genesis = input['genesis'] || ''
@@ -187,7 +187,7 @@ module MixinBot
           bytes += NULL_BYTES
         else
           genesis_bytes = [genesis].pack('H*').bytes
-          bytes += MixinBot::Utils.encode_uint_16 genesis_bytes.size
+          bytes += MixinBot.utils.encode_uint_16 genesis_bytes.size
           bytes += genesis_bytes
         end
 
@@ -200,17 +200,17 @@ module MixinBot
           bytes += [deposit['chain']].pack('H*').bytes
 
           asset_bytes = [deposit['asset']].pack('H*')
-          bytes += MixinBot::Utils.encode_uint_16 asset_bytes.size
+          bytes += MixinBot.utils.encode_uint_16 asset_bytes.size
           bytes += asset_bytes
 
           transaction_bytes = [deposit['transaction']].pack('H*')
-          bytes += MixinBot::Utils.encode_uint_16 transaction_bytes.size
+          bytes += MixinBot.utils.encode_uint_16 transaction_bytes.size
           bytes += transaction_bytes
 
-          bytes += MixinBot::Utils.encode_uint_64 deposit['index']
+          bytes += MixinBot.utils.encode_uint_64 deposit['index']
 
-          amount_bytes = MixinBot::Utils.bytes_of deposit['amount']
-          bytes +=  MixinBot::Utils.encode_uint_16 amount_bytes.size
+          amount_bytes = MixinBot.utils.bytes_of deposit['amount']
+          bytes +=  MixinBot.utils.encode_uint_16 amount_bytes.size
           bytes +=  amount_bytes
         end
 
@@ -224,17 +224,17 @@ module MixinBot
           # group
           group = mint['group'] || ''
           if group.empty?
-            bytes += MixinBot::Utils.encode_uint_16 NULL_BYTES
+            bytes += MixinBot.utils.encode_uint_16 NULL_BYTES
           else
             group_bytes = [group].pack('H*')
-            bytes += MixinBot::Utils.encode_uint_16 group_bytes.size
+            bytes += MixinBot.utils.encode_uint_16 group_bytes.size
             bytes += group_bytes
           end
 
-          bytes += MixinBot::Utils.encode_uint_64 mint['batch']
+          bytes += MixinBot.utils.encode_uint_64 mint['batch']
 
-          amount_bytes = MixinBot::Utils.encode_int mint['amount']
-          bytes +=  MixinBot::Utils.encode_uint_16 amount_bytes.size
+          amount_bytes = MixinBot.utils.encode_int mint['amount']
+          bytes +=  MixinBot.utils.encode_uint_16 amount_bytes.size
           bytes +=  amount_bytes
         end
       end
@@ -245,19 +245,19 @@ module MixinBot
     def encode_outputs
       bytes = []
 
-      bytes += MixinBot::Utils.encode_uint_16 outputs.size
+      bytes += MixinBot.utils.encode_uint_16 outputs.size
 
       outputs.each do |output|
         type = output['type'] || 0
         bytes += [0x00, type]
 
         # amount
-        amount_bytes = MixinBot::Utils.encode_int (output['amount'].to_d * 1e8).round
-        bytes +=  MixinBot::Utils.encode_uint_16 amount_bytes.size
+        amount_bytes = MixinBot.utils.encode_int (output['amount'].to_d * 1e8).round
+        bytes +=  MixinBot.utils.encode_uint_16 amount_bytes.size
         bytes +=  amount_bytes
 
         # keys
-        bytes +=  MixinBot::Utils.encode_uint_16 output['keys'].size
+        bytes +=  MixinBot.utils.encode_uint_16 output['keys'].size
         output['keys'].each do |key|
           bytes += [key].pack('H*').bytes
         end
@@ -267,7 +267,7 @@ module MixinBot
 
         # script
         script_bytes = [output['script']].pack('H*').bytes
-        bytes += MixinBot::Utils.encode_uint_16 script_bytes.size
+        bytes += MixinBot.utils.encode_uint_16 script_bytes.size
         bytes += script_bytes
 
         # withdrawal
@@ -282,7 +282,7 @@ module MixinBot
 
           # asset
           @asset_bytes = [withdrawal['asset']].pack('H*')
-          bytes += MixinBot::Utils.encode_uint_16 asset_bytes.size
+          bytes += MixinBot.utils.encode_uint_16 asset_bytes.size
           bytes += asset_bytes
 
           # address
@@ -291,7 +291,7 @@ module MixinBot
             bytes += NULL_BYTES
           else
             address_bytes = [address].pack('H*').bytes
-            bytes += MixinBot::Utils.encode_uint_16 address.size
+            bytes += MixinBot.utils.encode_uint_16 address.size
             bytes += address_bytes
           end
 
@@ -301,7 +301,7 @@ module MixinBot
             bytes += NULL_BYTES
           else
             address_bytes = [tag].pack('H*').bytes
-            bytes += MixinBot::Utils.encode_uint_16 tag.size
+            bytes += MixinBot.utils.encode_uint_16 tag.size
             bytes += address_bytes
           end
         end
@@ -313,8 +313,8 @@ module MixinBot
     def encode_aggregated_signature
       bytes = []
 
-      bytes += MixinBot::Utils.encode_uint_16 MAX_ENCODE_INT
-      bytes += MixinBot::Utils.encode_uint_16 AGGREGATED_SIGNATURE_PREFIX
+      bytes += MixinBot.utils.encode_uint_16 MAX_ENCODE_INT
+      bytes += MixinBot.utils.encode_uint_16 AGGREGATED_SIGNATURE_PREFIX
       bytes += [aggregated['signature']].pack('H*').bytes
 
       signers = aggregated['signers']
@@ -330,8 +330,8 @@ module MixinBot
         max = signers.last
         if ((((max / 8) | 0) + 1) | 0) > aggregated['signature'].size * 2
           bytes += AGGREGATED_SIGNATURE_SPARSE_MASK
-          bytes += MixinBot::Utils.encode_uint_16 aggregated['signers'].size
-          signers.map(&->(signer) { bytes += MixinBot::Utils.encode_uint_16(signer) })
+          bytes += MixinBot.utils.encode_uint_16 aggregated['signers'].size
+          signers.map(&->(signer) { bytes += MixinBot.utils.encode_uint_16(signer) })
         end
 
         masks_bytes = Array.new((max / 8) + 1, 0)
@@ -339,7 +339,7 @@ module MixinBot
           masks[signer / 8] = masks[signer / 8] ^ (1 << (signer % 8))
         end
         bytes += AGGREGATED_SIGNATURE_ORDINAY_MASK
-        bytes += MixinBot::Utils.encode_uint_16 masks_bytes.size
+        bytes += MixinBot.utils.encode_uint_16 masks_bytes.size
         bytes += masks_bytes
       end
 
@@ -358,15 +358,15 @@ module MixinBot
 
       raise ArgumentError, 'signatures overflow' if sl == MAX_ENCODE_INT
 
-      bytes += MixinBot::Utils.encode_uint_16 sl
+      bytes += MixinBot.utils.encode_uint_16 sl
 
       if sl.positive?
         signatures.each do |signature|
-          bytes += MixinBot::Utils.encode_uint_16 signature.keys.size
+          bytes += MixinBot.utils.encode_uint_16 signature.keys.size
 
           signature.keys.sort.each do |key|
             signature_bytes = [signature[key]].pack('H*').bytes
-            bytes += MixinBot::Utils.encode_uint_16 key
+            bytes += MixinBot.utils.encode_uint_16 key
             bytes += signature_bytes
           end
         end
@@ -376,7 +376,7 @@ module MixinBot
     end
 
     def decode_inputs
-      inputs_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+      inputs_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
       @inputs = []
       inputs_size.times do
         input = {}
@@ -384,12 +384,12 @@ module MixinBot
         input['hash'] = hash.pack('C*').unpack1('H*')
 
         index = @bytes.shift(2)
-        input['index'] = MixinBot::Utils.decode_uint_16 index
+        input['index'] = MixinBot.utils.decode_uint_16 index
 
         if @bytes[...2] == NULL_BYTES
           @bytes.shift 2
         else
-          genesis_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+          genesis_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
           genesis = @bytes.shift genesis_size
           input['genesis'] = genesis.pack('C*').unpack1('H*')
         end
@@ -403,16 +403,16 @@ module MixinBot
           deposit = {}
           deposit['chain'] = @bytes.shift(32).pack('C*').unpack1('H*')
 
-          asset_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+          asset_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
           deposit['asset'] = @bytes.shift(asset_size).unpack1('H*')
 
-          transaction_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+          transaction_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
           deposit['transaction'] = @bytes.shift(transaction_size).unpack1('H*')
 
-          deposit['index'] = MixinBot::Utils.decode_uint_64 @bytes.shift(8)
+          deposit['index'] = MixinBot.utils.decode_uint_64 @bytes.shift(8)
 
-          amount_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
-          deposit['amount'] = MixinBot::Utils.decode_int @bytes.shift(amount_size)
+          amount_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
+          deposit['amount'] = MixinBot.utils.decode_int @bytes.shift(amount_size)
 
           input['deposit'] = deposit
         end
@@ -427,13 +427,13 @@ module MixinBot
           if bytes[...2] == NULL_BYTES
             @bytes.shift 2
           else
-            group_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+            group_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
             mint['group'] = @bytes.shift(group_size).unpack1('H*')
           end
 
-          mint['batch'] = MixinBot::Utils.decode_uint_64 @bytes.shift(8)
-          _amount_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
-          mint['amount'] = MixinBot::Utils.decode_int bytes.shift(_amount_size)
+          mint['batch'] = MixinBot.utils.decode_uint_64 @bytes.shift(8)
+          _amount_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
+          mint['amount'] = MixinBot.utils.decode_int bytes.shift(_amount_size)
 
           input['mint'] = mint
         end
@@ -445,7 +445,7 @@ module MixinBot
     end
 
     def decode_outputs
-      outputs_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+      outputs_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
       @outputs = []
       outputs_size.times do
         output = {}
@@ -454,18 +454,18 @@ module MixinBot
         type = @bytes.shift
         output['type'] = type
 
-        amount_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
-        output['amount'] = format('%.8f', MixinBot::Utils.decode_int(@bytes.shift(amount_size)).to_f / 1e8).gsub(/\.?0+$/, '')
+        amount_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
+        output['amount'] = format('%.8f', MixinBot.utils.decode_int(@bytes.shift(amount_size)).to_f / 1e8).gsub(/\.?0+$/, '')
 
         output['keys'] = []
-        keys_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+        keys_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
         keys_size.times do
           output['keys'].push @bytes.shift(32).pack('C*').unpack1('H*')
         end
 
         output['mask'] = @bytes.shift(32).pack('C*').unpack1('H*')
 
-        script_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+        script_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
         output['script'] = @bytes.shift(script_size).pack('C*').unpack1('H*')
 
         if @bytes[...2] == NULL_BYTES
@@ -476,14 +476,14 @@ module MixinBot
 
           output['chain'] = @bytes.shift(32).pack('C*').unpack1('H*')
 
-          asset_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+          asset_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
           output['asset'] = @bytes.shift(asset_size).unpack1('H*')
 
           if @bytes[...2] == NULL_BYTES
             @bytes.shift 2
           else
 
-            adderss_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+            adderss_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
             output['adderss'] = @bytes.shift(adderss_size).pack('C*').unpack1('H*')
           end
 
@@ -491,7 +491,7 @@ module MixinBot
             @bytes.shift 2
           else
 
-            tag_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
+            tag_size = MixinBot.utils.decode_uint_16 @bytes.shift(2)
             output['tag'] = @bytes.shift(tag_size).pack('C*').unpack1('H*')
           end
         end

@@ -89,13 +89,13 @@ module MixinBot
           }],
           extra: memo
         )
-        raw = MixinBot::Utils.encode_raw_transaction tx
+        raw = MixinBot.utils.encode_raw_transaction tx
 
         # step 3: verify transaction
         request = create_safe_transaction_request(request_id, raw)['data']
 
         # step 4: sign transaction
-        spend_key = MixinBot::Utils.decode_key(kwargs[:spend_key]) || config.spend_key
+        spend_key = MixinBot.utils.decode_key(kwargs[:spend_key]) || config.spend_key
         signed_raw = sign_safe_transaction(
           raw:,
           utxos:,

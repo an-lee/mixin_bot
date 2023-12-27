@@ -13,7 +13,7 @@ module MVM
       collection = @rpc.call @mirror, 'collections', address
       return if collection.zero?
 
-      MixinBot::Utils::UUID.new(hex: collection.to_fs(16)).unpacked
+      MixinBot::UUID.new(hex: collection.to_fs(16)).unpacked
     end
 
     def contract_from_collection(uuid)

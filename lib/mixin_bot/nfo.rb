@@ -39,10 +39,10 @@ module MixinBot
 
       def unique_token_id
         bytes = []
-        bytes += MixinBot::Utils::UUID.new(hex: chain).packed.bytes
+        bytes += MixinBot::UUID.new(hex: chain).packed.bytes
         bytes += [nm_class].pack('H*').bytes
-        bytes += MixinBot::Utils::UUID.new(hex: collection).packed.bytes
-        bytes += MixinBot::Utils.encode_int token
+        bytes += MixinBot::UUID.new(hex: collection).packed.bytes
+        bytes += MixinBot.utils.encode_int token
 
         md5 = Digest::MD5.new
         md5.update bytes.pack('c*')
@@ -53,7 +53,7 @@ module MixinBot
 
         hex = digest.pack('c*').unpack1('H*')
 
-        MixinBot::Utils::UUID.new(hex:).unpacked
+        MixinBot::UUID.new(hex:).unpacked
       end
 
       def mark(*indexes)
@@ -74,25 +74,25 @@ module MixinBot
           bytes += [0]
         else
           bytes += [1]
-          bytes += MixinBot::Utils.encode_uint_64 mask
-          bytes += MixinBot::Utils::UUID.new(hex: chain).packed.bytes
+          bytes += MixinBot.utils.encode_uint_64 mask
+          bytes += MixinBot::UUID.new(hex: chain).packed.bytes
 
           class_bytes = [nm_class].pack('H*').bytes
-          bytes += MixinBot::Utils.encode_int class_bytes.size
+          bytes += MixinBot.utils.encode_int class_bytes.size
           bytes += class_bytes
 
           collection_bytes = collection.split('-').pack('H* H* H* H* H*').bytes
-          bytes += MixinBot::Utils.encode_int collection_bytes.size
+          bytes += MixinBot.utils.encode_int collection_bytes.size
           bytes += collection_bytes
 
           # token_bytes = memo[:token].split('-').pack('H* H* H* H* H*').bytes
-          token_bytes = MixinBot::Utils.encode_int token
-          bytes += MixinBot::Utils.encode_int token_bytes.size
+          token_bytes = MixinBot.utils.encode_int token
+          bytes += MixinBot.utils.encode_int token_bytes.size
           bytes += token_bytes
         end
 
         extra_bytes = [extra].pack('H*').bytes
-        bytes += MixinBot::Utils.encode_int extra_bytes.size
+        bytes += MixinBot.utils.encode_int extra_bytes.size
         bytes += extra_bytes
 
         @raw = bytes.pack('C*')
@@ -132,16 +132,16 @@ module MixinBot
         if hint == 1
           @mask = bytes.shift(8).reverse.pack('C*').unpack1('Q*')
 
-          @chain = MixinBot::Utils::UUID.new(hex: bytes.shift(16).pack('C*').unpack1('H*')).unpacked
+          @chain = MixinBot::UUID.new(hex: bytes.shift(16).pack('C*').unpack1('H*')).unpacked
 
           class_length = bytes.shift
           @nm_class = bytes.shift(class_length).pack('C*').unpack1('H*')
 
           collection_length = bytes.shift
-          @collection = MixinBot::Utils::UUID.new(hex: bytes.shift(collection_length).pack('C*').unpack1('H*')).unpacked
+          @collection = MixinBot::UUID.new(hex: bytes.shift(collection_length).pack('C*').unpack1('H*')).unpacked
 
           token_length = bytes.shift
-          @token = MixinBot::Utils.decode_int bytes.shift(token_length)
+          @token = MixinBot.utils.decode_int bytes.shift(token_length)
         end
 
         extra_length = bytes.shift
