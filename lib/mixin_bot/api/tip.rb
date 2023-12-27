@@ -29,7 +29,7 @@ module MixinBot
         raise ArgumentError, 'invalid action' unless TIP_ACTIONS.include? action
 
         pin_key = MixinBot.utils.decode_key pin
-        msg = action + params.map(&:to_s).join
+        msg = action + params.flatten.map(&:to_s).join
 
         msg = Digest::SHA256.digest(msg) unless action == 'TIP:VERIFY:'
 

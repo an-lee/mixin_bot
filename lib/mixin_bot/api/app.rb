@@ -15,8 +15,8 @@ module MixinBot
         client.post path, access_token:
       end
 
-      def favorite_apps(user_id, access_token: nil)
-        path = format('/users/%<id>s/apps/favorite', id: user_id)
+      def favorite_apps(user_id = nil, access_token: nil)
+        path = format('/users/%<id>s/apps/favorite', id: user_id || config.app_id)
 
         client.get path, access_token:
       end

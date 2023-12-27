@@ -53,7 +53,6 @@ module MixinBot
     end
 
     def test_encode_raw_transaction
-
       signed_raw = MixinBot.api.encode_raw_transaction @tx
 
       assert signed_raw == @raw
@@ -62,7 +61,7 @@ module MixinBot
     def test_decode_raw_transaction
       tx = MixinBot.api.decode_raw_transaction @raw
 
-      assert @tx.keys.all? { |k| tx.keys.include? k }
+      assert(@tx.keys.all? { |k| tx.keys.include? k })
     end
   end
 end

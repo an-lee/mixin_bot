@@ -37,7 +37,13 @@ module MixinBot
       access_token = kwargs.delete :access_token
       exp_in = kwargs.delete(:exp_in) || 600
       scp = kwargs.delete(:scp) || 'FULL'
-      body = kwargs.presence&.to_json || ''
+      kwargs.compact!
+      body =
+        if verb == :post
+          kwargs.to_json
+        else
+          ''
+        end
 
       path = "#{path}?#{URI.encode_www_form(kwargs)}" if verb == :get && kwargs.present?
       access_token ||=
@@ -68,7 +74,7 @@ module MixinBot
         return result
       end
 
-      errmsg = "#{verb.upcase}|#{path}, errcode: #{result['error']['code']}, errmsg: #{result['error']['description']}, request_id: #{response&.[]('X-Request-Id')}, server_time: #{response&.[]('X-Server-Time')}'"
+      errmsg = "#{verb.upcase}|#{path}|#{body}, errcode: #{result['error']['code']}, errmsg: #{result['error']['description']}, request_id: #{response&.[]('X-Request-Id')}, server_time: #{response&.[]('X-Server-Time')}'"
 
       case result['error']['code']
       when 401, 20121

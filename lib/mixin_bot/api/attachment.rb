@@ -3,7 +3,6 @@
 module MixinBot
   class API
     module Attachment
-      # https://developers.mixin.one/api/beta-mixin-message/create-attachment/
       # Sample Response
       # {
       #   "data":{
@@ -14,38 +13,44 @@ module MixinBot
       #   }
       # }
       # Once get the upload_url, use it to upload the your file via PUT request
-      def create_attachment
+      def create_attachment(access_token: nil)
         path = '/attachments'
-        access_token ||= access_token('POST', path, {}.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: {})
+        client.post path, access_token:
       end
 
       def upload_attachment(file)
         attachment = create_attachment['data']
 
-        HTTP
-          .timeout(connect: 5, write: 5, read: 5)
-          .request(
-            :put,
-            attachment.delete('upload_url'),
-            {
-              body: file,
-              headers: {
-                'x-amz-acl': 'public-read',
-                'Content-Type': 'application/octet-stream'
-              }
-            }
-          )
+        url = attachment.delete('upload_url')
+        conn = Faraday.new(url:) do |f|
+          f.adapter :net_http
+
+          f.request :multipart
+          f.request :retry
+          f.response :raise_error
+          f.response :logger if config.debug
+        end
+
+        conn.put(url) do |req|
+          req.headers = {
+            'x-amz-acl': 'public-read',
+            'Content-Type': 'application/octet-stream'
+          }
+          req.body = Faraday::UploadIO.new(file, 'octet/stream')
+
+          if file.respond_to?(:length)
+            req.headers['Content-Length'] = file.length.to_s
+          elsif file.respond_to?(:stat)
+            req.headers['Content-Length'] = file.stat.size.to_s
+          end
+        end
 
         attachment
       end
 
-      def read_attachment(attachment_id)
+      def read_attachment(attachment_id, access_token: nil)
         path = format('/attachments/%<id>s', id: attachment_id)
-        access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.get(path, headers: { Authorization: authorization })
+        client.get path, access_token:
       end
     end
   end

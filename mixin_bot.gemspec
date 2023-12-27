@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'cli-ui', '~> 2.2'
   s.add_dependency 'eth', '~> 0.5'
   s.add_dependency 'faraday', '>= 2'
+  s.add_dependency 'faraday-multipart', '>= 1'
   s.add_dependency 'faraday-retry', '>= 2'
   s.add_dependency 'faye-websocket', '>= 0.11'
   s.add_dependency 'jose', '~> 1.1'
@@ -36,8 +37,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'thor', '~> 1.0'
 
   s.add_development_dependency 'fastimage', '~> 2.2.5'
+  s.add_development_dependency 'minitest-reporters', '~> 1.6'
   s.add_development_dependency 'pry', '~> 0.14'
-  s.add_development_dependency "minitest-reporters", "~> 1.6"
   s.add_development_dependency 'rake', '~> 13.0'
   s.add_development_dependency 'rubocop', '~> 1'
   s.add_development_dependency 'simplecov', '~> 0.22'

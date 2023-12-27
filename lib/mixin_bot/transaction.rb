@@ -62,11 +62,11 @@ module MixinBot
 
       # aggregated
       bytes += if aggregated.nil?
-                  # signatures
-                  encode_signatures
-                else
-                  encode_aggregated_signature
-                end
+                 # signatures
+                 encode_signatures
+               else
+                 encode_aggregated_signature
+               end
 
       @hash = SHA3::Digest::SHA256.hexdigest bytes.pack('C*')
       @hex = bytes.pack('C*').unpack1('H*')

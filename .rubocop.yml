@@ -214,8 +214,5 @@ Style/ClassEqualityComparison: # (new in 0.93)
 Layout/TrailingWhitespace:
   AllowInHeredoc: true
 
-RSpec/ExampleLength:
-  Enabled: false
-
 Security/Eval:
   Enabled: false

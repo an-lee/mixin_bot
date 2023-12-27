@@ -5,7 +5,7 @@ require 'mixin_bot'
 
 require 'minitest/autorun'
 
-require "minitest/reporters"
+require 'minitest/reporters'
 Minitest::Reporters.use!
 
 require 'yaml'

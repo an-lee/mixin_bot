@@ -44,6 +44,19 @@ module MixinBot
       MixinBot::Utils
     end
 
+    def access_token(method, uri, body, **kwargs)
+      utils.access_token(
+        method,
+        uri,
+        body,
+        exp_in: kwargs.delete(:exp_in) || 600,
+        scp: kwargs.delete(:scp) || 'FULL',
+        app_id: config.app_id,
+        session_id: config.session_id,
+        private_key: config.session_private_key
+      )
+    end
+
     def encode_raw_transaction(tx)
       utils.encode_raw_transaction tx
     end
