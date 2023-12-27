@@ -43,7 +43,7 @@ module MixinBot
         bytes += MixinBot::Utils::UUID.new(hex: chain).packed.bytes
         bytes += [nm_class].pack('H*').bytes
         bytes += MixinBot::Utils::UUID.new(hex: collection).packed.bytes
-        bytes += MixinBot::Utils.int_to_bytes token
+        bytes += MixinBot::Utils.encode_int token
 
         md5 = Digest::MD5.new
         md5.update bytes.pack('c*')
@@ -79,21 +79,21 @@ module MixinBot
           bytes += MixinBot::Utils::UUID.new(hex: chain).packed.bytes
 
           class_bytes = [nm_class].pack('H*').bytes
-          bytes += MixinBot::Utils.int_to_bytes class_bytes.size
+          bytes += MixinBot::Utils.encode_int class_bytes.size
           bytes += class_bytes
 
           collection_bytes = collection.split('-').pack('H* H* H* H* H*').bytes
-          bytes += MixinBot::Utils.int_to_bytes collection_bytes.size
+          bytes += MixinBot::Utils.encode_int collection_bytes.size
           bytes += collection_bytes
 
           # token_bytes = memo[:token].split('-').pack('H* H* H* H* H*').bytes
-          token_bytes = MixinBot::Utils.int_to_bytes token
-          bytes += MixinBot::Utils.int_to_bytes token_bytes.size
+          token_bytes = MixinBot::Utils.encode_int token
+          bytes += MixinBot::Utils.encode_int token_bytes.size
           bytes += token_bytes
         end
 
         extra_bytes = [extra].pack('H*').bytes
-        bytes += MixinBot::Utils.int_to_bytes extra_bytes.size
+        bytes += MixinBot::Utils.encode_int extra_bytes.size
         bytes += extra_bytes
 
         @raw = bytes.pack('C*')
@@ -142,7 +142,7 @@ module MixinBot
           @collection = MixinBot::Utils::UUID.new(hex: bytes.shift(collection_length).pack('C*').unpack1('H*')).unpacked
 
           token_length = bytes.shift
-          @token = MixinBot::Utils.bytes_to_int bytes.shift(token_length)
+          @token = MixinBot::Utils.decode_int bytes.shift(token_length)
         end
 
         extra_length = bytes.shift

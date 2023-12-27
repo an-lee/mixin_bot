@@ -83,7 +83,7 @@ module MixinBot
         raise ArgumentError, 'Not valid raw' unless magic == MAGIC
 
         _version = @bytes.shift(2)
-        @version = MixinBot::Utils.bytes_to_int _version
+        @version = MixinBot::Utils.decode_int _version
 
         asset = @bytes.shift(32)
         @asset = asset.pack('C*').unpack1('H*')
@@ -234,7 +234,7 @@ module MixinBot
 
             bytes += MixinBot::Utils.encode_uint_64 mint['batch']
 
-            amount_bytes = MixinBot::Utils.int_to_bytes mint['amount']
+            amount_bytes = MixinBot::Utils.encode_int mint['amount']
             bytes +=  MixinBot::Utils.encode_uint_16 amount_bytes.size
             bytes +=  amount_bytes
           end
@@ -253,7 +253,7 @@ module MixinBot
           bytes += [0x00, type]
 
           # amount
-          amount_bytes = MixinBot::Utils.int_to_bytes (output['amount'].to_d * 1e8).round
+          amount_bytes = MixinBot::Utils.encode_int (output['amount'].to_d * 1e8).round
           bytes +=  MixinBot::Utils.encode_uint_16 amount_bytes.size
           bytes +=  amount_bytes
 
@@ -413,7 +413,7 @@ module MixinBot
             deposit['index'] = MixinBot::Utils.decode_uint_64 @bytes.shift(8)
 
             amount_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
-            deposit['amount'] = MixinBot::Utils.bytes_to_int @bytes.shift(amount_size)
+            deposit['amount'] = MixinBot::Utils.decode_int @bytes.shift(amount_size)
 
             input['deposit'] = deposit
           end
@@ -434,7 +434,7 @@ module MixinBot
 
             mint['batch'] = MixinBot::Utils.decode_uint_64 @bytes.shift(8)
             _amount_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
-            mint['amount'] = MixinBot::Utils.bytes_to_int bytes.shift(_amount_size)
+            mint['amount'] = MixinBot::Utils.decode_int bytes.shift(_amount_size)
 
             input['mint'] = mint
           end
@@ -456,7 +456,7 @@ module MixinBot
           output['type'] = type
 
           amount_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)
-          output['amount'] = format('%.8f', MixinBot::Utils.bytes_to_int(@bytes.shift(amount_size)).to_f / 1e8).gsub(/\.?0+$/, '')
+          output['amount'] = format('%.8f', MixinBot::Utils.decode_int(@bytes.shift(amount_size)).to_f / 1e8).gsub(/\.?0+$/, '')
 
           output['keys'] = []
           keys_size = MixinBot::Utils.decode_uint_16 @bytes.shift(2)

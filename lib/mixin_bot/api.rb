@@ -40,16 +40,20 @@ module MixinBot
       @client = Client.new(@config)
     end
 
+    def util
+      MixinBot::Utils
+    end
+
     def encode_raw_transaction(tx)
-      MixinBot::Utils.encode_raw_transaction tx
+      util.encode_raw_transaction tx
     end
 
     def decode_raw_transaction(raw)
-      MixinBot::Utils.decode_raw_transaction raw
+      util.decode_raw_transaction raw
     end
 
     def generate_trace_from_hash(hash, output_index = 0)
-      MixinBot::Utils.generate_trace_from_hash hash, output_index
+      util.generate_trace_from_hash hash, output_index
     end
 
     # Use a mixin software to implement transaction build

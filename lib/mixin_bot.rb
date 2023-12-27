@@ -44,6 +44,10 @@ module MixinBot
     def configure(&)
       config.instance_exec(&)
     end
+
+    def util
+      MixinBot::Utils
+    end
   end
 
   class Error < StandardError; end

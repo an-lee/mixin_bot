@@ -11,8 +11,8 @@ module MixinBot
       @conn = Faraday.new(
         url: "#{SERVER_SCHEME}://#{config.api_host}",
         headers: {
-          "Content-Type" => "application/json",
-          "User-Agent" => "mixin_bot/#{MixinBot::VERSION}"
+          'Content-Type' => 'application/json',
+          'User-Agent' => "mixin_bot/#{MixinBot::VERSION}"
         }
       ) do |f|
         f.request :json
@@ -23,12 +23,12 @@ module MixinBot
       end
     end
 
-    def get(path, **kwargs)
-      request(:get, path, **kwargs)
+    def get(path, **)
+      request(:get, path, **)
     end
 
-    def post(path, **kwargs)
-      request(:post, path, **kwargs)
+    def post(path, **)
+      request(:post, path, **)
     end
 
     private
@@ -40,14 +40,13 @@ module MixinBot
       body = kwargs.presence&.to_json || ''
 
       path = "#{path}?#{URI.encode_www_form(kwargs)}" if verb == :get && kwargs.present?
-      access_token ||= 
-        MixinBot::Utils
-        .access_token(
-          verb.to_s.upcase, 
-          path, 
-          body, 
-          exp_in: exp_in, 
-          scp: scp, 
+      access_token ||=
+        MixinBot.util.access_token(
+          verb.to_s.upcase,
+          path,
+          body,
+          exp_in:,
+          scp:,
           app_id: config.app_id,
           session_id: config.session_id,
           private_key: config.session_private_key
@@ -57,7 +56,7 @@ module MixinBot
       response =
         case verb
         when :get
-          @conn.get(path, nil, { "Authorization" => authorization })
+          @conn.get(path, nil, { 'Authorization' => authorization })
         when :post
           @conn.post(path, kwargs, { Authorization: authorization })
         end

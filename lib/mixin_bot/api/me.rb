@@ -5,7 +5,7 @@ module MixinBot
     module Me
       def me(access_token: nil)
         path = '/me'
-        client.get path, access_token: access_token
+        client.get path, access_token:
       end
 
       # avatar_base64:
