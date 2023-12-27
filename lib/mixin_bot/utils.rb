@@ -4,9 +4,6 @@ require_relative 'utils/address'
 require_relative 'utils/crypto'
 require_relative 'utils/decoder'
 require_relative 'utils/encoder'
-require_relative 'utils/nfo'
-require_relative 'utils/uuid'
-require_relative 'utils/transaction'
 
 module MixinBot
   module Utils

@@ -101,7 +101,7 @@ module MixinBot
         digest8 = ((digest[8].ord & 0x3f) | 0x80).chr
         cipher = digest[0...6] + digest6 + digest[7] + digest8 + digest[9..]
 
-        UUID.new(raw: cipher).unpacked
+        MixinBot::UUID.new(raw: cipher).unpacked
       end
 
       def unique_uuid(*uuids)
@@ -109,7 +109,7 @@ module MixinBot
         uuids.sort
         r = uuids.first
         uuids.each_with_index do |uuid, i|
-          r = MixinBot::Utils.generate_unique_uuid(r, uuid) if i.positive?
+          r = generate_unique_uuid(r, uuid) if i.positive?
         end
 
         r
@@ -123,7 +123,7 @@ module MixinBot
         digest[6] = ((digest[6].ord & 0x0f) | 0x30).chr
         digest[8] = ((digest[8].ord & 0x3f) | 0x80).chr
 
-        UUID.new(raw: digest).unpacked
+        MixinBot::UUID.new(raw: digest).unpacked
       end
     end
   end

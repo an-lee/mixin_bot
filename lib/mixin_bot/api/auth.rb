@@ -3,35 +3,6 @@
 module MixinBot
   class API
     module Auth
-      def access_token(method, uri, body = '', exp_in: 600, scp: 'FULL')
-        sig = Digest::SHA256.hexdigest(method + uri + body.to_s)
-        iat = Time.now.utc.to_i
-        exp = (Time.now.utc + exp_in).to_i
-        jti = SecureRandom.uuid
-        payload = {
-          uid: config.app_id,
-          sid: config.session_id,
-          iat:,
-          exp:,
-          jti:,
-          sig:,
-          scp:
-        }
-
-        if config.session_private_key.blank?
-          raise ConfigurationNotValidError, 'session_private_key is required'
-        elsif config.session_private_key.size == 64
-          jwk = JOSE::JWK.from_okp [:Ed25519, config.session_private_key]
-          jws = JOSE::JWS.from({ 'alg' => 'EdDSA' })
-        else
-          jwk = JOSE::JWK.from_pem config.session_private_key
-          jws = JOSE::JWS.from({ 'alg' => 'RS512' })
-        end
-
-        jwt = JOSE::JWT.from payload
-        JOSE::JWT.sign(jwk, jws, jwt).compact
-      end
-
       def oauth_token(code)
         path = 'oauth/token'
         payload = {

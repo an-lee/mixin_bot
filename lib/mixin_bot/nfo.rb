@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module MixinBot
-  module Utils
     class Nfo
       NFT_MEMO_PREFIX = 'NFO'
       NFT_MEMO_VERSION = 0x00
@@ -172,5 +171,4 @@ module MixinBot
         hash
       end
     end
-  end
 end

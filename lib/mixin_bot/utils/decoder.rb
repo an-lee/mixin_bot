@@ -51,7 +51,7 @@ module MixinBot
       end
 
       def hex_to_uuid(hex)
-        UUID.new(hex:).unpacked
+        MixinBot::UUID.new(hex:).unpacked
       end
     end
   end
