@@ -6,13 +6,13 @@ module MixinBot
       def decode_key(key)
         return if key.blank?
 
-        if key.match?(/\A[a-f0-9]+\z/i)
+        if key.match?(/\A[a-f0-9]{64,}\z/i)
           [key].pack('H*')
-        elsif key.match?(/\A[a-zA-Z0-9\-\_]+\z/)
+        elsif key.match?(/\A[a-zA-Z0-9\-\_]{43,}\z/)
           Base64.urlsafe_decode64 key
         elsif key.match?(/^-----BEGIN RSA PRIVATE KEY-----/)
           key.gsub('\\r\\n', "\n").gsub("\r\n", "\n")
-        elsif (key.size % 32).zero?
+        elsif key.match?(/\d{6}/) || (key.size % 32).zero?
           key
         else
           raise ArgumentError, "Invalid key: #{e.message}"
