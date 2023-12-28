@@ -4,6 +4,10 @@ require 'test_helper'
 
 module MixinBot
   class TestLegacyOutput < Minitest::Test
+    def setup
+      skip 'No config file found' unless MixinBot.config.valid?
+    end
+
     def test_read_outputs
       # {"data"=>[{"type"=>"multisig_utxo", "user_id"=>"0508a116-1239-4e28-b150-85a8e3e6b400", "utxo_id"=>"684ac1de-cdc5-36f3-9034-ef3b74de0338", "asset_id"=>"965e5c6e-434c-3fa9-b780-c50f43cd955c", "transaction_hash"=>"ed567043fbeab439105570bd77e57fb717dfd24eeef83476f5e0837bb53805cb", "output_index"=>0, "amount"=>"1", "threshold"=>2, "members"=>["0508a116-1239-4e28-b150-85a8e3e6b400", "7ed9292d-7c95-4333-aa48-a8c640064186", "a67c6e87-1c9e-4a1c-b81c-47a9f4f1bff1"], "memo"=>"test for multi sign", "state"=>"unspent", "created_at"=>"2019-12-11T07:32:42.606383Z", "signed_by"=>"", "signed_tx"=>""}]}
       res = MixinBot.api.outputs

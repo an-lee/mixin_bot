@@ -7,6 +7,8 @@ module MixinBot
   class TestMessage < Minitest::Test
     def setup
       @conversation_id = MixinBot.api.unique_uuid(TEST_UID)
+
+      skip 'No config file found' unless MixinBot.config.valid?
     end
 
     def test_write_ws_message

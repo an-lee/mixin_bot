@@ -23,26 +23,23 @@ module MixinBot
 
         members_hash = SHA3::Digest::SHA256.hexdigest(members&.sort&.join)
 
-        path = format(
-          '/safe/outputs?asset=%<asset>s&limit=%<limit>s&offset=%<offset>s&state=%<state>s&members=%<members_hash>s&threshold=%<threshold>s&order=%<order>s',
+        path = '/safe/outputs'
+        params = {
           asset:,
           limit:,
           offset:,
           state:,
-          members_hash:,
+          members: members_hash,
           threshold:,
           order:
-        )
-        access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.get(path, headers: { Authorization: authorization })
+        }.compact
+
+        client.get path, **params, access_token:
       end
 
-      def safe_output(id)
+      def safe_output(id, access_token: nil)
         path = format('/safe/outputs/%<id>s', id:)
-        access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.get(path, headers: { Authorization: authorization })
+        client.get path, access_token:
       end
     end
   end
