@@ -21,13 +21,11 @@ module MixinBot
             }
           else
             {
-              pin: encrypt_pin(pin)
+              pin: MixinBot.utils.encrypt_pin(pin)
             }
           end
 
-        access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, **payload
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/create-pin/
@@ -44,9 +42,7 @@ module MixinBot
           pin_base64: encrypted_pin
         }
 
-        access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, **payload
       end
 
       def prepare_tip_key(counter = 0)
@@ -61,67 +57,28 @@ module MixinBot
         }
       end
 
-      # decrypt the encrpted pin, just for test
-      def decrypt_pin(msg)
-        msg = Base64.urlsafe_decode64 msg
-        iv = msg[0..15]
-        cipher = msg[16..47]
-        alg = 'AES-256-CBC'
-        decode_cipher = OpenSSL::Cipher.new(alg)
-        decode_cipher.decrypt
-        decode_cipher.iv = iv
-        decode_cipher.key = _generate_aes_key
-        decode_cipher.update(cipher)
-      end
-
-      # https://developers.mixin.one/api/alpha-mixin-network/encrypted-pin/
-      # use timestamp(timestamp) for iterator as default: must be bigger than the previous, the first time must be greater than 0. After a new session created, it will be reset to 0.
       def encrypt_pin(pin, iterator: nil)
-        pin = MixinBot::Utils.decode_key pin
-
-        iterator ||= Time.now.utc.to_i
-        tszero = iterator % 0x100
-        tsone = (iterator % 0x10000) >> 8
-        tstwo = (iterator % 0x1000000) >> 16
-        tsthree = (iterator % 0x100000000) >> 24
-        tsstring = "#{tszero.chr}#{tsone.chr}#{tstwo.chr}#{tsthree.chr}\u0000\u0000\u0000\u0000"
-        encrypt_content =
-          pin + tsstring
-        pad_count = 16 - (encrypt_content.length % 16)
-        padded_content =
-          if pad_count.positive?
-            encrypt_content + (pad_count.chr * pad_count)
-          else
-            encrypt_content
-          end
-
-        alg = 'AES-256-CBC'
-        aes = OpenSSL::Cipher.new(alg)
-        iv = OpenSSL::Cipher.new(alg).random_iv
-        aes.encrypt
-        aes.key = _generate_aes_key
-        aes.iv = iv
-        cipher = aes.update(padded_content)
-        msg = iv + cipher
-        Base64.urlsafe_encode64 msg, padding: false
+        MixinBot.utils.encrypt_pin(pin, iterator:, shared_key: generate_shared_key_with_server)
       end
-    end
 
-    private
+      def decrypt_pin(msg)
+        MixinBot.utils.decrypt_pin msg, shared_key: generate_shared_key_with_server
+      end
 
-    def _generate_aes_key
-      if config.server_public_key.size == 32
-        JOSE::JWA::X25519.x25519(
-          config.session_private_key_curve25519,
-          config.server_public_key_curve25519
-        )
-      else
-        JOSE::JWA::PKCS1.rsaes_oaep_decrypt(
-          'SHA256',
-          config.server_public_key,
-          OpenSSL::PKey::RSA.new(config.session_private_key),
-          session_id
-        )
+      def generate_shared_key_with_server
+        if config.server_public_key.size == 32
+          JOSE::JWA::X25519.x25519(
+            config.session_private_key_curve25519,
+            config.server_public_key_curve25519
+          )
+        else
+          JOSE::JWA::PKCS1.rsaes_oaep_decrypt(
+            'SHA256',
+            config.server_public_key,
+            OpenSSL::PKey::RSA.new(config.session_private_key),
+            session_id
+          )
+        end
       end
     end
   end

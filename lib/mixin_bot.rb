@@ -10,7 +10,9 @@ require 'bigdecimal/util'
 require 'digest'
 require 'digest/blake3'
 require 'faye/websocket'
-require 'http'
+require 'faraday'
+require 'faraday/multipart'
+require 'faraday/retry'
 require 'jose'
 require 'msgpack'
 require 'open3'
@@ -21,6 +23,9 @@ require 'sha3'
 require_relative 'mixin_bot/api'
 require_relative 'mixin_bot/cli'
 require_relative 'mixin_bot/utils'
+require_relative 'mixin_bot/nfo'
+require_relative 'mixin_bot/uuid'
+require_relative 'mixin_bot/transaction'
 require_relative 'mixin_bot/version'
 require_relative 'mvm'
 
@@ -42,6 +47,10 @@ module MixinBot
 
     def configure(&)
       config.instance_exec(&)
+    end
+
+    def utils
+      MixinBot::Utils
     end
   end
 

@@ -3,57 +3,73 @@
 module MixinBot
   class API
     module User
-      # https://developers.mixin.one/api/beta-mixin-message/read-user/
-      def read_user(user_id)
-        # user_id: Mixin User UUID
+      def user(user_id, access_token: nil)
         path = format('/users/%<user_id>s', user_id:)
-        access_token = access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.get(path, headers: { Authorization: authorization })
+        client.get path, access_token:
       end
+      alias read_user user
 
-      # https://developers.mixin.one/api/alpha-mixin-network/app-user/
-      # Create a new Mixin Network user (like a normal Mixin Messenger user). You should keep PrivateKey which is used to sign an AuthenticationToken and encrypted PIN for the user.
       def create_user(full_name, key: nil)
-        key || MixinBot::Utils.generate_ed25519_key
-        session_secret = ed25519_key[:public_key]
+        keypair = JOSE::JWA::Ed25519.keypair key
+        session_secret = Base64.urlsafe_encode64 keypair[0], padding: false
+        private_key = keypair[1].unpack1('H*')
 
+        path = '/users'
         payload = {
           full_name:,
           session_secret:
         }
-        access_token = access_token('POST', '/users', payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        res = client.post('/users', headers: { Authorization: authorization }, json: payload)
 
-        res.merge(rsa_key:, ed25519_key:)
+        res = client.post path, **payload
+        res.merge(private_key:).with_indifferent_access
       end
 
-      # https://developers.mixin.one/api/beta-mixin-message/search-user/
-      # search by Mixin Id or Phone Number
-      def search_user(query)
+      def search_user(query, access_token: nil)
         path = format('/search/%<query>s', query:)
 
-        access_token = access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.get(path, headers: { Authorization: authorization })
+        client.get path, access_token:
       end
 
-      # https://developers.mixin.one/api/beta-mixin-message/read-users/
       def fetch_users(user_ids)
-        # user_ids: a array of user_ids
         path = '/users/fetch'
         user_ids = [user_ids] if user_ids.is_a? String
         payload = user_ids
 
-        access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, *payload
       end
 
-      def safe_register(pin, spend_key:)
+      def create_safe_user(name, private_key: nil, spend_key: nil)
+        private_keypair = JOSE::JWA::Ed25519.keypair private_key
+        private_key = private_keypair[1].unpack1('H*')
+
+        spend_keypair = JOSE::JWA::Ed25519.keypair spend_key
+        spend_key = spend_keypair[1].unpack1('H*')
+
+        user = create_user name, key: private_keypair[1][...32]
+
+        keystore = {
+          app_id: user['data']['user_id'],
+          session_id: user['data']['session_id'],
+          private_key:,
+          pin_token: user['data']['pin_token_base64'],
+          spend_key: spend_keypair[1].unpack1('H*')
+        }
+        user_api = MixinBot::API.new(**keystore)
+
+        user_api.update_pin pin: MixinBot.utils.tip_public_key(spend_keypair[0], counter: user['data']['tip_counter'])
+
+        # wait for tip pin update in server
+        sleep 1
+
+        user_api.safe_register spend_key
+
+        keystore
+      end
+
+      def safe_register(pin, spend_key: nil)
         path = '/safe/users'
 
+        spend_key ||= MixinBot.utils.decode_key pin
         key = JOSE::JWA::Ed25519.keypair spend_key[...32]
         public_key = key[0].unpack1('H*')
 
@@ -68,9 +84,26 @@ module MixinBot
           pin_base64:
         }
 
-        access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, **payload
+      end
+
+      def migrate_to_safe(spend_key:, old_pin: nil)
+        profile = me['data']
+        return true if profile['has_safe']
+
+        spend_keypair = JOSE::JWA::Ed25519.keypair spend_key
+        spend_key = spend_keypair[1].unpack1('H*')
+
+        update_pin pin: MixinBot.utils.tip_public_key(spend_keypair[0], counter: profile['tip_counter']) if profile['tip_key_base64'].blank?
+
+        # wait for tip pin update in server
+        sleep 1
+
+        safe_register spend_key
+
+        {
+          spend_key:
+        }.with_indifferent_access
       end
     end
   end

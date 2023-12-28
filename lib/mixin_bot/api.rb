@@ -11,6 +11,12 @@ require_relative 'api/blaze'
 require_relative 'api/collectible'
 require_relative 'api/conversation'
 require_relative 'api/encrypted_message'
+require_relative 'api/legacy_multisig'
+require_relative 'api/legacy_output'
+require_relative 'api/legacy_payment'
+require_relative 'api/legacy_snapshot'
+require_relative 'api/legacy_transaction'
+require_relative 'api/legacy_transfer'
 require_relative 'api/me'
 require_relative 'api/message'
 require_relative 'api/multisig'
@@ -37,19 +43,36 @@ module MixinBot
           MixinBot.config
         end
 
-      @client = Client.new(@config.api_host)
+      @client = Client.new(@config)
+    end
+
+    def utils
+      MixinBot::Utils
+    end
+
+    def access_token(method, uri, body, **kwargs)
+      utils.access_token(
+        method,
+        uri,
+        body,
+        exp_in: kwargs.delete(:exp_in) || 600,
+        scp: kwargs.delete(:scp) || 'FULL',
+        app_id: config.app_id,
+        session_id: config.session_id,
+        private_key: config.session_private_key
+      )
     end
 
     def encode_raw_transaction(tx)
-      MixinBot::Utils.encode_raw_transaction tx
+      utils.encode_raw_transaction tx
     end
 
     def decode_raw_transaction(raw)
-      MixinBot::Utils.decode_raw_transaction raw
+      utils.decode_raw_transaction raw
     end
 
     def generate_trace_from_hash(hash, output_index = 0)
-      MixinBot::Utils.generate_trace_from_hash hash, output_index
+      utils.generate_trace_from_hash hash, output_index
     end
 
     # Use a mixin software to implement transaction build
@@ -83,6 +106,12 @@ module MixinBot
     include MixinBot::API::Collectible
     include MixinBot::API::Conversation
     include MixinBot::API::EncryptedMessage
+    include MixinBot::API::LegacyMultisig
+    include MixinBot::API::LegacyOutput
+    include MixinBot::API::LegacyPayment
+    include MixinBot::API::LegacySnapshot
+    include MixinBot::API::LegacyTransaction
+    include MixinBot::API::LegacyTransfer
     include MixinBot::API::Me
     include MixinBot::API::Message
     include MixinBot::API::Multisig

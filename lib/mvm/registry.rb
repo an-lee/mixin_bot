@@ -11,7 +11,7 @@ module MVM
 
     def pid
       hex = @rpc.call(@registry, 'PID').to_s(16)
-      MixinBot::Utils::UUID.new(hex:).unpacked
+      MixinBot::UUID.new(hex:).unpacked
     end
 
     def version
@@ -20,7 +20,7 @@ module MVM
 
     def asset_from_contract(contract)
       hex = @rpc.call(@registry, 'assets', contract).to_s(16)
-      MixinBot::Utils::UUID.new(hex:).unpacked
+      MixinBot::UUID.new(hex:).unpacked
     end
 
     def users_from_contract(contract)
@@ -28,7 +28,7 @@ module MVM
       members = []
       length = bytes.shift(2).reverse.pack('C*').unpack1('S*')
       length.times do
-        members << MixinBot::Utils::UUID.new(raw: bytes.shift(16).pack('C*')).unpacked
+        members << MixinBot::UUID.new(raw: bytes.shift(16).pack('C*')).unpacked
       end
       threshold = bytes.shift(2).reverse.pack('C*').unpack1('S*')
       {
@@ -52,9 +52,9 @@ module MVM
 
     def contract_from_multisig(user_ids, threshold)
       bytes = []
-      bytes += MixinBot::Utils.encode_uint_16(user_ids.length)
+      bytes += MixinBot.utils.encode_uint_16(user_ids.length)
       bytes += [user_ids.sort.join.gsub('-', '')].pack('H*').bytes
-      bytes += MixinBot::Utils.encode_uint_16(threshold)
+      bytes += MixinBot.utils.encode_uint_16(threshold)
 
       hash = Eth::Util.bin_to_prefixed_hex(Eth::Util.keccak256(bytes.pack('C*')))
       @rpc.call @registry, 'contracts', hash.to_i(16)

@@ -3,190 +3,9 @@
 module MixinBot
   class API
     module Transaction
-      LEGACY_TX_VERSION = 0x04
       SAFE_TX_VERSION = 0x05
       OUTPUT_TYPE_SCRIPT = 0x00
       OUTPUT_TYPE_WITHDRAW_SUBMIT = 0xa1
-
-      # @DEPRECATED
-      # use safe transaction protocol instead
-      # kwargs:
-      # {
-      #   senders: [ uuid ],
-      #   senders_threshold: integer,
-      #   receivers: [ uuid ],
-      #   receivers_threshold: integer,
-      #   asset_id: uuid,
-      #   amount: string / float,
-      #   memo: string,
-      # }
-      RAW_TRANSACTION_ARGUMENTS = %i[utxos senders senders_threshold receivers receivers_threshold amount].freeze
-      def build_raw_transaction(**kwargs)
-        raise ArgumentError, "#{RAW_TRANSACTION_ARGUMENTS.join(', ')} are needed for build raw transaction" unless RAW_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
-
-        senders             = kwargs[:senders]
-        senders_threshold   = kwargs[:senders_threshold]
-        receivers           = kwargs[:receivers]
-        receivers_threshold = kwargs[:receivers_threshold]
-        amount              = kwargs[:amount]
-        asset_id            = kwargs[:asset_id]
-        asset_mixin_id      = kwargs[:asset_mixin_id]
-        utxos               = kwargs[:utxos]
-        kwargs[:memo]
-        extra               = kwargs[:extra]
-        access_token        = kwargs[:access_token]
-        outputs             = kwargs[:outputs] || []
-        hint                = kwargs[:hint]
-        version             = kwargs[:version] || LEGACY_TX_VERSION
-
-        raise 'access_token required!' if access_token.nil? && !senders.include?(config.app_id)
-
-        amount = amount.to_d.round(8)
-        input_amount = utxos.map(
-          &lambda { |utxo|
-            utxo['amount'].to_d
-          }
-        ).sum
-
-        if input_amount < amount
-          raise format(
-            'not enough amount! %<input_amount>s < %<amount>s',
-            input_amount:,
-            amount:
-          )
-        end
-
-        inputs = utxos.map(
-          &lambda { |utx|
-            {
-              'hash' => utx['transaction_hash'],
-              'index' => utx['output_index']
-            }
-          }
-        )
-
-        if outputs.empty?
-          receivers_threshold = 1 if receivers.size == 1
-          output0 = build_output(
-            receivers:,
-            index: 0,
-            amount:,
-            threshold: receivers_threshold,
-            hint:
-          )
-          outputs.push output0
-
-          if input_amount > amount
-            output1 = build_output(
-              receivers: senders,
-              index: 1,
-              amount: input_amount - amount,
-              threshold: senders_threshold,
-              hint:
-            )
-            outputs.push output1
-          end
-        end
-
-        # extra ||= Digest.hexencode(memo.to_s.slice(0, 140))
-        asset = asset_mixin_id || SHA3::Digest::SHA256.hexdigest(asset_id)
-        {
-          version:,
-          asset:,
-          inputs:,
-          outputs:,
-          extra:
-        }
-      end
-
-      # @DEPRECATED
-      # use safe transaction protocol instead
-      MULTISIG_TRANSACTION_ARGUMENTS = %i[asset_id receivers threshold amount].freeze
-      def create_multisig_transaction(pin, options = {})
-        raise ArgumentError, "#{MULTISIG_TRANSACTION_ARGUMENTS.join(', ')} are needed for create multisig transaction" unless MULTISIG_TRANSACTION_ARGUMENTS.all? { |param| options.keys.include? param }
-
-        asset_id = options[:asset_id]
-        receivers = options[:receivers]
-        threshold = options[:threshold]
-        amount = format('%.8f', options[:amount].to_d.to_r),
-                 memo = options[:memo]
-        trace_id = options[:trace_id] || SecureRandom.uuid
-
-        path = '/transactions'
-        payload = {
-          asset_id:,
-          opponent_multisig: {
-            receivers:,
-            threshold:
-          },
-          amount:,
-          trace_id:,
-          memo:
-        }
-
-        if pin.length > 6
-          payload[:pin_base64] = encrypt_tip_pin(pin, 'TIP:TRANSACTION:CREATE:', asset_id, receivers.join, threshold, amount, trace_id, memo)
-        else
-          payload[:pin] = encrypt_pin(pin)
-        end
-
-        access_token = options[:access_token]
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
-      end
-
-      # @DEPRECATED
-      # use safe transaction protocol instead
-      MAINNET_TRANSACTION_ARGUMENTS = %i[asset_id opponent_key amount].freeze
-      def create_mainnet_transaction(pin, options = {})
-        raise ArgumentError, "#{MAINNET_TRANSACTION_ARGUMENTS.join(', ')} are needed for create main net transactions" unless MAINNET_TRANSACTION_ARGUMENTS.all? { |param| options.keys.include? param }
-
-        asset_id = options[:asset_id]
-        opponent_key = options[:opponent_key]
-        amount = format('%.8f', options[:amount].to_d.to_r),
-                 memo = options[:memo]
-        trace_id = options[:trace_id] || SecureRandom.uuid
-
-        path = '/transactions'
-        payload = {
-          asset_id:,
-          opponent_key:,
-          amount:,
-          trace_id:,
-          memo:
-        }
-
-        if pin.length > 6
-          payload[:pin_base64] = encrypt_tip_pin(pin, 'TIP:TRANSACTION:CREATE:', asset_id, opponent_key, amount, trace_id, memo)
-        else
-          payload[:pin] = encrypt_pin(pin)
-        end
-
-        access_token = options[:access_token]
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
-      end
-
-      # @DEPRECATED
-      # use safe transaction protocol instead
-      def transactions(**options)
-        path = format(
-          '/external/transactions?limit=%<limit>s&offset=%<offset>s&asset=%<asset>s&destination=%<destination>s&tag=%<tag>s',
-          limit: options[:limit],
-          offset: options[:offset],
-          asset: options[:asset],
-          destination: options[:destination],
-          tag: options[:tag]
-        )
-
-        client.get path
-      end
-
-      #########################
-      # Safe Network Protocol #
-      # #######################
 
       # ghost keys
       def create_safe_keys(*payload, access_token: nil)
@@ -201,9 +20,8 @@ module MixinBot
         end
 
         path = '/safe/keys'
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+
+        client.post path, *payload
       end
       alias create_ghost_keys create_safe_keys
 
@@ -235,7 +53,7 @@ module MixinBot
         raise ArgumentError, 'utxos too many' if utxos.size > 256
 
         recipients = receivers.map do |receiver|
-          build_safe_recipient(
+          MixinBot.utils.build_safe_recipient(
             members: receiver[:members],
             threshold: receiver[:threshold],
             amount: receiver[:amount]
@@ -248,7 +66,7 @@ module MixinBot
         raise InsufficientBalanceError, "inputs sum: #{inputs_sum}" if change.negative?
 
         if change.positive?
-          recipients << build_safe_recipient(
+          recipients << MixinBot.utils.build_safe_recipient(
             members: utxos[0]['receivers'],
             threshold: utxos[0]['receivers_threshold'],
             amount: change
@@ -314,9 +132,7 @@ module MixinBot
           raw:
         }]
 
-        access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, *payload
       end
 
       def send_safe_transaction(request_id, raw)
@@ -326,17 +142,13 @@ module MixinBot
           raw:
         }]
 
-        access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, *payload
       end
 
-      def safe_transaction(request_id)
+      def safe_transaction(request_id, access_token: nil)
         path = format('/safe/transactions/%<request_id>s', request_id:)
 
-        access_token = access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.get(path, headers: { Authorization: authorization })
+        client.get path, access_token:
       end
 
       SIGN_SAFE_TRANSACTION_ARGUMENTS = %i[raw utxos request spend_key].freeze
@@ -344,10 +156,10 @@ module MixinBot
         raise ArgumentError, "#{SIGN_SAFE_TRANSACTION_ARGUMENTS.join(', ')} are needed for sign safe transaction" unless SIGN_SAFE_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
 
         raw = kwargs[:raw]
-        tx = MixinBot::Utils.decode_raw_transaction raw
+        tx = MixinBot.utils.decode_raw_transaction raw
         utxos = kwargs[:utxos]
         request = kwargs[:request]
-        spend_key = MixinBot::Utils.decode_key(kwargs[:spend_key]) || config.spend_key
+        spend_key = MixinBot.utils.decode_key(kwargs[:spend_key]) || config.spend_key
         spend_key = Digest::SHA512.digest spend_key[...32]
 
         msg = [raw].pack('H*')
@@ -372,18 +184,18 @@ module MixinBot
           t_point = x_point + y_point
           key = t_point.to_bytes(JOSE::JWA::Edwards25519Point::B)
 
-          pub = MixinBot::Utils.generate_public_key key
+          pub = MixinBot.utils.generate_public_key key
           key_index = utxo['keys'].index pub.unpack1('H*')
           raise ArgumentError, 'cannot find valid key' unless key_index.is_a? Integer
 
-          signature = MixinBot::Utils.sign(msg, key:)
+          signature = MixinBot.utils.sign(msg, key:)
           signature = signature.unpack1('H*')
           sig = {}
           sig[key_index] = signature
           tx[:signatures] << sig
         end
 
-        MixinBot::Utils.encode_raw_transaction tx
+        MixinBot.utils.encode_raw_transaction tx
       end
     end
   end

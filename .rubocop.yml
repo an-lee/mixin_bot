@@ -1,6 +1,3 @@
-require:
-  - 'rubocop-rspec'
-
 AllCops:
   NewCops: enable
   TargetRubyVersion: '3.2'
@@ -9,7 +6,6 @@ AllCops:
     - 'db/**/*'
     - 'tmp/**/*'
     - 'vendor/**/*'
-    - 'node_modules/**/*'
 
 Metrics/AbcSize:
   Enabled: false
@@ -217,9 +213,6 @@ Style/ClassEqualityComparison: # (new in 0.93)
 
 Layout/TrailingWhitespace:
   AllowInHeredoc: true
-
-RSpec/ExampleLength:
-  Enabled: false
 
 Security/Eval:
   Enabled: false

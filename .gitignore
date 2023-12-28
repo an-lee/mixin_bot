@@ -8,3 +8,6 @@ playground.rb
 
 coverage
 Gemfile.lock
+
+tmp/**/*.json
+!tmp/.keep

@@ -11,17 +11,17 @@ module MixinBot
 
     desc 'unique UUIDS', 'generate unique UUID for two or more UUIDs'
     def unique(*uuids)
-      log MixinBot::Utils.unique_uuid(*uuids)
+      log MixinBot.utils.unique_uuid(*uuids)
     end
 
     desc 'generatetrace HASH', 'generate trace ID from Tx hash'
     def generatetrace(hash)
-      log MixinBot::Utils.generate_trace_from_hash(hash)
+      log MixinBot.utils.generate_trace_from_hash(hash)
     end
 
     desc 'decodetx TRANSACTION', 'decode raw transaction'
     def decodetx(transaction)
-      log MixinBot::Utils.decode_raw_transaction(transaction)
+      log MixinBot.utils.decode_raw_transaction(transaction)
     end
 
     desc 'nftmemo', 'memo for mint NFT'
@@ -29,17 +29,17 @@ module MixinBot
     option :token, type: :numeric, required: true, aliases: '-t', desc: 'Token ID, Integer'
     option :hash, type: :string, required: true, aliases: '-h', desc: 'Hash of NFT metadata, 256-bit string'
     def nftmemo
-      log MixinBot::Utils.nft(options[:collection], options[:token], options[:hash])
+      log MixinBot.utils.nft(options[:collection], options[:token], options[:hash])
     end
 
     desc 'rsa', 'generate RSA key'
     def rsa
-      log MixinBot::Utils.generate_rsa_key
+      log MixinBot.utils.generate_rsa_key
     end
 
     desc 'ed25519', 'generate Ed25519 key'
     def ed25519
-      log MixinBot::Utils.generate_ed25519_key
+      log MixinBot.utils.generate_ed25519_key
     end
   end
 end

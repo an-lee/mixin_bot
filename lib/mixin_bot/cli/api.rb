@@ -123,9 +123,10 @@ module MixinBot
     end
 
     desc 'saferegister', 'register SAFE network'
+    option :spend_key, type: :string, required: true, desc: 'spend_key'
     option :keystore, type: :string, aliases: '-k', required: true, desc: 'keystore or keystore.json file path'
     def saferegister
-      res = api_instance.safe_register keystore['pin']
+      res = api_instance.safe_register options[:spend_key]
       log res
     end
 

@@ -28,8 +28,9 @@ module MixinBot
       def encrypt_tip_pin(pin, action, *params)
         raise ArgumentError, 'invalid action' unless TIP_ACTIONS.include? action
 
-        pin_key = MixinBot::Utils.decode_key pin
-        msg = action + params.map(&:to_s).join
+        pin_key = MixinBot.utils.decode_key pin
+
+        msg = action + params.flatten.map(&:to_s).join
 
         msg = Digest::SHA256.digest(msg) unless action == 'TIP:VERIFY:'
 

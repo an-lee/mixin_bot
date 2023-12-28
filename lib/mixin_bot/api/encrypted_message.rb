@@ -94,7 +94,7 @@ module MixinBot
           checksum:,
           recipient_sessions: session_ids.map(&->(s) { { session_id: s } }),
           silent: false
-        }
+        }.compact
       end
 
       def send_encrypted_messages(messages)
@@ -104,16 +104,16 @@ module MixinBot
       # http post request
       def send_encrypted_message(payload)
         path = '/encrypted_messages'
-        payload = Array(payload)
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        payload = [payload] if payload.is_a? Hash
+        raise ArgumentError, 'Wrong payload format!' unless payload.is_a? Array
+
+        client.post path, *payload
       end
 
       def encrypt_message(data, sessions = [], sk: nil, pk: nil)
         raise ArgumentError, 'Wrong sessions format!' unless sessions.all?(&->(s) { s.key?('session_id') && s.key?('public_key') })
 
-        sk = config.session_private_key[0...32]
+        sk ||= config.session_private_key[0...32]
         pk ||= config.session_private_key[32...]
 
         Digest::MD5.hexdigest sessions.map(&->(s) { s['session_id'] }).sort.join
@@ -143,7 +143,7 @@ module MixinBot
           iv = encrypter.random_iv
           encrypter.iv = iv
 
-          bytes += (MixinBot::Utils::UUID.new(hex: session['session_id']).packed + iv).bytes
+          bytes += (MixinBot::UUID.new(hex: session['session_id']).packed + iv).bytes
           bytes += encrypter.update(key + padtext).bytes
         end
 
@@ -156,7 +156,7 @@ module MixinBot
       def decrypt_message(data, sk: nil, si: nil)
         bytes = Base64.urlsafe_decode64(data).bytes
 
-        si ||= session_id
+        si ||= config.session_id
         sk ||= config.session_private_key[0...32]
 
         size = 16 + 48
@@ -168,7 +168,7 @@ module MixinBot
         i = 35
         key = ''
         while i < prefix_size
-          uuid = MixinBot::Utils::UUID.new(raw: bytes[i...(i + 16)].pack('C*')).unpacked
+          uuid = MixinBot::UUID.new(raw: bytes[i...(i + 16)].pack('C*')).unpacked
           if uuid == si
             pub = bytes[3...35]
             aes_key = JOSE::JWA::X25519.shared_secret(

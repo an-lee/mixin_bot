@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'active_support/all'
-require 'http'
 require 'eth'
 
 require_relative 'mvm/bridge'
