@@ -50,6 +50,16 @@ module MixinBot
       refute_nil r['data']
     end
 
+    def test_send_collectible_raw_transaction
+      collectible = MixinBot.api.collectibles(state: :signed)['data'].first
+      skip 'no signed collectible' if collectible.blank?
+
+      raw = collectible['signed_tx']
+      r = MixinBot.api.send_raw_transaction raw
+
+      refute_nil r['data']
+    end
+
     def test_create_collectible_unlock_request
       collectible = MixinBot.api.collectibles(state: :signed)['data'].first
       skip 'no signed collectible' if collectible.blank?
@@ -84,9 +94,8 @@ module MixinBot
           media: {}
         }
       }
-      meta[:checksum] = SHA3::Digest::SHA256.hexdigest [meta[:collection][:id], meta[:collection][:name], meta[:token][:id], meta[:token][:name]].join
-
-      memo = MixinBot.api.nft_memo collection, token_id, meta
+      metahash = SHA3::Digest::SHA256.hexdigest [meta[:collection][:id], meta[:collection][:name], meta[:token][:id], meta[:token][:name]].join
+      memo = MixinBot.api.nft_memo collection, token_id, metahash
 
       payment = MixinBot.api.create_multisig_payment(
         asset_id: XIN_ASSET_ID,

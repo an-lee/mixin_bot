@@ -78,7 +78,7 @@ module MixinBot
         client.post path, **payload
       end
 
-      def unlock_collectible_request(request_id, pin = nil, access_token: nil)
+      def unlock_collectible_request(request_id, pin = nil)
         pin ||= config.pin
         raise ArgumentError, 'pin is needed for sign collectible request' if pin.blank?
 
@@ -94,7 +94,7 @@ module MixinBot
             }
           end
 
-        client.post path, **payload, access_token:
+        client.post path, **payload
       end
     end
 

@@ -45,8 +45,6 @@ module MixinBot
           ''
         end
 
-      puts body
-
       path = "#{path}?#{URI.encode_www_form(kwargs.sort_by { |k, v| k })}" if verb == :get && kwargs.present?
       access_token ||=
         MixinBot.utils.access_token(
