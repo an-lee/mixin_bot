@@ -8,14 +8,14 @@ module MixinBot
 
         if key.match?(/\A[\h]{64,}\z/i)
           [key].pack('H*')
-        elsif key.match?(/\A[a-zA-Z0-9\-\_]{43,}\z/)
+        elsif key.match?(/\A[a-zA-Z0-9\-\_=]{43,}\z/)
           Base64.urlsafe_decode64 key
         elsif key.match?(/^-----BEGIN RSA PRIVATE KEY-----/)
           key.gsub('\\r\\n', "\n").gsub("\r\n", "\n")
         elsif key.match?(/\d{6}/) || (key.size % 32).zero?
           key
         else
-          raise ArgumentError, "Invalid key: #{e.message}"
+          raise ArgumentError, "Invalid key #{key}"
         end
       end
 

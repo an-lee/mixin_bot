@@ -37,7 +37,7 @@ module MixinBot
       exp_in = kwargs.delete(:exp_in) || 600
       scp = kwargs.delete(:scp) || 'FULL'
 
-      kwargs.compact_blank!
+      kwargs.compact!
       body =
         if verb == :post
           if args.present?

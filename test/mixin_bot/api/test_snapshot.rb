@@ -29,7 +29,7 @@ module MixinBot
       r = MixinBot.api.create_safe_snapshot_notification(
         transaction_hash: res['data'].first['transaction_hash'],
         output_id: 0,
-        receiver_id: TEST_UID,
+        receiver_id: TEST_UID
       )
 
       refute_nil r['data']

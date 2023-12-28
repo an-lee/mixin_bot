@@ -34,15 +34,27 @@ module MixinBot
         raise ArgumentError, 'invalid old pin' if old_pin.present? && old_pin.length != 6
 
         path = '/pin/update'
-        encrypted_old_pin = old_pin.nil? ? '' : MixinBot.utils.encrypt_pin(old_pin, iterator: Time.now.utc.to_i)
+        encrypted_old_pin = old_pin.nil? ? '' : encrypt_pin(old_pin, iterator: Time.now.utc.to_i)
 
-        encrypted_pin = MixinBot.utils.encrypt_pin(pin, iterator: Time.now.utc.to_i + 1)
+        encrypted_pin = encrypt_pin(pin, iterator: Time.now.utc.to_i + 1)
         payload = {
           old_pin_base64: encrypted_old_pin,
           pin_base64: encrypted_pin
         }
 
         client.post path, **payload
+      end
+
+      def prepare_tip_key(counter = 0)
+        ed25519_key = JOSE::JWA::Ed25519.keypair
+
+        private_key = ed25519_key[1].unpack1('H*')
+        public_key = (ed25519_key[0].bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
+
+        {
+          private_key:,
+          public_key:
+        }
       end
 
       def encrypt_pin(pin, iterator: nil)

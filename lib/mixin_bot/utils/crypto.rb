@@ -40,8 +40,8 @@ module MixinBot
       def generate_ed25519_key
         ed25519_key = JOSE::JWA::Ed25519.keypair
         {
-          private_key: Base64.strict_encode64(ed25519_key[1]),
-          public_key: Base64.strict_encode64(ed25519_key[0])
+          private_key: Base64.urlsafe_encode64(ed25519_key[1], padding: false),
+          public_key: Base64.urlsafe_encode64(ed25519_key[0], padding: false)
         }
       end
 
@@ -170,6 +170,12 @@ module MixinBot
         cipher = aes.update(padded_content)
         msg = iv + cipher
         Base64.urlsafe_encode64 msg, padding: false
+      end
+
+      def tip_public_key(key, counter: 0)
+        raise ArgumentError, 'invalid key' if key.size != 32
+
+        (key.bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
       end
     end
   end
