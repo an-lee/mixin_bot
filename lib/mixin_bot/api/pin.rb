@@ -46,14 +46,14 @@ module MixinBot
       end
 
       def encrypt_pin(pin, iterator: nil)
-        MixinBot.utils.encrypt_pin(pin, iterator:, shared_key: generate_shared_key)
+        MixinBot.utils.encrypt_pin(pin, iterator:, shared_key: generate_shared_key_with_server)
       end
 
       def decrypt_pin(msg)
-        MixinBot.utils.decrypt_pin msg, shared_key: generate_shared_key
+        MixinBot.utils.decrypt_pin msg, shared_key: generate_shared_key_with_server
       end
 
-      def generate_shared_key
+      def generate_shared_key_with_server
         if config.server_public_key.size == 32
           JOSE::JWA::X25519.x25519(
             config.session_private_key_curve25519,

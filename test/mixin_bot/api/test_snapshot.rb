@@ -15,12 +15,21 @@ module MixinBot
     end
 
     def test_safe_snapshot_notification
-      output = MixinBot.api.safe_outputs(state: :spent)['data'].first
+      res =
+        MixinBot
+        .api
+        .create_safe_transfer(
+          asset_id: CNB_ASSET_ID,
+          members: TEST_UID,
+          amount: 0.0011,
+          memo: 'test from MixinBot',
+          spend_key: SPEND_KEY
+        )
 
       r = MixinBot.api.create_safe_snapshot_notification(
-        transaction_hash: output['transaction_hash'],
+        transaction_hash: res['data'].first['transaction_hash'],
         output_id: 0,
-        receiver_id: MixinBot.config.app_id
+        receiver_id: TEST_UID,
       )
 
       refute_nil r['data']
