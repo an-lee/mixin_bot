@@ -48,7 +48,7 @@ module MixinBot
         attachment
       end
 
-      def read_attachment(attachment_id, access_token: nil)
+      def attachment(attachment_id, access_token: nil)
         path = format('/attachments/%<id>s', id: attachment_id)
         client.get path, access_token:
       end

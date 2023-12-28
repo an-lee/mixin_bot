@@ -37,7 +37,6 @@ module MixinBot
         path = format('/transfers/trace/%<trace_id>s', trace_id:)
         client.get path, access_token:
       end
-      alias read_transfer transfer
     end
   end
 end

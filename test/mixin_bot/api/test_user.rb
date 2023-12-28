@@ -8,8 +8,8 @@ module MixinBot
       skip 'No config file found' unless MixinBot.config.valid?
     end
 
-    def test_read_user
-      r = MixinBot.api.read_user TEST_UID
+    def test_user
+      r = MixinBot.api.user TEST_UID
 
       assert_equal r['data']['user_id'], TEST_UID
     end

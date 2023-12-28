@@ -25,12 +25,12 @@ module MixinBot
       assert_equal res['data']['trace_id'], trace_id
     end
 
-    def test_read_transfer
+    def test_transfer
       snapshots = MixinBot.api.snapshots['data']
       skip 'No snapshots found' if snapshots.blank?
 
       trace_id = snapshots.first['trace_id']
-      res = MixinBot.api.read_transfer(trace_id)
+      res = MixinBot.api.transfer(trace_id)
 
       assert_equal res['data']['trace_id'], trace_id
     end

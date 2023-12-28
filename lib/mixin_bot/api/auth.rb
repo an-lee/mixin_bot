@@ -65,7 +65,7 @@ module MixinBot
             end
 
             def on_message(ws, event)
-              raw = JSON.parse read_ws_message(event.data)
+              raw = JSON.parse ws_message(event.data)
               @_data = raw
               ws.close
             end

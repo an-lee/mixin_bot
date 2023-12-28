@@ -94,7 +94,7 @@ module MixinBot
       end
 
       # read the gzipped message form websocket
-      def read_ws_message(data)
+      def ws_message(data)
         io = StringIO.new(data.pack('c*'), 'rb')
         gzip = Zlib::GzipReader.new io
         msg = gzip.read

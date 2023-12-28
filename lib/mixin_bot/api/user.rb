@@ -7,7 +7,6 @@ module MixinBot
         path = format('/users/%<user_id>s', user_id:)
         client.get path, access_token:
       end
-      alias read_user user
 
       def create_user(full_name, key: nil)
         keypair = JOSE::JWA::Ed25519.keypair key

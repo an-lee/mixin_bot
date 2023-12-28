@@ -26,7 +26,7 @@ EM.run do
     end
 
     def on_message(blaze, event)
-      raw = JSON.parse read_ws_message(event.data)
+      raw = JSON.parse ws_message(event.data)
       p [Time.now.to_s, :on_message, raw&.[]('action')]
 
       blaze.send acknowledge_message_receipt(raw['data']['message_id']) unless raw&.[]('data')&.[]('message_id').nil?

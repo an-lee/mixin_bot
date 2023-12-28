@@ -32,7 +32,7 @@ module MixinBot
           if defined? on_message
             on_message ws, event
           else
-            raw = JSON.parse read_ws_message(event.data)
+            raw = JSON.parse ws_message(event.data)
             p [Time.now.to_s, :message, raw&.[]('action')]
 
             ws.send acknowledge_message_receipt(raw['data']['message_id']) unless raw&.[]('data')&.[]('message_id').nil?

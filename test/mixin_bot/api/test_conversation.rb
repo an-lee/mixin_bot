@@ -15,13 +15,13 @@ module MixinBot
       assert MixinBot.api.unique_conversation_id(TEST_UID) == '204c0633-ef55-38c3-bbf7-4069cd6661bb'
     end
 
-    def test_read_conversation
+    def test_conversation
       r = MixinBot.api.conversation @conversation_id
 
       assert r['data']['conversation_id'] == @conversation_id
     end
 
-    def test_read_conversation_by_user_id
+    def test_conversation_by_user_id
       r = MixinBot.api.conversation_by_user_id TEST_UID
 
       assert r['data']['conversation_id'] == @conversation_id

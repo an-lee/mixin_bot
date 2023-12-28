@@ -14,7 +14,6 @@ module MixinBot
 
         client.get path, **params, access_token: kwargs[:access_token]
       end
-      alias read_network_snapshots network_snapshots
 
       def snapshots(**kwargs)
         path = '/snapshots'
@@ -29,14 +28,12 @@ module MixinBot
 
         client.get path, **params, access_token: kwargs[:access_token]
       end
-      alias read_snapshots snapshots
 
       def network_snapshot(snapshot_id, **kwargs)
         path = format('/network/snapshots/%<snapshot_id>s', snapshot_id:)
 
         client.get path, access_token: kwargs[:access_token]
       end
-      alias read_network_snapshot network_snapshot
     end
   end
 end

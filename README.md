@@ -64,10 +64,10 @@ Then you can use MixinBot by call `MixinBot.api`, for example
 
 ```ruby
 # get the bot profile
-MixinBot.api.read_me
+MixinBot.api.me
 
 # get assets of the bot
-MixinBot.api.read_assets
+MixinBot.api.assets
 
 # transfer asset to somebody
 MixinBot.api
@@ -103,7 +103,7 @@ EM.run {
 
     # do something when receive message
     def on_message(blaze, event)
-      raw = JSON.parse read_ws_message(event.data)
+      raw = JSON.parse ws_message(event.data)
       p [Time.now.to_s, :on_message, raw&.[]('action')]
 
       blaze.send acknowledge_message_receipt(raw['data']['message_id']) unless raw&.[]('data')&.[]('message_id').nil?
@@ -143,8 +143,8 @@ bot2_api = MixinBot::API.new(
   session_private_key: '...'
 )
 
-bot1_api.read_me
-bot2_api.read_me
+bot1_api.me
+bot2_api.me
 ```
 
 ## More Example

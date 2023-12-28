@@ -20,10 +20,10 @@ module MixinBot
       assert r['view_url']
     end
 
-    def test_read_attachment
+    def test_attachment
       attachment = MixinBot.api.create_attachment
       attachment_id = attachment['data']['attachment_id']
-      r = MixinBot.api.read_attachment(attachment_id)
+      r = MixinBot.api.attachment(attachment_id)
       assert r['data']['attachment_id'] == attachment_id
     end
   end
