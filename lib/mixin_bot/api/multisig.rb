@@ -3,31 +3,36 @@
 module MixinBot
   class API
     module Multisig
-      def sign_safe_multisig_request(request_id, raw)
+      def create_safe_multisig_request(request_id, raw, access_token: nil)
+        path = '/safe/multisigs'
+        payload = [{
+          request_id: request_id,
+          raw: raw
+        }]
+
+        client.post path, *payload
+      end
+
+      def sign_safe_multisig_request(request_id, raw, access_token: nil)
         path = format('/safe/multisigs/%<request_id>s/sign', request_id:)
 
         payload = {
           raw:
         }
-        access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+
+        client.post path, **payload
       end
 
-      def unlock_safe_multisig_request(request_id)
+      def unlock_safe_multisig_request(request_id, access_token: nil)
         path = format('/safe/multisigs/%<request_id>s/unlock', request_id:)
 
-        access_token = access_token('POST', path, '')
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization })
+        client.post path, access_token: access_token
       end
 
-      def safe_multisig_request(request_id)
+      def safe_multisig_request(request_id, access_token: nil)
         path = format('/safe/multisigs/%<request_id>s', request_id:)
 
-        access_token = access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.get(path, headers: { Authorization: authorization })
+        client.get path, access_token:
       end
     end
   end
