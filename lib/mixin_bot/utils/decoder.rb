@@ -6,7 +6,7 @@ module MixinBot
       def decode_key(key)
         return if key.blank?
 
-        if key.match?(/\A[a-f0-9]{64,}\z/i)
+        if key.match?(/\A[\h]{64,}\z/i)
           [key].pack('H*')
         elsif key.match?(/\A[a-zA-Z0-9\-\_]{43,}\z/)
           Base64.urlsafe_decode64 key
