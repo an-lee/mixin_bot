@@ -83,8 +83,7 @@ module MixinBot
         tstwo = (iterator % 0x1000000) >> 16
         tsthree = (iterator % 0x100000000) >> 24
         tsstring = "#{tszero.chr}#{tsone.chr}#{tstwo.chr}#{tsthree.chr}\u0000\u0000\u0000\u0000"
-        encrypt_content =
-          pin + tsstring
+        encrypt_content = pin + tsstring + tsstring
         pad_count = 16 - (encrypt_content.length % 16)
         padded_content =
           if pad_count.positive?
