@@ -90,7 +90,7 @@ module MixinBot
           quote_message_id: options[:quote_message_id],
           message_id: options[:message_id] || SecureRandom.uuid,
           data: Base64.encode64(data)
-        }
+        }.compact
       end
 
       # read the gzipped message form websocket
@@ -158,9 +158,12 @@ module MixinBot
       # http post request
       def send_message(payload)
         path = '/messages'
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+
+        if payload.is_a? Hash
+          client.post path, **payload
+        elsif payload.is_a? Array
+          client.post path, *payload
+        end
       end
     end
   end

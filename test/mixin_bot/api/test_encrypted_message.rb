@@ -26,7 +26,7 @@ module MixinBot
         }
       ]
 
-      msg = "hello world"
+      msg = 'hello world'
 
       encoded_msg = Base64.urlsafe_encode64(msg)
       encrypted_msg = MixinBot.api.encrypt_message(encoded_msg, sessions, sk: sender_key[1][0...32], pk: sender_key[0])

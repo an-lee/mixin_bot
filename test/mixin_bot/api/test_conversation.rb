@@ -45,7 +45,7 @@ module MixinBot
       # update name
       name = "Updated at #{Time.now}"
       r = MixinBot.api.update_group_conversation_name(
-        name: name,
+        name:,
         conversation_id: group['data']['conversation_id']
       )
       assert r['data']['name'] == name
@@ -53,7 +53,7 @@ module MixinBot
       # update announcement
       announcement = 'Announcement: Attention'
       r = MixinBot.api.update_group_conversation_announcement(
-        announcement: announcement,
+        announcement:,
         conversation_id: group['data']['conversation_id']
       )
       assert r['data']['announcement'] == announcement
@@ -82,20 +82,20 @@ module MixinBot
 
       # add participants
       r = MixinBot
-            .api
-            .remove_conversation_participants(
-              conversation_id: group['data']['conversation_id'],
-              user_ids: [TEST_UID]
-            )
+          .api
+          .remove_conversation_participants(
+            conversation_id: group['data']['conversation_id'],
+            user_ids: [TEST_UID]
+          )
       assert r['data']['participants'].find(&->(user) { user['user_id'] == TEST_UID }).nil?
 
       # remove participants
       r = MixinBot
-            .api
-            .add_conversation_participants(
-              conversation_id: group['data']['conversation_id'],
-              user_ids: [TEST_UID]
-            )
+          .api
+          .add_conversation_participants(
+            conversation_id: group['data']['conversation_id'],
+            user_ids: [TEST_UID]
+          )
       assert r['data']['participants'].find(&->(user) { user['user_id'] == TEST_UID }).present?
 
       # exit conversation

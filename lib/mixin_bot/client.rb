@@ -49,7 +49,7 @@ module MixinBot
           ''
         end
 
-      path = "#{path}?#{URI.encode_www_form(kwargs.sort_by { |k, v| k })}" if verb == :get && kwargs.present?
+      path = "#{path}?#{URI.encode_www_form(kwargs.sort_by { |k, _v| k })}" if verb == :get && kwargs.present?
       access_token ||=
         MixinBot.utils.access_token(
           verb.to_s.upcase,

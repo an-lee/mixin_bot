@@ -10,7 +10,7 @@ module MixinBot
 
       def conversation_by_user_id(user_id)
         conversation_id = unique_uuid user_id
-        self.conversation conversation_id
+        conversation conversation_id
       end
 
       def create_conversation(**kwargs)

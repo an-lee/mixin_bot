@@ -106,6 +106,7 @@ module MixinBot
         path = '/encrypted_messages'
         payload = [payload] if payload.is_a? Hash
         raise ArgumentError, 'Wrong payload format!' unless payload.is_a? Array
+
         client.post path, *payload
       end
 

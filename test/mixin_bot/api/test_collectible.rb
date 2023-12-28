@@ -7,7 +7,7 @@ module MixinBot
     def setup
       skip 'No config file found' unless MixinBot.config.valid?
     end
-    
+
     def test_collectible
       token = 'abfe580a-1fa0-3237-8c43-52c7de5c80ae'
       r = MixinBot.api.collectible token
@@ -34,15 +34,15 @@ module MixinBot
 
       nfo = MixinBot.api.collectible(collectible['token_id'])['data']['nfo']
       tx = MixinBot.api.build_collectible_transaction(
-        collectible: collectible,
-        nfo: nfo,
+        collectible:,
+        nfo:,
         receivers: [TEST_UID],
         receivers_threshold: 1
       )
 
       raw = MixinBot.api.encode_raw_transaction tx
       request = MixinBot.api.create_sign_collectible_request raw
-      
+
       r = MixinBot.api.sign_collectible_request request['request_id'], PIN_CODE
 
       refute_nil r['data']

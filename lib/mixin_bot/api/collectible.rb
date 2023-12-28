@@ -68,7 +68,7 @@ module MixinBot
           if pin.length > 6
             pin_base64 =  encrypt_tip_pin(pin, 'TIP:COLLECTIBLE:REQUEST:SIGN:', request_id)
             {
-              pin_base64:,
+              pin_base64:
             }
           else
             {

@@ -10,7 +10,7 @@ module MixinBot
           params:
         }
 
-        client.post path, **payload, access_token: access_token
+        client.post path, **payload, access_token:
       end
 
       # send a signed transaction to main net
