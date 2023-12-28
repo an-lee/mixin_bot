@@ -14,6 +14,7 @@ require_relative 'api/encrypted_message'
 require_relative 'api/legacy_multisig'
 require_relative 'api/legacy_output'
 require_relative 'api/legacy_payment'
+require_relative 'api/legacy_snapshot'
 require_relative 'api/me'
 require_relative 'api/message'
 require_relative 'api/multisig'
@@ -106,6 +107,7 @@ module MixinBot
     include MixinBot::API::LegacyMultisig
     include MixinBot::API::LegacyOutput
     include MixinBot::API::LegacyPayment
+    include MixinBot::API::LegacySnapshot
     include MixinBot::API::Me
     include MixinBot::API::Message
     include MixinBot::API::Multisig
