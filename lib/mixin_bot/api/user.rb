@@ -50,11 +50,11 @@ module MixinBot
         keystore = {
           app_id: user['data']['user_id'],
           session_id: user['data']['session_id'],
-          private_key: private_key,
+          private_key:,
           pin_token: user['data']['pin_token_base64'],
           spend_key: spend_keypair[1].unpack1('H*')
         }
-        user_api = MixinBot::API.new **keystore
+        user_api = MixinBot::API.new(**keystore)
 
         user_api.update_pin pin: MixinBot.utils.tip_public_key(spend_keypair[0], counter: user['data']['tip_counter'])
 
@@ -87,16 +87,14 @@ module MixinBot
         client.post path, **payload
       end
 
-      def migrate_to_safe(old_pin: nil, spend_key:)
+      def migrate_to_safe(spend_key:, old_pin: nil)
         profile = me['data']
         return true if profile['has_safe']
-        
+
         spend_keypair = JOSE::JWA::Ed25519.keypair spend_key
         spend_key = spend_keypair[1].unpack1('H*')
 
-        if profile['tip_key_base64'].blank?
-          update_pin pin: MixinBot.utils.tip_public_key(spend_keypair[0], counter: profile['tip_counter'])
-        end
+        update_pin pin: MixinBot.utils.tip_public_key(spend_keypair[0], counter: profile['tip_counter']) if profile['tip_key_base64'].blank?
 
         # wait for tip pin update in server
         sleep 1

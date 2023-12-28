@@ -10,7 +10,7 @@ module MixinBot
 
     def test_read_user
       r = MixinBot.api.read_user TEST_UID
-      
+
       assert_equal r['data']['user_id'], TEST_UID
     end
 
@@ -36,9 +36,7 @@ module MixinBot
       keystore = MixinBot.api.create_safe_user('Bot User')
 
       # save keystore
-      File.open("./tmp/#{keystore[:app_id]}-keystore.json", 'w') do |f|
-        f.write keystore.to_json
-      end
+      File.write("./tmp/#{keystore[:app_id]}-keystore.json", keystore.to_json)
 
       assert keystore.key?(:spend_key)
     end
@@ -53,7 +51,7 @@ module MixinBot
         pin_token: user['data']['pin_token_base64']
       }
 
-      user_api = MixinBot::API.new **keystore
+      user_api = MixinBot::API.new(**keystore)
 
       spend_keypair = JOSE::JWA::Ed25519.keypair
       r = user_api.migrate_to_safe spend_key: spend_keypair[1][0...32]

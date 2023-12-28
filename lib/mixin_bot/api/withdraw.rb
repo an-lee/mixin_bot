@@ -3,7 +3,6 @@
 module MixinBot
   class API
     module Withdraw
-      # https://developers.mixin.one/api/alpha-mixin-network/create-address/
       def create_withdraw_address(**kwargs)
         path = '/addresses'
         pin = kwargs[:pin]
@@ -21,23 +20,17 @@ module MixinBot
           payload[:pin] = encrypt_pin pin
         end
 
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, **payload
       end
 
-      # https://developers.mixin.one/api/alpha-mixin-network/read-address/
       def get_withdraw_address(address, access_token: nil)
         path = format('/addresses/%<address>s', address:)
-        access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.get(path, headers: { Authorization: authorization })
+
+        client.get path, access_token:
       end
 
-      # https://developers.mixin.one/api/alpha-mixin-network/delete-address/
-      def delete_withdraw_address(**kwargs)
+      def delete_withdraw_address(address, **kwargs)
         pin = kwargs[:pin]
-        address = kwargs[:address]
 
         path = format('/addresses/%<address>s/delete', address:)
         payload =
@@ -51,12 +44,9 @@ module MixinBot
             }
           end
 
-        access_token = kwargs[:access_token] || access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, **payload
       end
 
-      # https://developers.mixin.one/api/alpha-mixin-network/withdrawal-addresses/
       def withdrawals(**kwargs)
         address_id = kwargs[:address_id]
         pin = kwargs[:pin]
@@ -80,9 +70,7 @@ module MixinBot
           payload[:pin] = encrypt_pin pin
         end
 
-        access_token = kwargs[:access_token] || access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, **payload
       end
     end
   end
