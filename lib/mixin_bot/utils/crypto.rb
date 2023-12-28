@@ -173,9 +173,9 @@ module MixinBot
       end
 
       def tip_public_key(key, counter: 0)
-        raise ArgumentError, 'invalid key' if key.size != 32
+        raise ArgumentError, 'invalid key' if key.size < 32
 
-        (key.bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
+        (key[0...32].bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
       end
     end
   end

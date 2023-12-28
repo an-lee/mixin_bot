@@ -42,5 +42,23 @@ module MixinBot
 
       assert keystore.key?(:spend_key)
     end
+
+    def test_migrate_to_safe
+      user = MixinBot.api.create_user 'Test Bot User'
+
+      keystore = {
+        app_id: user['data']['user_id'],
+        session_id: user['data']['session_id'],
+        private_key: user[:private_key],
+        pin_token: user['data']['pin_token_base64']
+      }
+
+      user_api = MixinBot::API.new **keystore
+
+      spend_keypair = JOSE::JWA::Ed25519.keypair
+      r = user_api.migrate_to_safe spend_key: spend_keypair[1][0...32]
+
+      refute_nil r[:spend_key] = spend_keypair[1].unpack1('H*')
+    end
   end
 end

@@ -21,7 +21,7 @@ module MixinBot
         }
 
         res = client.post path, **payload
-        res.merge(private_key:)
+        res.merge(private_key:).with_indifferent_access
       end
 
       def search_user(query, access_token: nil)
@@ -42,8 +42,8 @@ module MixinBot
         private_keypair = JOSE::JWA::Ed25519.keypair private_key
         private_key = private_keypair[1].unpack1('H*')
 
-        spend_keypare = JOSE::JWA::Ed25519.keypair spend_key
-        spend_key = spend_keypare[1].unpack1('H*')
+        spend_keypair = JOSE::JWA::Ed25519.keypair spend_key
+        spend_key = spend_keypair[1].unpack1('H*')
 
         user = create_user name, key: private_keypair[1][...32]
 
@@ -52,11 +52,11 @@ module MixinBot
           session_id: user['data']['session_id'],
           private_key: private_key,
           pin_token: user['data']['pin_token_base64'],
-          spend_key: spend_keypare[1].unpack1('H*')
+          spend_key: spend_keypair[1].unpack1('H*')
         }
         user_api = MixinBot::API.new **keystore
 
-        user_api.update_pin pin: MixinBot.utils.tip_public_key(spend_keypare[0], counter: user['data']['tip_counter'])
+        user_api.update_pin pin: MixinBot.utils.tip_public_key(spend_keypair[0], counter: user['data']['tip_counter'])
 
         # wait for tip pin update in server
         sleep 1
@@ -85,6 +85,27 @@ module MixinBot
         }
 
         client.post path, **payload
+      end
+
+      def migrate_to_safe(old_pin: nil, spend_key:)
+        profile = me['data']
+        return true if profile['has_safe']
+        
+        spend_keypair = JOSE::JWA::Ed25519.keypair spend_key
+        spend_key = spend_keypair[1].unpack1('H*')
+
+        if profile['tip_key_base64'].blank?
+          update_pin pin: MixinBot.utils.tip_public_key(spend_keypair[0], counter: profile['tip_counter'])
+        end
+
+        # wait for tip pin update in server
+        sleep 1
+
+        safe_register spend_key
+
+        {
+          spend_key:
+        }.with_indifferent_access
       end
     end
   end
