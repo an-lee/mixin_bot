@@ -6,8 +6,6 @@ module MixinBot
   class TestCollectible < Minitest::Test
     def setup
       skip 'No config file found' unless MixinBot.config.valid?
-
-      MixinBot.config.debug = true
     end
     
     def test_collectible

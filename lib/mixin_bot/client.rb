@@ -22,17 +22,17 @@ module MixinBot
       end
     end
 
-    def get(path, **)
-      request(:get, path, **)
+    def get(path, *, **)
+      request(:get, path, *, **)
     end
 
-    def post(path, **)
-      request(:post, path, **)
+    def post(path, *, **)
+      request(:post, path, *, **)
     end
 
     private
 
-    def request(verb, path, **kwargs)
+    def request(verb, path, *args, **kwargs)
       access_token = kwargs.delete :access_token
       exp_in = kwargs.delete(:exp_in) || 600
       scp = kwargs.delete(:scp) || 'FULL'
@@ -40,7 +40,11 @@ module MixinBot
       kwargs.compact_blank!
       body =
         if verb == :post
-          kwargs.to_json
+          if args.present?
+            args.to_json
+          else
+            kwargs.to_json
+          end
         else
           ''
         end
@@ -64,7 +68,7 @@ module MixinBot
         when :get
           @conn.get path, nil, { Authorization: authorization }
         when :post
-          @conn.post path, kwargs, { Authorization: authorization }
+          @conn.post path, body, { Authorization: authorization }
         end
 
       result = response.body
