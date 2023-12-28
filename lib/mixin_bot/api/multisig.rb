@@ -79,17 +79,12 @@ module MixinBot
             threshold: kwargs[:threshold]
           }
         }
-        access_token = kwargs[:access_token]
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, **payload, access_token: kwargs[:access_token]
       end
 
       def verify_multisig(code_id, access_token: nil)
         path = format('/codes/%<code_id>s', code_id:)
-        access_token ||= access_token('GET', path, '')
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.get(path, headers: { Authorization: authorization })
+        client.get path, access_token:
       end
 
       def create_safe_multisig_request(request_id, raw)

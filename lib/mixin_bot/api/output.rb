@@ -34,9 +34,7 @@ module MixinBot
           index:,
           hint:
         }
-        access_token ||= access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, **payload, access_token:
       end
 
       def build_output(receivers:, index:, amount:, threshold:, hint: nil)

@@ -25,9 +25,7 @@ module MixinBot
             }
           end
 
-        access_token = access_token('POST', path, payload.to_json)
-        authorization = format('Bearer %<access_token>s', access_token:)
-        client.post(path, headers: { Authorization: authorization }, json: payload)
+        client.post path, **payload
       end
 
       # https://developers.mixin.one/api/alpha-mixin-network/create-pin/

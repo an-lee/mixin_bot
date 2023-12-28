@@ -37,3 +37,4 @@ MixinBot.configure do
   self.session_private_key = CONFIG['session_private_key']
 end
 PIN_CODE = CONFIG['pin'].to_s
+SPEND_KEY = CONFIG['spend_key'].to_s

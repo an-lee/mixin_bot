@@ -32,7 +32,6 @@ module MixinBot
         asset_id            = kwargs[:asset_id]
         asset_mixin_id      = kwargs[:asset_mixin_id]
         utxos               = kwargs[:utxos]
-        kwargs[:memo]
         extra               = kwargs[:extra]
         access_token        = kwargs[:access_token]
         outputs             = kwargs[:outputs] || []
@@ -88,7 +87,6 @@ module MixinBot
           end
         end
 
-        # extra ||= Digest.hexencode(memo.to_s.slice(0, 140))
         asset = asset_mixin_id || SHA3::Digest::SHA256.hexdigest(asset_id)
         {
           version:,

@@ -17,7 +17,6 @@ module MixinBot
       ) do |f|
         f.request :json
         f.request :retry
-        f.response :raise_error
         f.response :json
         f.response :logger if config.debug
       end
@@ -37,7 +36,8 @@ module MixinBot
       access_token = kwargs.delete :access_token
       exp_in = kwargs.delete(:exp_in) || 600
       scp = kwargs.delete(:scp) || 'FULL'
-      kwargs.compact!
+
+      kwargs.compact_blank!
       body =
         if verb == :post
           kwargs.to_json
@@ -45,7 +45,9 @@ module MixinBot
           ''
         end
 
-      path = "#{path}?#{URI.encode_www_form(kwargs)}" if verb == :get && kwargs.present?
+      puts body
+
+      path = "#{path}?#{URI.encode_www_form(kwargs.sort_by { |k, v| k })}" if verb == :get && kwargs.present?
       access_token ||=
         MixinBot.utils.access_token(
           verb.to_s.upcase,
@@ -62,9 +64,9 @@ module MixinBot
       response =
         case verb
         when :get
-          @conn.get(path, nil, { 'Authorization' => authorization })
+          @conn.get path, nil, { Authorization: authorization }
         when :post
-          @conn.post(path, kwargs, { Authorization: authorization })
+          @conn.post path, kwargs, { Authorization: authorization }
         end
 
       result = response.body
