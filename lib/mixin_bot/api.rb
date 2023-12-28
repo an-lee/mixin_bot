@@ -50,6 +50,10 @@ module MixinBot
       MixinBot::Utils
     end
 
+    def client_id
+      config.app_id
+    end
+
     def access_token(method, uri, body, **kwargs)
       utils.access_token(
         method,
