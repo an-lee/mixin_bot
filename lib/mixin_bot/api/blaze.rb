@@ -4,7 +4,7 @@ module MixinBot
   class API
     module Blaze
       def blaze
-        access_token = MixinBot.api.access_token('GET', '/', '')
+        access_token = access_token('GET', '/', '')
 
         authorization = format('Bearer %<access_token>s', access_token:)
         Faye::WebSocket::Client.new(
