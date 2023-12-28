@@ -10,8 +10,9 @@ module MixinBot
       alias read_user user
 
       def create_user(full_name, key: nil)
-        key ||= MixinBot.utils.generate_ed25519_key
-        session_secret = key[:public_key]
+        keypair = JOSE::JWA::Ed25519.keypair key
+        session_secret = Base64.urlsafe_encode64 keypair[0], padding: false
+        private_key = keypair[1].unpack1('H*')
 
         path = '/users'
         payload = {
@@ -20,7 +21,7 @@ module MixinBot
         }
 
         res = client.post path, **payload
-        res.merge(key:)
+        res.merge(private_key:)
       end
 
       def search_user(query, access_token: nil)
@@ -35,6 +36,34 @@ module MixinBot
         payload = user_ids
 
         client.post path, *payload
+      end
+
+      def create_safe_user(name, private_key: nil, spend_key: nil)
+        private_keypair = JOSE::JWA::Ed25519.keypair private_key
+        private_key = private_keypair[1].unpack1('H*')
+
+        spend_keypare = JOSE::JWA::Ed25519.keypair spend_key
+        spend_key = spend_keypare[1].unpack1('H*')
+
+        user = create_user name, key: private_keypair[1][...32]
+
+        keystore = {
+          app_id: user['data']['user_id'],
+          session_id: user['data']['session_id'],
+          private_key: private_key,
+          pin_token: user['data']['pin_token_base64'],
+          spend_key: spend_keypare[1].unpack1('H*')
+        }
+        user_api = MixinBot::API.new **keystore
+
+        user_api.update_pin pin: MixinBot.utils.tip_public_key(spend_keypare[0], counter: user['data']['tip_counter'])
+
+        # wait for tip pin update in server
+        sleep 1
+
+        user_api.safe_register spend_key
+
+        keystore
       end
 
       def safe_register(pin, spend_key: nil)
