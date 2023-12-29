@@ -19,24 +19,7 @@ module MVM
         public_key:
       }
 
-      client.post path, json: payload
-    end
-
-    def extra(receivers: [], threshold: 1, extra: '')
-      return if receivers.blank?
-
-      path = '/extra'
-
-      payload = {
-        receivers:,
-        threshold:,
-        extra:
-      }
-
-      client.post path, json: payload
-    end
-
-    def mirror
+      client.post path, **payload
     end
   end
 end

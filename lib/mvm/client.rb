@@ -17,12 +17,12 @@ module MVM
       end
     end
 
-    def get(path, options = {})
-      @conn.get path, options
+    def get(path, **options)
+      @conn.get(path, **options).body
     end
 
-    def post(path, options = {})
-      @conn.post path, options
+    def post(path, **options)
+      @conn.post(path, **options).body
     end
   end
 end

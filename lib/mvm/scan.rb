@@ -12,11 +12,9 @@ module MVM
       path = '/api'
       r = client.get(
         path,
-        params: {
-          address:,
-          action: 'tokenlist',
-          module: 'account'
-        }
+        address:,
+        action: 'tokenlist',
+        module: 'account'
       )['result']
 
       r = r.filter(&->(token) { token['type'] == type }) if type.present?
