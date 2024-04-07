@@ -40,7 +40,7 @@ module MixinBot
             }
           end
 
-        client.post path, **payload, access_token:
+        client.post path, **payload
       end
 
       def unlock_multisig_request(request_id, pin = nil)
