@@ -21,7 +21,7 @@ module MixinBot
 
         path = '/safe/keys'
 
-        client.post path, *payload
+        client.post path, *payload, access_token:
       end
       alias create_ghost_keys create_safe_keys
 
