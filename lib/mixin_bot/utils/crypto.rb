@@ -55,7 +55,7 @@ module MixinBot
 
       def generate_public_key(key)
         point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(key.reverse, 2),
+          OpenSSL::BN.new(key[...64].reverse, 2),
           JOSE::JWA::Edwards25519Point::L
         )
 

@@ -6,6 +6,9 @@ module MixinBot
       SAFE_TX_VERSION = 0x05
       OUTPUT_TYPE_SCRIPT = 0x00
       OUTPUT_TYPE_WITHDRAW_SUBMIT = 0xa1
+      XIN_ASSET_ID = 'c94ac88f-4671-3976-b60a-09064f1811e8'
+      EXTRA_SIZE_STORAGE_CAPACITY = 1024 * 1024 * 4
+      EXTRA_STORAGE_PRICE_STEP = 0.0001
 
       # ghost keys
       def create_safe_keys(*payload, access_token: nil)
@@ -196,6 +199,33 @@ module MixinBot
         end
 
         MixinBot.utils.encode_raw_transaction tx
+      end
+
+      def build_object_transaction(extra)
+        raise 'Extra to large' if extra.bytesize > EXTRA_SIZE_STORAGE_CAPACITY
+
+        # calculate fee base on extra length
+        amount = EXTRA_STORAGE_PRICE_STEP * ((extra.bytesize / 1024) + 1)
+
+        receivers = [
+          {
+            members: [MixinBot.utils.burning_address],
+            threshold: 64,
+            amount:
+          }
+        ]
+
+        outputs = MixinBot.api.safe_outputs(state: 'unspent', asset: XIN_ASSET_ID)['data'].sort_by { |o| o['amount'].to_d }
+
+        utxos = []
+        outputs.each do |output|
+          break if utxos.sum { |o| o['amount'].to_d } >= amount
+
+          utxos.shift if utxos.size >= 256
+          utxos << output
+        end
+
+        build_safe_transaction utxos:, receivers:, extra:
       end
     end
   end

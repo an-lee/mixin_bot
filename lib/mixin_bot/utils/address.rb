@@ -20,7 +20,6 @@ module MixinBot
 
         data = address[MAIN_ADDRESS_PREFIX.length..]
         data = Base58.base58_to_binary data, :bitcoin
-        raise ArgumentError, 'invalid address' unless data.length == 68
 
         payload = data[...-4]
 
@@ -36,7 +35,8 @@ module MixinBot
         raise ArgumentError, 'members should be an array' unless members.is_a? Array
         raise ArgumentError, 'members should not be empty' if members.empty?
         raise ArgumentError, 'members length should less than 256' if members.length > 255
-        raise ArgumentError, "invalid threshold: #{threshold}" if threshold > members.length
+
+        # raise ArgumentError, "invalid threshold: #{threshold}" if threshold > members.length
 
         prefix = [MIX_ADDRESS_VERSION].pack('C*') + [threshold].pack('C*') + [members.length].pack('C*')
 
@@ -102,6 +102,19 @@ module MixinBot
           amount:,
           mix_address: build_mix_address(members, threshold)
         }
+      end
+
+      def burning_address
+        seed = ([0] * 64).pack('C*')
+        hash1 = SHA3::Digest::SHA256.hexdigest seed
+        hash2 = SHA3::Digest::SHA256.hexdigest [hash1].pack('H*')
+
+        src = [hash1].pack('H*') + [hash2].pack('H*')
+
+        spend_key = MixinBot::Utils.generate_public_key(seed)
+        view_key = MixinBot::Utils.generate_public_key(src)
+
+        MixinBot::Utils.build_main_address spend_key + view_key
       end
     end
   end
