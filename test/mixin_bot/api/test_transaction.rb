@@ -11,12 +11,11 @@ module MixinBot
     def test_build_object_transaction
       extra = 'May the HOPE be with you!'
       tx = MixinBot.api.build_object_transaction extra
-      puts tx
 
       raw = MixinBot.utils.encode_raw_transaction tx
-      request = create_safe_transaction_request(request_id, raw)['data']
 
-      puts request
+      request_id = SecureRandom.uuid
+      request = MixinBot.api.create_safe_transaction_request(request_id, raw)['data']
 
       refute_nil request
     end

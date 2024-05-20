@@ -105,11 +105,11 @@ module MixinBot
       end
 
       def burning_address
-        seed = ([0] * 64).pack('C*')
-        hash1 = SHA3::Digest::SHA256.hexdigest seed
-        hash2 = SHA3::Digest::SHA256.hexdigest [hash1].pack('H*')
+        seed = "\0" * 64
 
-        src = [hash1].pack('H*') + [hash2].pack('H*')
+        digest1 = SHA3::Digest::SHA256.digest seed
+        digest2 = SHA3::Digest::SHA256.digest digest1
+        src = digest1 + digest2
 
         spend_key = MixinBot::Utils.generate_public_key(seed)
         view_key = MixinBot::Utils.generate_public_key(src)

@@ -39,7 +39,7 @@ module MixinBot
           if recipient[:members].all?(&->(m) { m.start_with? MixinBot::Utils::Address::MAIN_ADDRESS_PREFIX })
             key = JOSE::JWA::Ed25519.keypair
             gk = {
-              mask: Base64.urlsafe_encode64(key[0], padding: false),
+              mask: key[0].unpack1('H*'),
               keys: []
             }
             recipient[:members].each do |member|
@@ -47,10 +47,12 @@ module MixinBot
               spend_key = payload[0...32]
               view_key = payload[-32..]
 
-              gk[:keys] << MixinBot.utils.derive_ghost_public_key(key[1], view_key, spend_key, index)
+              ghost_public_key = MixinBot.utils.derive_ghost_public_key(key[1], view_key, spend_key, index)
+
+              gk[:keys] << ghost_public_key.unpack1('H*')
             end
 
-            ghost_keys[index] = gk
+            ghost_keys[index] = gk.with_indifferent_access
 
           elsif recipient[:members].none?(&->(m) { m.start_with? MixinBot::Utils::Address::MAIN_ADDRESS_PREFIX })
             uuid_recipients.push(
@@ -58,7 +60,7 @@ module MixinBot
                 receivers: recipient[:members],
                 index:,
                 hint: SecureRandom.uuid
-              }
+              }.with_indifferent_access
             )
           end
         end
@@ -66,7 +68,6 @@ module MixinBot
         if uuid_recipients.present?
           keys = create_safe_keys(*uuid_recipients)['data']
           keys.each_with_index do |key, index|
-            p uuid_recipients[index]
             ghost_keys[uuid_recipients[index][:index]] = key
           end
         end

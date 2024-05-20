@@ -179,7 +179,7 @@ module MixinBot
       end
 
       def hash_scalar(pkey, output_index)
-        tmp = [output_index].pack('Q<')
+        tmp = [output_index].pack('Q<').reverse
 
         hash1 = Digest::Blake3.digest pkey + tmp
         hash2 = Digest::Blake3.digest hash1
@@ -201,7 +201,7 @@ module MixinBot
           JOSE::JWA::Edwards25519Point::L
         )
 
-        x = hash_scalar (view_point.x * private_point.x).to_bytes(36), index
+        x = hash_scalar (view_point * private_point).to_bytes(36), index
 
         p1 = JOSE::JWA::FieldElement.new(
           OpenSSL::BN.new(spend_key.reverse, 2),
@@ -210,9 +210,10 @@ module MixinBot
         p2 = JOSE::JWA::FieldElement.new(
           OpenSSL::BN.new(x.reverse, 2),
           JOSE::JWA::Edwards25519Point::L
-        ).x.to_i * JOSE::JWA::Edwards25519Point.stdbase
+        )
+        p3 = JOSE::JWA::Edwards25519Point.stdbase * p2.x.to_i
 
-        (p1 + p2).encode
+        p1.to_bytes(36) + p3.encode
       end
     end
   end
