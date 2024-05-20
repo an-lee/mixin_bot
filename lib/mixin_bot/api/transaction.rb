@@ -10,7 +10,6 @@ module MixinBot
       EXTRA_SIZE_STORAGE_CAPACITY = 1024 * 1024 * 4
       EXTRA_STORAGE_PRICE_STEP = 0.0001
 
-      # ghost keys
       def create_safe_keys(*payload, access_token: nil)
         raise ArgumentError, 'payload should be an array' unless payload.is_a? Array
         raise ArgumentError, 'payload should not be empty' unless payload.size.positive?
@@ -27,6 +26,53 @@ module MixinBot
         client.post path, *payload, access_token:
       end
       alias create_ghost_keys create_safe_keys
+
+      def generate_safe_keys(recipients)
+        raise ArgumentError, 'recipients should be an array' unless recipients.is_a? Array
+
+        ghost_keys = []
+        uuid_recipients = []
+
+        recipients.each_with_index do |recipient, index|
+          next if recipient[:mix_address].blank?
+
+          if recipient[:members].all?(&->(m) { m.start_with? MixinBot::Utils::Address::MAIN_ADDRESS_PREFIX })
+            key = JOSE::JWA::Ed25519.keypair
+            gk = {
+              mask: Base64.urlsafe_encode64(key[0], padding: false),
+              keys: []
+            }
+            recipient[:members].each do |member|
+              payload = MixinBot.utils.parse_main_address member
+              spend_key = payload[0...32]
+              view_key = payload[-32..]
+
+              gk[:keys] << MixinBot.utils.derive_ghost_public_key(key[1], view_key, spend_key, index)
+            end
+
+            ghost_keys[index] = gk
+
+          elsif recipient[:members].none?(&->(m) { m.start_with? MixinBot::Utils::Address::MAIN_ADDRESS_PREFIX })
+            uuid_recipients.push(
+              {
+                receivers: recipient[:members],
+                index:,
+                hint: SecureRandom.uuid
+              }
+            )
+          end
+        end
+
+        if uuid_recipients.present?
+          keys = create_safe_keys(*uuid_recipients)['data']
+          keys.each_with_index do |key, index|
+            p uuid_recipients[index]
+            ghost_keys[uuid_recipients[index][:index]] = key
+          end
+        end
+
+        ghost_keys
+      end
 
       # kwargs:
       # {
@@ -88,14 +134,7 @@ module MixinBot
           }
         end
 
-        ghost_payload = recipients.map.with_index do |r, index|
-          {
-            receivers: r[:members],
-            index:,
-            hint: SecureRandom.uuid
-          }
-        end
-        ghosts = create_safe_keys(*ghost_payload)['data']
+        ghosts = generate_safe_keys(recipients)
 
         outputs = []
         recipients.each_with_index do |recipient, index|

@@ -177,6 +177,43 @@ module MixinBot
 
         (key[0...32].bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
       end
+
+      def hash_scalar(pkey, output_index)
+        tmp = [output_index].pack('Q<')
+
+        hash1 = Digest::Blake3.digest pkey + tmp
+        hash2 = Digest::Blake3.digest hash1
+        s = hash1 + hash2
+
+        hash3 = Digest::Blake3.digest s
+        hash4 = Digest::Blake3.digest hash3
+
+        hash3 + hash4
+      end
+
+      def derive_ghost_public_key(private_key, view_key, spend_key, index)
+        view_point = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(view_key.reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        )
+        private_point = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(private_key.reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        )
+
+        x = hash_scalar (view_point.x * private_point.x).to_bytes(36), index
+
+        p1 = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(spend_key.reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        )
+        p2 = JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(x.reverse, 2),
+          JOSE::JWA::Edwards25519Point::L
+        ).x.to_i * JOSE::JWA::Edwards25519Point.stdbase
+
+        (p1 + p2).encode
+      end
     end
   end
 end

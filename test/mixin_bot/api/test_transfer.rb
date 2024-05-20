@@ -22,7 +22,8 @@ module MixinBot
           spend_key: SPEND_KEY
         )
 
-      assert_equal res['data']['request_id'], request_id
+      p res
+      assert_equal res.dig('data', 'request_id'), request_id
     end
   end
 end
