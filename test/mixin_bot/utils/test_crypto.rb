@@ -35,5 +35,16 @@ module MixinBot
 
       assert res.key?(:public_key)
     end
+
+    def test_derive_ghost_key
+      key = JOSE::JWA::Ed25519.keypair
+      public_key = key[0]
+      private_key = key[1][...32]
+
+      address = MixinBot.utils.burning_address
+      output_index = 0
+
+      ghost_key 
+    end
   end
 end
