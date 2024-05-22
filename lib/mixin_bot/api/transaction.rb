@@ -227,7 +227,7 @@ module MixinBot
           t_point = x_point + y_point
           key = t_point.to_bytes(JOSE::JWA::Edwards25519Point::B)
 
-          pub = MixinBot.utils.generate_public_key key
+          pub = MixinBot.utils.shared_public_key key
           key_index = utxo['keys'].index pub.unpack1('H*')
           raise ArgumentError, 'cannot find valid key' unless key_index.is_a? Integer
 

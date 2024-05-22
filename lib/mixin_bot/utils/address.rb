@@ -111,8 +111,8 @@ module MixinBot
         digest2 = SHA3::Digest::SHA256.digest digest1
         src = digest1 + digest2
 
-        spend_key = MixinBot::Utils.generate_public_key(seed)
-        view_key = MixinBot::Utils.generate_public_key(src)
+        spend_key = MixinBot::Utils.shared_public_key(seed)
+        view_key = MixinBot::Utils.shared_public_key(src)
 
         MixinBot::Utils.build_main_address spend_key + view_key
       end

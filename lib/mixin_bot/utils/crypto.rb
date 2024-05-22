@@ -53,7 +53,7 @@ module MixinBot
         }
       end
 
-      def generate_public_key(key)
+      def shared_public_key(key)
         (JOSE::JWA::Edwards25519Point.stdbase * scalar_from_bytes(key[...64]).x.to_i).encode
       end
 
@@ -67,7 +67,7 @@ module MixinBot
       def sign(msg, key:)
         msg = Digest::Blake3.digest msg
 
-        pub = generate_public_key key
+        pub = shared_public_key key
 
         y_scalar = scalar_from_bytes key
 
@@ -185,11 +185,16 @@ module MixinBot
         hash3 + hash4
       end
 
-      def derive_ghost_public_key(private_key, view_key, spend_key, index)
-        view_point = JOSE::JWA::Edwards25519Point.stdbase.decode view_key
+      def multiply_keys(public_key:, private_key:)
+        public_point = JOSE::JWA::Edwards25519Point.stdbase.decode public_key
         private_scalar = scalar_from_bytes private_key
+        (public_point * private_scalar.x.to_i).encode
+      end
 
-        x = hash_scalar (view_point * private_scalar.x.to_i).encode, index
+      def derive_ghost_public_key(private_key, view_key, spend_key, index)
+        mult_value = multiply_keys(public_key: view_key, private_key:)
+
+        x = hash_scalar mult_value, index
 
         p1 = JOSE::JWA::Edwards25519Point.stdbase.decode spend_key
         p2 = JOSE::JWA::Edwards25519Point.stdbase * scalar_from_bytes(x).x.to_i
@@ -198,10 +203,9 @@ module MixinBot
       end
 
       def derive_ghost_private_key(public_key, view_key, spend_key, index)
-        public_point = JOSE::JWA::Edwards25519Point.stdbase.decode public_key
-        view_scalar = scalar_from_bytes view_key
+        mult_value = multiply_keys(public_key:, private_key: view_key)
 
-        x = hash_scalar (public_point * view_scalar.x.to_i).encode, index
+        x = hash_scalar mult_value, index
 
         x_scalar = scalar_from_bytes x
         y_scalar = scalar_from_bytes spend_key
