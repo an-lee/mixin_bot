@@ -87,10 +87,10 @@ module MixinBot
         r_point.encode + s_scalar.to_bytes(36)
       end
 
-      def generate_unique_uuid(uuid_1, uuid_2)
+      def generate_unique_uuid(uuid1, uuid2)
         md5 = Digest::MD5.new
-        md5 << [uuid_1, uuid_2].min
-        md5 << [uuid_1, uuid_2].max
+        md5 << [uuid1, uuid2].min
+        md5 << [uuid1, uuid2].max
         digest = md5.digest
         digest6 = ((digest[6].ord & 0x0f) | 0x30).chr
         digest8 = ((digest[8].ord & 0x3f) | 0x80).chr
@@ -170,7 +170,7 @@ module MixinBot
       def tip_public_key(key, counter: 0)
         raise ArgumentError, 'invalid key' if key.size < 32
 
-        (key[0...32].bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
+        (key[0...32].bytes + MixinBot::Utils.encode_uint64(counter + 1)).pack('c*').unpack1('H*')
       end
 
       def hash_scalar(pkey, output_index)

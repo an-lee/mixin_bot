@@ -21,19 +21,19 @@ module MixinBot
         MixinBot::Transaction.new(hex:).decode.to_h
       end
 
-      def decode_uint_16(bytes)
+      def decode_uint16(bytes)
         raise ArgumentError, "only support bytes #{bytes}" unless bytes.is_a?(Array)
 
         bytes.reverse.pack('C*').unpack1('S*')
       end
 
-      def decode_uint_32(bytes)
+      def decode_uint32(bytes)
         raise ArgumentError, "only support bytes #{bytes}" unless bytes.is_a?(Array)
 
         bytes.reverse.pack('C*').unpack1('L*')
       end
 
-      def decode_uint_64(bytes)
+      def decode_uint64(bytes)
         raise ArgumentError, "only support bytes #{bytes}" unless bytes.is_a?(Array)
 
         bytes.reverse.pack('C*').unpack1('Q*')

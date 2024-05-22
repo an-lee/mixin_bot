@@ -3,35 +3,35 @@
 module MixinBot
   module Utils
     module Encoder
-      def encode_raw_transaction(tx)
-        if tx.is_a? String
+      def encode_raw_transaction(txn)
+        if txn.is_a? String
           begin
-            tx = JSON.parse tx
+            txn = JSON.parse txn
           rescue JSON::ParserError
-            tx
+            txn
           end
         end
 
-        raise ArgumentError, "#{tx} is not a valid json" unless tx.is_a? Hash
+        raise ArgumentError, "#{txn} is not a valid json" unless txn.is_a? Hash
 
-        tx = tx.with_indifferent_access
+        txn = txn.with_indifferent_access
 
-        MixinBot::Transaction.new(**tx).encode.hex
+        MixinBot::Transaction.new(**txn).encode.hex
       end
 
-      def encode_uint_16(int)
+      def encode_uint16(int)
         raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
 
         [int].pack('S*').bytes.reverse
       end
 
-      def encode_uint_32(int)
+      def encode_uint32(int)
         raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
 
         [int].pack('L*').bytes.reverse
       end
 
-      def encode_uint_64(int)
+      def encode_uint64(int)
         raise ArgumentError, "only support int #{int}" unless int.is_a?(Integer)
 
         [int].pack('Q*').bytes.reverse

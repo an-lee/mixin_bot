@@ -74,7 +74,7 @@ module MixinBot
         bytes += [0]
       else
         bytes += [1]
-        bytes += MixinBot.utils.encode_uint_64 mask
+        bytes += MixinBot.utils.encode_uint64 mask
         bytes += MixinBot::UUID.new(hex: chain).packed.bytes
 
         class_bytes = [nm_class].pack('H*').bytes
