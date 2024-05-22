@@ -6,8 +6,10 @@ module MixinBot
       SAFE_TX_VERSION = 0x05
       OUTPUT_TYPE_SCRIPT = 0x00
       OUTPUT_TYPE_WITHDRAW_SUBMIT = 0xa1
+      XIN_ASSET_ID = 'c94ac88f-4671-3976-b60a-09064f1811e8'
+      EXTRA_SIZE_STORAGE_CAPACITY = 1024 * 1024 * 4
+      EXTRA_STORAGE_PRICE_STEP = 0.0001
 
-      # ghost keys
       def create_safe_keys(*payload, access_token: nil)
         raise ArgumentError, 'payload should be an array' unless payload.is_a? Array
         raise ArgumentError, 'payload should not be empty' unless payload.size.positive?
@@ -24,6 +26,54 @@ module MixinBot
         client.post path, *payload, access_token:
       end
       alias create_ghost_keys create_safe_keys
+
+      def generate_safe_keys(recipients)
+        raise ArgumentError, 'recipients should be an array' unless recipients.is_a? Array
+
+        ghost_keys = []
+        uuid_recipients = []
+
+        recipients.each_with_index do |recipient, index|
+          next if recipient[:mix_address].blank?
+
+          if recipient[:members].all?(&->(m) { m.start_with? MixinBot::Utils::Address::MAIN_ADDRESS_PREFIX })
+            key = JOSE::JWA::Ed25519.keypair
+            gk = {
+              mask: key[0].unpack1('H*'),
+              keys: []
+            }
+            recipient[:members].each do |member|
+              payload = MixinBot.utils.parse_main_address member
+              spend_key = payload[0...32]
+              view_key = payload[-32..]
+
+              ghost_public_key = MixinBot.utils.derive_ghost_public_key(key[1], view_key, spend_key, index)
+
+              gk[:keys] << ghost_public_key.unpack1('H*')
+            end
+
+            ghost_keys[index] = gk.with_indifferent_access
+
+          elsif recipient[:members].none?(&->(m) { m.start_with? MixinBot::Utils::Address::MAIN_ADDRESS_PREFIX })
+            uuid_recipients.push(
+              {
+                receivers: recipient[:members],
+                index:,
+                hint: SecureRandom.uuid
+              }.with_indifferent_access
+            )
+          end
+        end
+
+        if uuid_recipients.present?
+          keys = create_safe_keys(*uuid_recipients)['data']
+          keys.each_with_index do |key, index|
+            ghost_keys[uuid_recipients[index][:index]] = key
+          end
+        end
+
+        ghost_keys
+      end
 
       # kwargs:
       # {
@@ -85,14 +135,7 @@ module MixinBot
           }
         end
 
-        ghost_payload = recipients.map.with_index do |r, index|
-          {
-            receivers: r[:members],
-            index:,
-            hint: SecureRandom.uuid
-          }
-        end
-        ghosts = create_safe_keys(*ghost_payload)['data']
+        ghosts = generate_safe_keys(recipients)
 
         outputs = []
         recipients.each_with_index do |recipient, index|
@@ -196,6 +239,33 @@ module MixinBot
         end
 
         MixinBot.utils.encode_raw_transaction tx
+      end
+
+      def build_object_transaction(extra)
+        raise 'Extra to large' if extra.bytesize > EXTRA_SIZE_STORAGE_CAPACITY
+
+        # calculate fee base on extra length
+        amount = EXTRA_STORAGE_PRICE_STEP * ((extra.bytesize / 1024) + 1)
+
+        receivers = [
+          {
+            members: [MixinBot.utils.burning_address],
+            threshold: 64,
+            amount:
+          }
+        ]
+
+        outputs = MixinBot.api.safe_outputs(state: 'unspent', asset: XIN_ASSET_ID)['data'].sort_by { |o| o['amount'].to_d }
+
+        utxos = []
+        outputs.each do |output|
+          break if utxos.sum { |o| o['amount'].to_d } >= amount
+
+          utxos.shift if utxos.size >= 256
+          utxos << output
+        end
+
+        build_safe_transaction utxos:, receivers:, extra:
       end
     end
   end

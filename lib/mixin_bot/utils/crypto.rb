@@ -54,12 +54,14 @@ module MixinBot
       end
 
       def generate_public_key(key)
-        point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(key.reverse, 2),
+        (JOSE::JWA::Edwards25519Point.stdbase * scalar_from_bytes(key[...64]).x.to_i).encode
+      end
+
+      def scalar_from_bytes(raw)
+        JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(raw.reverse, 2),
           JOSE::JWA::Edwards25519Point::L
         )
-
-        (JOSE::JWA::Edwards25519Point.stdbase * point.x.to_i).encode
       end
 
       def sign(msg, key:)
@@ -67,29 +69,22 @@ module MixinBot
 
         pub = generate_public_key key
 
-        y_point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(key.reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
+        y_scalar = scalar_from_bytes key
 
         key_digest = Digest::SHA512.digest key
         msg_digest = Digest::SHA512.digest(key_digest[-32...] + msg)
 
-        z_point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(msg_digest[...64].reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
+        z_scalar = scalar_from_bytes msg_digest[...64]
 
-        r_point = JOSE::JWA::Edwards25519Point.stdbase * z_point.x.to_i
+        r_point = JOSE::JWA::Edwards25519Point.stdbase * z_scalar.x.to_i
+
         hram_digest = Digest::SHA512.digest(r_point.encode + pub + msg)
 
-        x_point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(hram_digest[...64].reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
-        s_point = (x_point * y_point) + z_point
+        x_scalar = scalar_from_bytes hram_digest[...64]
 
-        r_point.encode + s_point.to_bytes(36)
+        s_scalar = (x_scalar * y_scalar) + z_scalar
+
+        r_point.encode + s_scalar.to_bytes(36)
       end
 
       def generate_unique_uuid(uuid_1, uuid_2)
@@ -176,6 +171,42 @@ module MixinBot
         raise ArgumentError, 'invalid key' if key.size < 32
 
         (key[0...32].bytes + MixinBot::Utils.encode_uint_64(counter + 1)).pack('c*').unpack1('H*')
+      end
+
+      def hash_scalar(pkey, output_index)
+        tmp = [output_index].pack('Q<').reverse
+
+        hash1 = Digest::Blake3.digest(pkey + tmp)
+        hash2 = Digest::Blake3.digest hash1
+
+        hash3 = Digest::Blake3.digest(hash1 + hash2)
+        hash4 = Digest::Blake3.digest hash3
+
+        hash3 + hash4
+      end
+
+      def derive_ghost_public_key(private_key, view_key, spend_key, index)
+        view_point = JOSE::JWA::Edwards25519Point.stdbase.decode view_key
+        private_scalar = scalar_from_bytes private_key
+
+        x = hash_scalar (view_point * private_scalar.x.to_i).encode, index
+
+        p1 = JOSE::JWA::Edwards25519Point.stdbase.decode spend_key
+        p2 = JOSE::JWA::Edwards25519Point.stdbase * scalar_from_bytes(x).x.to_i
+
+        (p1 + p2).encode
+      end
+
+      def derive_ghost_private_key(public_key, view_key, spend_key, index)
+        public_point = JOSE::JWA::Edwards25519Point.stdbase.decode public_key
+        view_scalar = scalar_from_bytes view_key
+
+        x = hash_scalar (public_point * view_scalar.x.to_i).encode, index
+
+        x_scalar = scalar_from_bytes x
+        y_scalar = scalar_from_bytes spend_key
+
+        (x_scalar + y_scalar).to_bytes(36)
       end
     end
   end

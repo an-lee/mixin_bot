@@ -42,7 +42,7 @@ module MixinBot
 
         bytes = []
         loop do
-          break if int === 0
+          break if int.zero?
 
           bytes.push int & 255
           int = (int / (2**8)) | 0
