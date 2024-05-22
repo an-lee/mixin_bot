@@ -110,7 +110,7 @@ module MixinBot
         client.post path, *payload
       end
 
-      def encrypt_message(data, sessions = [], sk: nil, pk: nil)
+      def encrypt_message(data, sessions = [], sk: nil, pk: nil) # rubocop:disable Naming/MethodParameterName
         raise ArgumentError, 'Wrong sessions format!' unless sessions.all?(&->(s) { s.key?('session_id') && s.key?('public_key') })
 
         sk ||= config.session_private_key[0...32]
@@ -153,7 +153,7 @@ module MixinBot
         Base64.urlsafe_encode64 bytes.pack('C*'), padding: false
       end
 
-      def decrypt_message(data, sk: nil, si: nil)
+      def decrypt_message(data, sk: nil, si: nil) # rubocop:disable Naming/MethodParameterName
         bytes = Base64.urlsafe_decode64(data).bytes
 
         si ||= config.session_id

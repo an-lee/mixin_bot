@@ -52,8 +52,8 @@ module MixinBot
         @_scope = scope.join(' ')
         EM.run do
           start_blaze_connect do
-            def on_open(ws, _event)
-              ws.send write_ws_message(
+            def on_open(websocket, _event) # rubocop:disable Lint/NestedMethodDefinition
+              websocket.send write_ws_message(
                 action: 'REFRESH_OAUTH_CODE',
                 params: {
                   client_id: @_app_id,
@@ -64,13 +64,13 @@ module MixinBot
               )
             end
 
-            def on_message(ws, event)
+            def on_message(websocket, event) # rubocop:disable Lint/NestedMethodDefinition
               raw = JSON.parse ws_message(event.data)
               @_data = raw
-              ws.close
+              websocket.close
             end
 
-            def on_close(_ws, _event)
+            def on_close(_websocket, _event) # rubocop:disable Lint/NestedMethodDefinition
               EM.stop_event_loop
             end
           end

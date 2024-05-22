@@ -93,8 +93,7 @@ module MixinBot
       # read outputs
       decode_outputs
 
-      # TODO:
-      # read references
+      # TODO: read references
       if version >= REFERENCES_TX_VERSION
         references_size = @bytes.shift 2
         raise ArgumentError, 'Not support references yet' unless references_size == NULL_BYTES

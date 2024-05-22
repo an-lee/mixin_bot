@@ -86,19 +86,24 @@ module MixinBot
         client.post path, **payload
       end
 
-      def migrate_to_safe(spend_key:, old_pin: nil)
+      def migrate_to_safe(spend_key:, pin: nil)
         profile = me['data']
         return true if profile['has_safe']
 
         spend_keypair = JOSE::JWA::Ed25519.keypair spend_key
         spend_key = spend_keypair[1].unpack1('H*')
 
-        update_pin pin: MixinBot.utils.tip_public_key(spend_keypair[0], counter: profile['tip_counter']) if profile['tip_key_base64'].blank?
+        if profile['tip_key_base64'].blank?
+          new_pin = MixinBot.utils.tip_public_key(spend_keypair[0], counter: profile['tip_counter'])
+          update_pin(pin: new_pin, old_pin: pin)
+
+          pin = new_pin
+        end
 
         # wait for tip pin update in server
         sleep 1
 
-        safe_register spend_key
+        safe_register pin, spend_key
 
         {
           spend_key:

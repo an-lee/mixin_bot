@@ -3,3 +3,10 @@
 source 'https://rubygems.org'
 
 gemspec
+
+gem 'fastimage'
+gem 'minitest-reporters'
+gem 'pry'
+gem 'rake'
+gem 'rubocop'
+gem 'simplecov'

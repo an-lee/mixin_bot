@@ -87,8 +87,6 @@ module MixinBot
         raise ForbiddenError, errmsg
       when 404
         raise NotFoundError, errmsg
-      when 400, 10006, 20133, 500, 7000, 7001
-        raise ResponseError, errmsg
       when 20117
         raise InsufficientBalanceError, errmsg
       when 20118, 20119

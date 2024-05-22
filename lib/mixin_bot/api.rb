@@ -67,8 +67,8 @@ module MixinBot
       )
     end
 
-    def encode_raw_transaction(tx)
-      utils.encode_raw_transaction tx
+    def encode_raw_transaction(txn)
+      utils.encode_raw_transaction txn
     end
 
     def decode_raw_transaction(raw)
