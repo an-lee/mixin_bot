@@ -17,7 +17,7 @@ module MixinBot
       request_id = SecureRandom.uuid
       request = MixinBot.api.create_safe_transaction_request(request_id, raw)['data']
 
-      refute_nil request
+      assert_equal request.first['request_id'], request_id
     end
   end
 end
