@@ -1,6 +1,8 @@
 # MixinBot
 
-An API wrapper for [Mixin Network](https://developers.mixin.one/api)
+[![CI](https://github.com/an-lee/mixin_bot/actions/workflows/ci.yml/badge.svg)](https://github.com/an-lee/mixin_bot/actions/workflows/ci.yml)
+
+An API wrapper for [Mixin Network](https://developers.mixin.one/docs/api-overview)
 
 ## Installation
 
