@@ -9,7 +9,7 @@ module MixinBot
     def setup
     end
 
-    def test_burning_address
+    def test_utils_burning_address
       assert MixinBot.utils.burning_address == BURNING_ADDRESS
     end
   end

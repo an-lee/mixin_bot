@@ -3,27 +3,29 @@ name: CI
 on:
   push:
     branches:
-      - develop
-  pull_request:
-    branches:
-      - master
-      - develop
+      - main
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        ruby: [3.1, 3.2, 3.3]
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Setup Ruby
         uses: actions/setup-ruby@v1
         with:
-          ruby-version: 2.6.x
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
       - name: Build
         run: |
           sudo apt-get -yqq install libpq-dev
-          gem install bundler
-          bundle install --jobs 4 --retry 3
       - name: Lint with Rubocop
         run: |
           bin/rubocop
+      - name: Test
+        run: |
+          rake test
