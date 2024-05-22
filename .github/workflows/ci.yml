@@ -28,6 +28,7 @@ jobs:
 
       - name: Build
         run: |
+          sudo gem install bundler
           bundle install
           rake build
 
