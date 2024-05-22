@@ -56,7 +56,7 @@ module MixinBot
 
         # step 4: sign transaction
         spend_key = MixinBot.utils.decode_key(kwargs[:spend_key]) || config.spend_key
-        signed_raw = sign_safe_transaction(
+        signed_raw = MixinBot.api.sign_safe_transaction(
           raw:,
           utxos:,
           request: request[0],

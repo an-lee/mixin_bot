@@ -41,10 +41,19 @@ module MixinBot
       public_key = key[0]
       private_key = key[1][...32]
 
-      address = MixinBot.utils.burning_address
-      output_index = 0
+      spend_key = JOSE::JWA::Ed25519.keypair[0]
 
-      ghost_key 
+      view_key = JOSE::JWA::Ed25519.keypair[0]
+
+      output_index = 1
+
+      ghost_public_key = MixinBot.utils.derive_ghost_public_key private_key, spend_key, view_key, output_index
+      ghost_private_key = MixinBot.utils.derive_ghost_private_key public_key, spend_key, view_key, output_index
+
+      assert_equal ghost_public_key.length, 32
+      assert_equal ghost_private_key.length, 32
+
+      assert ghost_public_key == MixinBot.utils.generate_public_key(ghost_private_key)
     end
   end
 end

@@ -54,12 +54,14 @@ module MixinBot
       end
 
       def generate_public_key(key)
-        point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(key[...64].reverse, 2),
+        (JOSE::JWA::Edwards25519Point.stdbase * scalar_from_bytes(key[...64]).x.to_i).encode
+      end
+
+      def scalar_from_bytes(raw)
+        JOSE::JWA::FieldElement.new(
+          OpenSSL::BN.new(raw.reverse, 2),
           JOSE::JWA::Edwards25519Point::L
         )
-
-        (JOSE::JWA::Edwards25519Point.stdbase * point.x.to_i).encode
       end
 
       def sign(msg, key:)
@@ -67,29 +69,22 @@ module MixinBot
 
         pub = generate_public_key key
 
-        y_point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(key.reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
+        y_scalar = scalar_from_bytes key
 
         key_digest = Digest::SHA512.digest key
         msg_digest = Digest::SHA512.digest(key_digest[-32...] + msg)
 
-        z_point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(msg_digest[...64].reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
+        z_scalar = scalar_from_bytes msg_digest[...64]
 
-        r_point = JOSE::JWA::Edwards25519Point.stdbase * z_point.x.to_i
+        r_point = JOSE::JWA::Edwards25519Point.stdbase * z_scalar.x.to_i
+
         hram_digest = Digest::SHA512.digest(r_point.encode + pub + msg)
 
-        x_point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(hram_digest[...64].reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
-        s_point = (x_point * y_point) + z_point
+        x_scalar = scalar_from_bytes hram_digest[...64]
 
-        r_point.encode + s_point.to_bytes(36)
+        s_scalar = (x_scalar * y_scalar) + z_scalar
+
+        r_point.encode + s_scalar.to_bytes(36)
       end
 
       def generate_unique_uuid(uuid_1, uuid_2)
@@ -191,48 +186,27 @@ module MixinBot
       end
 
       def derive_ghost_public_key(private_key, view_key, spend_key, index)
-        view_point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(view_key.reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
-        private_point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(private_key.reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
+        view_point = JOSE::JWA::Edwards25519Point.stdbase.decode view_key
+        private_scalar = scalar_from_bytes private_key
 
-        x = hash_scalar (view_point * private_point).to_bytes(36), index
+        x = hash_scalar (view_point * private_scalar.x.to_i).encode, index
 
-        p1 = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(spend_key.reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
-        p2 = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(x.reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
-        p3 = JOSE::JWA::Edwards25519Point.stdbase * p2.x.to_i
+        p1 = JOSE::JWA::Edwards25519Point.stdbase.decode spend_key
+        p2 = JOSE::JWA::Edwards25519Point.stdbase * scalar_from_bytes(x).x.to_i
 
-        p1.to_bytes(36) + p3.encode
+        (p1 + p2).encode
       end
 
       def derive_ghost_private_key(public_key, view_key, spend_key, index)
-        view_point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(view_key.reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
-        private_point = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(public_key.reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
+        view_point = JOSE::JWA::Edwards25519Point.stdbase.decode view_key
+        public_scalar = scalar_from_bytes public_key
 
-        x = hash_scalar (view_point * private_point).to_bytes(36), index
+        x = hash_scalar (view_point * public_scalar.x.to_i).encode, index
 
-        y = JOSE::JWA::FieldElement.new(
-          OpenSSL::BN.new(spend_key.reverse, 2),
-          JOSE::JWA::Edwards25519Point::L
-        )
+        x_scalar = scalar_from_bytes x
+        y_scalar = scalar_from_bytes spend_key
 
-        (x + y).to_bytes(36)
+        (x_scalar + y_scalar).to_bytes(36)
       end
     end
   end
