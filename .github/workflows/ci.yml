@@ -15,17 +15,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install Deps
+        run: |
+          sudo apt-get -y install build-essential automake pkg-config libtool libffi-dev libssl-dev libgmp-dev python3-dev
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+
       - name: Build
-        run: |
-          sudo apt-get install build-essential automake pkg-config libtool libffi-dev libssl-dev libgmp-dev python3-dev
+        run: rake build
+
       # - name: Lint with Rubocop
       #   run: |
       #     bin/rubocop
+
       - name: Test
-        run: |
-          rake test
+        run: rake test
