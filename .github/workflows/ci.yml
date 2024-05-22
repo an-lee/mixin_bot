@@ -27,10 +27,7 @@ jobs:
           bundler-cache: true
 
       - name: Build
-        run: |
-          sudo gem install bundler
-          bundle install
-          rake build
+        run: bundle exec rake build
 
       - name: Test
-        run: rake
+        run: bundle exec rake
