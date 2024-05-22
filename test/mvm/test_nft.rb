@@ -24,7 +24,7 @@ module MVM
 
     def test_mvm_token_of_owner_by_index
       r = MVM.nft.token_of_owner_by_index '0xCe773d418eBCBbA0Dc6601806ED8B9741df83C81', '0xF376516D190c8e5f455C299fD191e93Bf4624245', 0
-       assert_equal r, 1095
+      assert_equal r, 1095
     end
   end
 end

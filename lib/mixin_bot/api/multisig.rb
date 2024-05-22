@@ -6,8 +6,8 @@ module MixinBot
       def create_safe_multisig_request(request_id, raw, access_token: nil)
         path = '/safe/multisigs'
         payload = [{
-          request_id: request_id,
-          raw: raw
+          request_id:,
+          raw:
         }]
 
         client.post path, *payload
@@ -26,7 +26,7 @@ module MixinBot
       def unlock_safe_multisig_request(request_id, access_token: nil)
         path = format('/safe/multisigs/%<request_id>s/unlock', request_id:)
 
-        client.post path, access_token: access_token
+        client.post path, access_token:
       end
 
       def safe_multisig_request(request_id, access_token: nil)

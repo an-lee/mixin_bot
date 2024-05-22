@@ -4,7 +4,6 @@ require 'test_helper'
 
 module MVM
   class TestRegistry < Minitest::Test
-
     def setup
     end
 
