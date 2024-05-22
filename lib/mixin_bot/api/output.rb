@@ -18,7 +18,7 @@ module MixinBot
         state = kwargs[:state] || ''
         access_token = kwargs[:access_token]
         order = kwargs[:order] || 'ASC'
-        members = kwargs[:members] || [config.app_id]
+        members = kwargs[:members].presence || [config.app_id]
         threshold = kwargs[:threshold] || members.length
 
         members_hash = SHA3::Digest::SHA256.hexdigest(members&.sort&.join)
@@ -36,11 +36,13 @@ module MixinBot
 
         client.get path, **params, access_token:
       end
+      alias outputs safe_outputs
 
       def safe_output(id, access_token: nil)
         path = format('/safe/outputs/%<id>s', id:)
         client.get path, access_token:
       end
+      alias output safe_output
     end
   end
 end

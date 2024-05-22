@@ -3,7 +3,7 @@
 module MixinBot
   class API
     module LegacyOutput
-      def outputs(**kwargs)
+      def legacy_outputs(**kwargs)
         limit = kwargs[:limit] || 100
         offset = kwargs[:offset] || ''
         state = kwargs[:state] || ''
@@ -23,8 +23,8 @@ module MixinBot
 
         client.get path, **params, access_token:
       end
-      alias multisigs outputs
-      alias multisig_outputs outputs
+      alias multisigs legacy_outputs
+      alias multisig_outputs legacy_outputs
 
       def create_output(receivers:, index:, hint: nil, access_token: nil)
         path = '/outputs'
