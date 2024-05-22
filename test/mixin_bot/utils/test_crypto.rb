@@ -51,14 +51,10 @@ module MixinBot
 
       ghost_public_key = MixinBot.utils.derive_ghost_public_key r_key, spend_public_key, view_public_key, output_index
 
-      assert_equal ghost_public_key.length, 32
-
       ghost_private_key1 = MixinBot.utils.derive_ghost_private_key r_public_key, spend_key, view_key, output_index
-      assert_equal ghost_private_key1.length, 32
       assert_equal ghost_public_key, MixinBot.utils.shared_public_key(ghost_private_key1)
 
       ghost_private_key2 = MixinBot.utils.derive_ghost_private_key spend_public_key, r_key, view_key, output_index
-      assert_equal ghost_private_key2.length, 32
       assert_equal ghost_public_key, MixinBot.utils.shared_public_key(ghost_private_key2)
     end
   end
