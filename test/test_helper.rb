@@ -10,7 +10,12 @@ Minitest::Reporters.use!
 
 require 'yaml'
 
-CONFIG = YAML.load_file("#{File.dirname __FILE__}/config.yml")
+CONFIG =
+  begin
+    YAML.load_file("#{File.dirname __FILE__}/config.yml")
+  rescue StandardError
+    {}
+  end
 TEST_UID = '7ed9292d-7c95-4333-aa48-a8c640064186'
 TEST_UID_2 = 'a67c6e87-1c9e-4a1c-b81c-47a9f4f1bff1'
 TEST_MIXIN_ID = '37230199'

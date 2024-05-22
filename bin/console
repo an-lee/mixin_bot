@@ -8,7 +8,12 @@ require "mixin_bot"
 # with your gem easier. You can also use a different console, if you like.
 
 require 'yaml'
-CONFIG = YAML.load_file("#{File.expand_path "../../test/config.yml", __FILE__}")
+CONFIG = 
+  begin
+    YAML.load_file("#{File.expand_path "../../test/config.yml", __FILE__}")
+  rescue
+    {}
+  end
 MixinBot.configure do
   self.app_id = CONFIG['app_id']
   self.client_secret = CONFIG['client_secret']
