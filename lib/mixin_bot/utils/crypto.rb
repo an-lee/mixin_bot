@@ -198,10 +198,10 @@ module MixinBot
       end
 
       def derive_ghost_private_key(public_key, view_key, spend_key, index)
-        view_point = JOSE::JWA::Edwards25519Point.stdbase.decode view_key
-        public_scalar = scalar_from_bytes public_key
+        public_point = JOSE::JWA::Edwards25519Point.stdbase.decode public_key
+        view_scalar = scalar_from_bytes view_key
 
-        x = hash_scalar (view_point * public_scalar.x.to_i).encode, index
+        x = hash_scalar (public_point * view_scalar.x.to_i).encode, index
 
         x_scalar = scalar_from_bytes x
         y_scalar = scalar_from_bytes spend_key

@@ -38,22 +38,28 @@ module MixinBot
 
     def test_derive_ghost_key
       key = JOSE::JWA::Ed25519.keypair
-      public_key = key[0]
-      private_key = key[1][...32]
+      r_key = key[1][...32]
+      r_public_key = MixinBot.utils.generate_public_key r_key
 
-      spend_key = JOSE::JWA::Ed25519.keypair[0]
+      spend_key = JOSE::JWA::Ed25519.keypair[1][...32]
+      spend_public_key = MixinBot.utils.generate_public_key spend_key
 
-      view_key = JOSE::JWA::Ed25519.keypair[0]
+      view_key = JOSE::JWA::Ed25519.keypair[1][...32]
+      view_public_key = MixinBot.utils.generate_public_key view_key
 
       output_index = 1
 
-      ghost_public_key = MixinBot.utils.derive_ghost_public_key private_key, spend_key, view_key, output_index
-      ghost_private_key = MixinBot.utils.derive_ghost_private_key public_key, spend_key, view_key, output_index
+      ghost_public_key = MixinBot.utils.derive_ghost_public_key r_key, spend_public_key, view_public_key, output_index
 
       assert_equal ghost_public_key.length, 32
-      assert_equal ghost_private_key.length, 32
 
-      assert ghost_public_key == MixinBot.utils.generate_public_key(ghost_private_key)
+      ghost_private_key1 = MixinBot.utils.derive_ghost_private_key r_public_key, spend_key, view_key, output_index
+      assert_equal ghost_private_key1.length, 32
+      assert ghost_public_key == MixinBot.utils.generate_public_key(ghost_private_key1)
+
+      ghost_private_key2 = MixinBot.utils.derive_ghost_private_key spend_public_key, r_key, view_key, output_index
+      assert_equal ghost_private_key2.length, 32
+      assert ghost_public_key == MixinBot.utils.generate_public_key(ghost_private_key2)
     end
   end
 end
