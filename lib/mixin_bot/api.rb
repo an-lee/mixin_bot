@@ -8,9 +8,10 @@ require_relative 'api/asset'
 require_relative 'api/attachment'
 require_relative 'api/auth'
 require_relative 'api/blaze'
-require_relative 'api/collectible'
 require_relative 'api/conversation'
 require_relative 'api/encrypted_message'
+require_relative 'api/inscription'
+require_relative 'api/legacy_collectible'
 require_relative 'api/legacy_multisig'
 require_relative 'api/legacy_output'
 require_relative 'api/legacy_payment'
@@ -107,9 +108,10 @@ module MixinBot
     include MixinBot::API::Attachment
     include MixinBot::API::Auth
     include MixinBot::API::Blaze
-    include MixinBot::API::Collectible
     include MixinBot::API::Conversation
     include MixinBot::API::EncryptedMessage
+    include MixinBot::API::Inscription
+    include MixinBot::API::LegacyCollectible
     include MixinBot::API::LegacyMultisig
     include MixinBot::API::LegacyOutput
     include MixinBot::API::LegacyPayment

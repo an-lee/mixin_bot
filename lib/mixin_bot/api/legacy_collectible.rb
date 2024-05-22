@@ -2,20 +2,20 @@
 
 module MixinBot
   class API
-    module Collectible
+    module LegacyCollectible
       NFT_ASSET_MIXIN_ID = '1700941284a95f31b25ec8c546008f208f88eee4419ccdcdbe6e3195e60128ca'
 
-      def collectible(id, access_token: nil)
+      def legacy_collectible(id, access_token: nil)
         path = "/collectibles/tokens/#{id}"
         client.get path, access_token:
       end
 
-      def collection(id, access_token: nil)
+      def legacy_collection(id, access_token: nil)
         path = "/collectibles/collections/#{id}"
         client.get path, access_token:
       end
 
-      def collectibles(**kwargs)
+      def legacy_collectibles(**kwargs)
         limit = kwargs[:limit] || 100
         offset = kwargs[:offset] || ''
         state = kwargs[:state] || ''

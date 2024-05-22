@@ -78,7 +78,7 @@ module MixinBot
         return result
       end
 
-      errmsg = "#{verb.upcase}|#{path}|#{body}, errcode: #{result['error']['code']}, errmsg: #{result['error']['description']}, request_id: #{response&.[]('X-Request-Id')}, server_time: #{response&.[]('X-Server-Time')}'"
+      errmsg = "#{verb.upcase} | #{path} | #{body}, errcode: #{result['error']['code']}, errmsg: #{result['error']['description']}, request_id: #{response&.[]('X-Request-Id')}, server_time: #{response&.[]('X-Server-Time')}'"
 
       case result['error']['code']
       when 401, 20121
