@@ -51,7 +51,7 @@ module MixinBot
       bytes += encode_outputs
 
       # placeholder for `references`
-      bytes += NULL_BYTES if version >= REFERENCES_TX_VERSION
+      bytes += encode_references if version >= REFERENCES_TX_VERSION
 
       # extra
       extra_bytes = extra.bytes
@@ -93,11 +93,8 @@ module MixinBot
       # read outputs
       decode_outputs
 
-      # TODO: read references
-      if version >= REFERENCES_TX_VERSION
-        references_size = @bytes.shift 2
-        raise ArgumentError, 'Not support references yet' unless references_size == NULL_BYTES
-      end
+      # read references
+      decode_references if version >= REFERENCES_TX_VERSION
 
       # read extra
       # unsigned 32 endian for extra size
@@ -309,6 +306,18 @@ module MixinBot
       bytes
     end
 
+    def encode_references
+      bytes = []
+
+      bytes += MixinBot.utils.encode_uint16 references.size
+
+      references.each do |reference|
+        bytes += [reference].pack('H*').bytes
+      end
+
+      bytes
+    end
+
     def encode_aggregated_signature
       bytes = []
 
@@ -496,6 +505,17 @@ module MixinBot
         end
 
         @outputs.push output
+      end
+
+      self
+    end
+
+    def decode_references
+      references_size = MixinBot.utils.decode_uint16 @bytes.shift(2)
+      @references = []
+
+      references_size.times do
+        @references.push @bytes.shift(32).pack('C*').unpack1('H*')
       end
 
       self

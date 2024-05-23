@@ -166,7 +166,8 @@ module MixinBot
           asset:,
           inputs:,
           outputs:,
-          extra: kwargs[:extra] || ''
+          extra: kwargs[:extra] || '',
+          references: kwargs[:references] || []
         }
       end
 
@@ -239,7 +240,8 @@ module MixinBot
         MixinBot.utils.encode_raw_transaction tx
       end
 
-      def build_object_transaction(extra)
+      def build_object_transaction(extra, **)
+        extra = extra.to_s
         raise ArgumentError, 'Extra too large' if extra.bytesize > EXTRA_SIZE_STORAGE_CAPACITY
 
         # calculate fee base on extra length
@@ -258,7 +260,27 @@ module MixinBot
         utxos = build_utxos(asset_id: XIN_ASSET_ID, amount:)
 
         # build transaction
-        build_safe_transaction utxos:, receivers:, extra:
+        build_safe_transaction utxos:, receivers:, extra:, **
+      end
+
+      INSCRIBE_TRANSACTION_ARGUMENTS = %i[content collection_hash].freeze
+      def build_inscribe_transaction(**kwargs)
+        raise ArgumentError, "#{INSCRIBE_TRANSACTION_ARGUMENTS.join(', ')} are needed for inscribe transaction" unless INSCRIBE_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
+
+        receivers = kwargs[:receivers].presence || [config.app_id]
+        receivers_threshold = kwargs[:receivers_threshold] || receivers.length
+        recipient = MixinBot.utils.build_mix_address(receivers, receivers_threshold)
+
+        content = kwargs[:content]
+        collection_hash = kwargs[:collection_hash]
+
+        data = {
+          operation: 'inscribe',
+          recipient:,
+          content:
+        }
+
+        MixinBot.api.build_object_transaction data.to_json, references: [collection_hash]
       end
     end
   end
