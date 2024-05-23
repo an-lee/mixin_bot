@@ -3,16 +3,16 @@
 module MixinBot
   class API
     module Inscription
-      def collection(hash, access_token: nil)
-        path = "/inscriptions/collections/#{hash}"
+      def collection(hash)
+        path = "/safe/inscriptions/collections/#{hash}"
 
-        client.get path, access_token:
+        client.get path
       end
 
-      def collectible(hash, access_token: nil)
-        path = "/inscriptions/items/#{hash}"
+      def collectible(hash)
+        path = "/safe/inscriptions/items/#{hash}"
 
-        client.get path, access_token:
+        client.get path
       end
 
       def collectibles(members: [], access_token: nil)
