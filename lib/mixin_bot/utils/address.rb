@@ -31,7 +31,7 @@ module MixinBot
         payload
       end
 
-      def build_mix_address(members, threshold)
+      def build_mix_address(members:, threshold:)
         raise ArgumentError, 'members should be an array' unless members.is_a? Array
         raise ArgumentError, 'members should not be empty' if members.empty?
         raise ArgumentError, 'members length should less than 256' if members.length > 255
@@ -61,24 +61,24 @@ module MixinBot
 
         data = address[MIX_ADDRESS_PREFIX.length..]
         data = Base58.base58_to_binary data, :bitcoin
-        raise ArgumentError, 'invalid address' if data.length < 3 + 16 + 4
+        raise ArgumentError, 'invalid address, length invalid' if data.length < 3 + 16 + 4
 
         msg = data[...-4]
         checksum = SHA3::Digest::SHA256.digest((MIX_ADDRESS_PREFIX + msg))[0...4]
 
-        raise ArgumentError, 'invalid address' unless checksum[0...4] == data[-4..]
+        raise ArgumentError, 'invalid address, checksum invalid' unless checksum[0...4] == data[-4..]
 
         version = data[0].ord
-        raise ArgumentError, 'invalid address' unless version == MIX_ADDRESS_VERSION
+        raise ArgumentError, 'invalid address, version invalid' unless version == MIX_ADDRESS_VERSION
 
         threshold = data[1].ord
         members_count = data[2].ord
 
-        if data[3..].length == members_count * 16
-          members = data[3..].scan(/.{16}/)
+        if data[3...-4].length == members_count * 16
+          members = data[3...-4].scan(/.{16}/)
           members = members.map(&->(member) { MixinBot::UUID.new(raw: member).unpacked })
         else
-          members = data[3..].scan(/.{64}/)
+          members = data[3...-4].scan(/.{64}/)
           members = members.map(&->(member) { build_main_address(member) })
         end
 
@@ -100,7 +100,7 @@ module MixinBot
           members:,
           threshold:,
           amount:,
-          mix_address: build_mix_address(members, threshold)
+          mix_address: build_mix_address(members:, threshold:)
         }
       end
 

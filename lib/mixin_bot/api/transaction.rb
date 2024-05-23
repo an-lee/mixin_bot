@@ -269,7 +269,7 @@ module MixinBot
 
         receivers = kwargs[:receivers].presence || [config.app_id]
         receivers_threshold = kwargs[:receivers_threshold] || receivers.length
-        recipient = MixinBot.utils.build_mix_address(receivers, receivers_threshold)
+        recipient = MixinBot.utils.build_mix_address(members: receivers, threshold: receivers_threshold)
 
         content = kwargs[:content]
         collection_hash = kwargs[:collection_hash]

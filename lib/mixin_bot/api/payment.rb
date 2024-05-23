@@ -11,7 +11,7 @@ module MixinBot
         memo = kwargs[:memo] || ''
         trace_id = kwargs[:trace_id] || SecureRandom.uuid
 
-        mix_address = MixinBot.utils.build_mix_address(members, threshold)
+        mix_address = MixinBot.utils.build_mix_address(members:, threshold:)
 
         "https://mixin.one/pay/#{mix_address}?amount=#{amount}&asset=#{asset_id}&memo=#{memo}&trace=#{trace_id}"
       end
