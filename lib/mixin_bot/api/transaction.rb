@@ -282,6 +282,32 @@ module MixinBot
 
         MixinBot.api.build_object_transaction data.to_json, references: [collection_hash]
       end
+
+      OCCUPY_INSCRIPTION_TRANSACTION_ARGUMENTS = %i[amount inscription_hash utxos].freeze
+      def build_occupy_transaction(**kwargs)
+        raise ArgumentError, "#{OCCUPY_INSCRIPTION_TRANSACTION_ARGUMENTS.join(', ')} are needed for occupy NFT transaction" unless OCCUPY_INSCRIPTION_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
+
+        members = kwargs[:members].presence || [config.app_id]
+        threshold = kwargs[:threshold] || members.length
+        amount = kwargs[:amount]
+        inscription_hash = kwargs[:inscription_hash]
+
+        receivers = [
+          {
+            members:,
+            threshold:,
+            amount:
+          }
+        ]
+
+        extra = {
+          operation: 'occupy',
+          recipient:,
+          content:
+        }.to_json
+
+        MixinBot.api.build_safe_transaction(utxos:, receivers:, extra:, references: [inscription_hash])
+      end
     end
   end
 end
