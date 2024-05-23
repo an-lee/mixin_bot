@@ -59,6 +59,7 @@ module MixinBot
 
       def scalar_from_bytes(raw)
         JOSE::JWA::FieldElement.new(
+          # https://github.com/potatosalad/ruby-jose/blob/e1be589b889f1e59ac233a5d19a3fa13f1e4b8a0/lib/jose/jwa/x25519.rb#L122C14-L122C48
           OpenSSL::BN.new(raw.reverse, 2),
           JOSE::JWA::Edwards25519Point::L
         )

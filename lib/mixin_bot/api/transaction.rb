@@ -207,7 +207,7 @@ module MixinBot
 
         msg = [raw].pack('H*')
 
-        y_point = JOSE::JWA::FieldElement.new(
+        y_scalar = JOSE::JWA::FieldElement.new(
           JOSE::JWA::X25519.clamp_scalar(spend_key[...32]).x,
           JOSE::JWA::Edwards25519Point::L
         )
@@ -218,14 +218,10 @@ module MixinBot
           raise ArgumentError, 'utxo not match' unless input['hash'] == utxo['transaction_hash'] && input['index'] == utxo['output_index']
 
           view = [request['views'][index]].pack('H*')
-          x_point = JOSE::JWA::FieldElement.new(
-            # https://github.com/potatosalad/ruby-jose/blob/e1be589b889f1e59ac233a5d19a3fa13f1e4b8a0/lib/jose/jwa/x25519.rb#L122C14-L122C48
-            OpenSSL::BN.new(view.reverse, 2),
-            JOSE::JWA::Edwards25519Point::L
-          )
+          x_scalar = MixinBot.utils.scalar_from_bytes(view)
 
-          t_point = x_point + y_point
-          key = t_point.to_bytes(JOSE::JWA::Edwards25519Point::B)
+          t_scalar = x_scalar + y_scalar
+          key = t_scalar.to_bytes(JOSE::JWA::Edwards25519Point::B)
 
           pub = MixinBot.utils.shared_public_key key
           key_index = utxo['keys'].index pub.unpack1('H*')
