@@ -89,6 +89,8 @@ module MixinBot
       SAFE_RAW_TRANSACTION_ARGUMENTS = %i[utxos receivers].freeze
       def build_safe_transaction(**kwargs)
         raise ArgumentError, "#{SAFE_RAW_TRANSACTION_ARGUMENTS.join(', ')} are needed for build safe transaction" unless SAFE_RAW_TRANSACTION_ARGUMENTS.all? { |param| kwargs.keys.include? param }
+        raise ArgumentError, 'receivers should be an array' unless kwargs[:receivers].is_a? Array
+        raise ArgumentError, 'utxos should be an array' unless kwargs[:utxos].is_a? Array
 
         utxos = kwargs[:utxos].map(&:with_indifferent_access)
         receivers = kwargs[:receivers].map(&:with_indifferent_access)
@@ -113,12 +115,12 @@ module MixinBot
         inputs_sum = utxos.sum(&->(utxo) { utxo['amount'].to_d })
         outputs_sum = recipients.sum(&->(recipient) { recipient['amount'].to_d })
         change = inputs_sum - outputs_sum
-        raise InsufficientBalanceError, "inputs sum: #{inputs_sum}" if change.negative?
+        raise InsufficientBalanceError, "inputs sum #{inputs_sum} < outputs sum #{outputs_sum}" if change.negative?
 
         if change.positive?
           recipients << MixinBot.utils.build_safe_recipient(
-            members: utxos[0]['receivers'],
-            threshold: utxos[0]['receivers_threshold'],
+            members: utxos.first['receivers'],
+            threshold: utxos.first['receivers_threshold'],
             amount: change
           ).with_indifferent_access
         end
@@ -238,11 +240,12 @@ module MixinBot
       end
 
       def build_object_transaction(extra)
-        raise 'Extra to large' if extra.bytesize > EXTRA_SIZE_STORAGE_CAPACITY
+        raise ArgumentError, 'Extra too large' if extra.bytesize > EXTRA_SIZE_STORAGE_CAPACITY
 
         # calculate fee base on extra length
         amount = EXTRA_STORAGE_PRICE_STEP * ((extra.bytesize / 1024) + 1)
 
+        # burning address
         receivers = [
           {
             members: [MixinBot.utils.burning_address],
@@ -251,16 +254,10 @@ module MixinBot
           }
         ]
 
-        outputs = MixinBot.api.safe_outputs(state: 'unspent', asset: XIN_ASSET_ID)['data'].sort_by { |o| o['amount'].to_d }
+        # find XIN utxos
+        utxos = build_utxos(asset_id: XIN_ASSET_ID, amount:)
 
-        utxos = []
-        outputs.each do |output|
-          break if utxos.sum { |o| o['amount'].to_d } >= amount
-
-          utxos.shift if utxos.size >= 256
-          utxos << output
-        end
-
+        # build transaction
         build_safe_transaction utxos:, receivers:, extra:
       end
     end

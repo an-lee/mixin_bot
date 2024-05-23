@@ -29,15 +29,7 @@ module MixinBot
         memo = kwargs[:memo] || ''
 
         # step 1: select inputs
-        outputs = safe_outputs(state: 'unspent', asset: asset_id, limit: 500)['data'].sort_by { |o| o['amount'].to_d }
-
-        utxos = []
-        outputs.each do |output|
-          break if utxos.sum { |o| o['amount'].to_d } >= amount
-
-          utxos.shift if utxos.size >= 256
-          utxos << output
-        end
+        utxos = build_utxos(asset_id:, amount:)
 
         # step 2: build transaction
         tx = build_safe_transaction(
@@ -68,6 +60,20 @@ module MixinBot
           request_id,
           signed_raw
         )
+      end
+
+      def build_utxos(asset_id:, amount:)
+        outputs = safe_outputs(state: 'unspent', asset: asset_id, limit: 500)['data'].sort_by { |o| o['amount'].to_d }
+
+        utxos = []
+        outputs.each do |output|
+          break if utxos.sum { |o| o['amount'].to_d } >= amount
+
+          utxos.shift if utxos.size >= 256
+          utxos << output
+        end
+
+        utxos
       end
     end
   end
