@@ -4,7 +4,7 @@ module MixinBot
   class API
     module Rpc
       def rpc_proxy(method, params = [], access_token: nil)
-        path = '/external/proxy'
+        path = '/external/kernel'
         payload = {
           method:,
           params:
