@@ -15,8 +15,17 @@ module MixinBot
       #  spend_key: string / nil,
       # }
       def create_safe_transfer(**kwargs)
-        asset_id = kwargs[:asset_id]
-        raise ArgumentError, 'asset_id required' if asset_id.blank?
+        utxos = kwargs[:utxos]
+        raise ArgumentError, 'utxos must be array' if utxos.present? && !utxos.is_a?(Array)
+
+        asset_id =
+          if utxos.present?
+            utxos.first['asset_id']
+          else
+            kwargs[:asset_id]
+          end
+
+        raise ArgumentError, 'utxos or asset_id required' if utxos.blank? && asset_id.blank?
 
         amount = kwargs[:amount]&.to_d
         raise ArgumentError, 'amount required' if amount.blank?
@@ -29,7 +38,7 @@ module MixinBot
         memo = kwargs[:memo] || ''
 
         # step 1: select inputs
-        utxos = build_utxos(asset_id:, amount:)
+        utxos ||= build_utxos(asset_id:, amount:)
 
         # step 2: build transaction
         tx = build_safe_transaction(
