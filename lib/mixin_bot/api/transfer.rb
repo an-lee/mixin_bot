@@ -70,6 +70,7 @@ module MixinBot
           signed_raw
         )
       end
+      alias create_transfer create_safe_transfer
 
       def build_utxos(asset_id:, amount:)
         outputs = safe_outputs(state: 'unspent', asset: asset_id, limit: 500)['data'].sort_by { |o| o['amount'].to_d }

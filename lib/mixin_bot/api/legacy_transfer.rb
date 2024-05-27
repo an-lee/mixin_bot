@@ -4,7 +4,7 @@ module MixinBot
   class API
     module LegacyTransfer
       TRANSFER_ARGUMENTS = %i[asset_id opponent_id amount].freeze
-      def create_transfer(pin, **kwargs)
+      def create_legacy_transfer(pin, **kwargs)
         raise ArgumentError, "#{TRANSFER_ARGUMENTS.join(', ')} are needed for create transfer" unless TRANSFER_ARGUMENTS.all? { |param| kwargs.keys.include? param }
 
         asset_id = kwargs[:asset_id]
@@ -33,7 +33,7 @@ module MixinBot
         client.post path, **payload
       end
 
-      def transfer(trace_id, access_token: nil)
+      def legacy_transfer(trace_id, access_token: nil)
         path = format('/transfers/trace/%<trace_id>s', trace_id:)
         client.get path, access_token:
       end
