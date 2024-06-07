@@ -75,10 +75,10 @@ module MixinBot
         members_count = data[2].ord
 
         if data[3...-4].length == members_count * 16
-          members = data[3...-4].scan(/.{16}/)
+          members = data[3...-4].chars.each_slice(16).map(&:join)
           members = members.map(&->(member) { MixinBot::UUID.new(raw: member).unpacked })
         else
-          members = data[3...-4].scan(/.{64}/)
+          members = data[3...-4].chars.each_slice(64).map(&:join)
           members = members.map(&->(member) { build_main_address(member) })
         end
 
