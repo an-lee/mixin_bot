@@ -30,7 +30,7 @@ module MixinBot
 
       # https://developers.mixin.one/api/alpha-mixin-network/create-pin/
       def update_pin(pin:, old_pin: nil)
-        old_pin ||= MixinBot.config.pin
+        # old_pin ||= MixinBot.config.pin
         raise ArgumentError, 'invalid old pin' if old_pin.present? && old_pin.length != 6
 
         path = '/pin/update'

@@ -49,9 +49,9 @@ module MixinBot
         keystore = {
           app_id: user['data']['user_id'],
           session_id: user['data']['session_id'],
-          private_key:,
-          pin_token: user['data']['pin_token_base64'],
-          spend_key: spend_keypair[1].unpack1('H*')
+          session_private_key: private_key,
+          server_public_key: user['data']['pin_token_base64'],
+          spend_key:
         }
         user_api = MixinBot::API.new(**keystore)
 
@@ -60,7 +60,7 @@ module MixinBot
         # wait for tip pin update in server
         sleep 1
 
-        user_api.safe_register spend_key
+        user_api.safe_register keystore[:spend_key]
 
         keystore
       end
