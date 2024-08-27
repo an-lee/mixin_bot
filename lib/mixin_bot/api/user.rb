@@ -103,7 +103,16 @@ module MixinBot
         # wait for tip pin update in server
         sleep 1
 
-        safe_register pin, spend_key
+        @__retry__ = 0
+        begin
+          safe_register pin, spend_key
+        rescue MixinBot::Error => e
+          @__retry__ += 1
+          raise e if @__retry__ > 3
+
+          sleep 1 + @__retry__
+          retry
+        end
 
         {
           spend_key:
