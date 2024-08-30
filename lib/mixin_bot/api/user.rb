@@ -60,7 +60,16 @@ module MixinBot
         # wait for tip pin update in server
         sleep 1
 
-        user_api.safe_register keystore[:spend_key]
+        @__retry__ = 0
+        begin
+          user_api.safe_register keystore[:spend_key]
+        rescue MixinBot::Error => e
+          @__retry__ += 1
+          raise e if @__retry__ > 3
+
+          sleep 1 + @__retry__
+          retry
+        end
 
         keystore
       end
