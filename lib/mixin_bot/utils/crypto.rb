@@ -85,7 +85,7 @@ module MixinBot
 
         s_scalar = (x_scalar * y_scalar) + z_scalar
 
-        r_point.encode + s_scalar.to_bytes(36)
+        r_point.encode + s_scalar.to_bytes(32).ljust(32, "\x00")
       end
 
       def generate_unique_uuid(uuid1, uuid2)
@@ -211,7 +211,7 @@ module MixinBot
         x_scalar = scalar_from_bytes x
         y_scalar = scalar_from_bytes spend_key
 
-        (x_scalar + y_scalar).to_bytes(36)
+        (x_scalar + y_scalar).to_bytes(32)
       end
     end
   end

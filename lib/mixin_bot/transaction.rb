@@ -374,6 +374,8 @@ module MixinBot
 
           signature.keys.sort.each do |key|
             signature_bytes = [signature[key]].pack('H*').bytes
+            raise ArgumentError, 'Signature should be 64 bytes' if signature_bytes.size != 64
+
             bytes += MixinBot.utils.encode_uint16 key
             bytes += signature_bytes
           end
