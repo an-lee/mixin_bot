@@ -40,6 +40,7 @@ module MixinBot
 
         prefix = [MIX_ADDRESS_VERSION].pack('C*') + [threshold].pack('C*') + [members.length].pack('C*')
 
+        members = members.sort
         msg =
           if members.all?(&->(member) { member.start_with? MAIN_ADDRESS_PREFIX })
             members.map(&->(member) { parse_main_address(member) }).join

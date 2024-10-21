@@ -28,5 +28,19 @@ module MixinBot
       mix_address2 = 'MIX3QEfo9wugeUo6B38nmJWw51iQ1nBCYR'
       assert MixinBot.utils.parse_mix_address(mix_address2)[:members] == [user_id2]
     end
+
+    def test_utils_members_order_do_not_affect_mix_address
+      user_id = TEST_UID
+      user_id2 = TEST_UID_2
+      mix_address = MixinBot.utils.build_mix_address(
+        members: [user_id, user_id2],
+        threshold: 1
+      )
+      mix_address2 = MixinBot.utils.build_mix_address(
+        members: [user_id2, user_id],
+        threshold: 1
+      )
+      assert mix_address == mix_address2
+    end
   end
 end
