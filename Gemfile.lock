@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     mixin_bot (1.2.4)
-      activesupport (~> 7)
+      activesupport (>= 7)
       awesome_print (~> 1.8)
       base58 (~> 0.2)
       bcrypt (~> 3.1)
