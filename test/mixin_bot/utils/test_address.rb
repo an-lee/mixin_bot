@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-module MixinBot
+module MixinBot::Utils
   class TestAddress < Minitest::Test
     BURNING_ADDRESS = 'XIN8b7CsqwqaBP7576hvWzo7uDgbU9TB5KGU4jdgYpQTi2qrQGpBtrW49ENQiLGNrYU45e2wwKRD7dEUPtuaJYps2jbR4dH'
 

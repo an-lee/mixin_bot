@@ -20,8 +20,10 @@ require 'openssl'
 require 'rbnacl'
 require 'sha3'
 
+require_relative 'mixin_bot/address'
 require_relative 'mixin_bot/api'
 require_relative 'mixin_bot/cli'
+require_relative 'mixin_bot/invoice'
 require_relative 'mixin_bot/utils'
 require_relative 'mixin_bot/nfo'
 require_relative 'mixin_bot/uuid'
@@ -70,4 +72,5 @@ module MixinBot
   class InvalidUuidFormatError < Error; end
   class InvalidTransactionFormatError < Error; end
   class ConfigurationNotValidError < Error; end
+  class InvalidInvoiceFormatError < Error; end
 end

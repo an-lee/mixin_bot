@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-module MixinBot
+module MixinBot::Utils
   class TestCrypto < Minitest::Test
     def setup
     end

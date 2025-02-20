@@ -40,12 +40,9 @@ module MixinBot
       end
 
       def decode_int(bytes)
-        int = 0
-        bytes.each do |byte|
-          int = (int * (2**8)) + byte
-        end
+        raise ArgumentError, "only support bytes #{bytes}" unless bytes.is_a?(Array)
 
-        int
+        bytes.reduce(0) { |sum, byte| (sum << 8) + byte }
       end
 
       def hex_to_uuid(hex)
