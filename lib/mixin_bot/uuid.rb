@@ -5,6 +5,8 @@ module MixinBot
     attr_accessor :hex, :raw
 
     def initialize(**args)
+      args = args.with_indifferent_access
+
       @hex = args[:hex]
       @raw = args[:raw]
 

@@ -41,11 +41,15 @@ module MixinBot
         raise ArgumentError, 'not integer' unless int.is_a?(Integer)
 
         bytes = []
-        loop do
-          break if int.zero?
+        if int.zero?
+          bytes.push(0)
+        else
+          loop do
+            break if int.zero?
 
-          bytes.push int & 255
-          int = (int / (2**8)) | 0
+            bytes.push int & 255
+            int = (int / (2**8)) | 0
+          end
         end
 
         bytes.reverse
