@@ -95,7 +95,10 @@ module MixinBot
 
       # read the gzipped message form websocket
       def ws_message(data)
-        io = StringIO.new(data.pack('c*'), 'rb')
+        data = data.pack('c*') if data.is_a?(Array)
+        raise MixinBot::ArgumentError, 'data should be String or Array of integer' unless data.is_a?(String)
+
+        io = StringIO.new(data, 'rb')
         gzip = Zlib::GzipReader.new io
         msg = gzip.read
         gzip.close
