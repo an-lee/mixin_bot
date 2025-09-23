@@ -10,8 +10,7 @@ Rake::TestTask.new(:test) do |t|
   t.test_files =
     FileList[
       'test/**/utils/test_*.rb',
-      'test/mixin_bot/test_nfo.rb',
-      'test/mixin_bot/test_transaction.rb',
+      'test/mixin_bot/api/**/test_*.rb',
     ]
   t.warning = false
 end

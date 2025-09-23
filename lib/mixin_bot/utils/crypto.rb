@@ -111,6 +111,25 @@ module MixinBot
         r
       end
 
+      def generate_group_conversation_id(user_ids:, name:, owner_id: nil, random_id: nil)
+        owner_id ||= config.app_id
+        random_id ||= SecureRandom.uuid
+
+        # Start with owner_id and group name
+        gid = unique_uuid(owner_id, name)
+
+        # Combine with random_id
+        gid = unique_uuid(gid, random_id)
+
+        # Sort participants and combine with each one
+        sorted_participants = user_ids.sort
+        sorted_participants.each do |participant|
+          gid = unique_uuid(gid, participant)
+        end
+
+        gid
+      end
+
       def generate_trace_from_hash(hash, output_index = 0)
         md5 = Digest::MD5.new
         md5 << hash

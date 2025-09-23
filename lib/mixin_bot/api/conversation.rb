@@ -26,7 +26,7 @@ module MixinBot
       end
 
       def create_group_conversation(user_ids:, name:, conversation_id: nil, access_token: nil)
-        conversation_id ||= generate_group_conversation_id(user_ids:, name:, owner_id: config.app_id)
+        conversation_id ||= MixinBot.utils.generate_group_conversation_id(user_ids:, name:, owner_id: config.app_id)
         create_conversation(
           category: 'GROUP',
           conversation_id:,
@@ -108,25 +108,6 @@ module MixinBot
         MixinBot.utils.unique_uuid user_id, opponent_id
       end
       alias unique_conversation_id unique_uuid
-
-      def generate_group_conversation_id(user_ids:, name:, owner_id: nil, random_id: nil)
-        owner_id ||= config.app_id
-        random_id ||= SecureRandom.uuid
-
-        # Start with owner_id and group name
-        gid = unique_uuid(owner_id, name)
-
-        # Combine with random_id
-        gid = unique_uuid(gid, random_id)
-
-        # Sort participants and combine with each one
-        sorted_participants = user_ids.sort
-        sorted_participants.each do |participant|
-          gid = unique_uuid(gid, participant)
-        end
-
-        gid
-      end
     end
   end
 end
