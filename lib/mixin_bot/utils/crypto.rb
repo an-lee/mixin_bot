@@ -111,8 +111,7 @@ module MixinBot
         r
       end
 
-      def generate_group_conversation_id(user_ids:, name:, owner_id: nil, random_id: nil)
-        owner_id ||= config.app_id
+      def generate_group_conversation_id(user_ids:, name:, owner_id:, random_id: nil)
         random_id ||= SecureRandom.uuid
 
         # Start with owner_id and group name
