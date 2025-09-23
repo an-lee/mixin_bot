@@ -25,8 +25,8 @@ module MixinBot
         client.post path, **payload, access_token: kwargs[:access_token]
       end
 
-      def create_group_conversation(user_ids:, name:, access_token: nil)
-        conversation_id = generate_group_conversation_id(user_ids:, name:)
+      def create_group_conversation(user_ids:, name:, conversation_id: nil, access_token: nil)
+        conversation_id ||= generate_group_conversation_id(user_ids:, name:, owner_id: config.app_id)
         create_conversation(
           category: 'GROUP',
           conversation_id:,
