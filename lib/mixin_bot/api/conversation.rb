@@ -16,6 +16,7 @@ module MixinBot
       def create_conversation(**kwargs)
         path = '/conversations'
         payload = {
+          announcement: kwargs[:announcement],
           category: kwargs[:category],
           conversation_id: kwargs[:conversation_id],
           name: kwargs[:name],
@@ -25,9 +26,10 @@ module MixinBot
         client.post path, **payload, access_token: kwargs[:access_token]
       end
 
-      def create_group_conversation(user_ids:, name:, conversation_id: nil, access_token: nil)
+      def create_group_conversation(user_ids:, name:, announcement: nil, conversation_id: nil, access_token: nil)
         conversation_id ||= MixinBot.utils.generate_group_conversation_id(user_ids:, name:, owner_id: config.app_id)
         create_conversation(
+          announcement:,
           category: 'GROUP',
           conversation_id:,
           name:,
