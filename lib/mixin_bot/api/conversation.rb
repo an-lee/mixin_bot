@@ -20,21 +20,24 @@ module MixinBot
           category: kwargs[:category],
           conversation_id: kwargs[:conversation_id],
           name: kwargs[:name],
-          participants: kwargs[:participants]
+          participants: kwargs[:participants],
+          random_id: kwargs[:random_id]
         }.compact_blank
 
         client.post path, **payload, access_token: kwargs[:access_token]
       end
 
-      def create_group_conversation(user_ids:, name:, announcement: nil, conversation_id: nil, access_token: nil)
-        conversation_id ||= MixinBot.utils.generate_group_conversation_id(user_ids:, name:, owner_id: config.app_id)
+      def create_group_conversation(user_ids:, name:, **kwargs)
+        random_id = kwargs[:random_id] || SecureRandom.uuid
+        conversation_id = kwargs[:conversation_id] || MixinBot.utils.generate_group_conversation_id(user_ids:, name:, owner_id: config.app_id, random_id:)
         create_conversation(
-          announcement:,
+          announcement: kwargs[:announcement],
           category: 'GROUP',
           conversation_id:,
           name:,
           participants: user_ids.map(&->(participant) { { user_id: participant } }),
-          access_token:
+          random_id:,
+          access_token: kwargs[:access_token]
         )
       end
 

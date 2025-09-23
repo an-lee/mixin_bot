@@ -36,9 +36,9 @@ module MixinBot
     def test_create_group_conversation_and_manage
       # create group
       group = MixinBot.api.create_group_conversation(
-        conversation_id: SecureRandom.uuid,
         user_ids: [TEST_UID, TEST_UID_2],
-        name: 'Created Group by test'
+        name: 'Created Group by test',
+        announcement: 'Announcement: Attention'
       )
       refute_nil group['data']['conversation_id']
 
