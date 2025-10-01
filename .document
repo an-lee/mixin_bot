@@ -1,0 +1,5 @@
+# .document - Files to include in RDoc documentation
+lib/**/*.rb
+-
+README.md
+MIT-LICENSE

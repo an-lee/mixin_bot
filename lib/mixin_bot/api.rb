@@ -33,9 +33,138 @@ require_relative 'api/user'
 require_relative 'api/withdraw'
 
 module MixinBot
+  ##
+  # Main API interface for interacting with Mixin Network.
+  #
+  # The API class provides access to all Mixin Network endpoints including:
+  # - User and bot profile management
+  # - Asset management (read assets, check balances)
+  # - Transfers and payments (Safe API and legacy)
+  # - Messaging (send/receive messages via Blaze)
+  # - Conversations and encrypted messages
+  # - Multisig operations
+  # - NFT and collectible operations
+  # - Transaction building and signing
+  # - Withdrawal operations
+  #
+  # == Usage
+  #
+  # === Using Global Configuration
+  #
+  #   MixinBot.configure do
+  #     app_id = 'your-app-id'
+  #     session_id = 'your-session-id'
+  #     session_private_key = 'your-private-key'
+  #     server_public_key = 'server-public-key'
+  #   end
+  #
+  #   # Access via global instance
+  #   MixinBot.api.me
+  #   MixinBot.api.assets
+  #
+  # === Creating Dedicated Instances
+  #
+  #   api = MixinBot::API.new(
+  #     app_id: 'your-app-id',
+  #     session_id: 'your-session-id',
+  #     session_private_key: 'your-private-key',
+  #     server_public_key: 'server-public-key'
+  #   )
+  #
+  #   api.me
+  #   api.assets
+  #
+  # == API Categories
+  #
+  # === Profile & Users
+  # - me, safe_me, update_me - Bot profile operations
+  # - read_user, read_users, search_user - User lookup
+  # - friends - List bot friends
+  #
+  # === Assets & Balance
+  # - assets, asset - Read asset information
+  # - ticker - Get asset ticker data
+  # - safe_assets - Read Safe API assets
+  #
+  # === Transfers & Payments
+  # - create_transfer, create_safe_transfer - Send payments
+  # - build_safe_transaction - Build raw transactions
+  # - sign_safe_transaction - Sign transactions
+  # - send_safe_transaction - Submit signed transactions
+  #
+  # === Messaging
+  # - start_blaze_connect - Connect to Blaze WebSocket
+  # - send_message - Send text/data messages
+  # - send_encrypted_messages - Send encrypted messages
+  #
+  # === Multisig & UTXOs
+  # - safe_outputs - Read unspent outputs
+  # - multisig_payments - Multisig payment operations
+  # - safe_ghost_keys - Generate ghost keys
+  #
+  # === NFT & Collectibles
+  # - create_collectible_request - Create NFT requests
+  # - read_collectibles - Read collectible tokens
+  # - inscriptions - Inscription operations
+  #
+  # == Examples
+  #
+  # Get bot information:
+  #
+  #   profile = MixinBot.api.me
+  #   puts profile['full_name']
+  #
+  # Read assets:
+  #
+  #   assets = MixinBot.api.assets
+  #   assets.each do |asset|
+  #     puts "#{asset['symbol']}: #{asset['balance']}"
+  #   end
+  #
+  # Send a transfer:
+  #
+  #   result = MixinBot.api.create_transfer(
+  #     members: ['recipient-user-id'],
+  #     threshold: 1,
+  #     asset_id: 'asset-uuid',
+  #     amount: '0.01',
+  #     memo: 'Payment for services',
+  #     trace_id: SecureRandom.uuid
+  #   )
+  #
   class API
-    attr_reader :config, :client
+    ##
+    # @return [MixinBot::Configuration] the configuration for this API instance
+    attr_reader :config
 
+    ##
+    # @return [MixinBot::Client] the HTTP client for making API requests
+    attr_reader :client
+
+    ##
+    # Initializes a new API instance.
+    #
+    # If no parameters are provided, uses the global MixinBot configuration.
+    # Otherwise, creates a new configuration with the provided parameters.
+    #
+    # @param kwargs [Hash] configuration options (see Configuration#initialize)
+    # @option kwargs [String] :app_id the application ID
+    # @option kwargs [String] :session_id the session ID
+    # @option kwargs [String] :session_private_key the session private key
+    # @option kwargs [String] :server_public_key the server public key
+    # @option kwargs [String] :spend_key the spend private key (for Safe API)
+    #
+    # @example Using global configuration
+    #   api = MixinBot::API.new
+    #
+    # @example With custom configuration
+    #   api = MixinBot::API.new(
+    #     app_id: 'your-app-id',
+    #     session_id: 'your-session-id',
+    #     session_private_key: 'your-private-key',
+    #     server_public_key: 'server-public-key'
+    #   )
+    #
     def initialize(**kwargs)
       @config =
         if kwargs.present?
@@ -47,14 +176,42 @@ module MixinBot
       @client = Client.new(@config)
     end
 
+    ##
+    # Provides access to utility methods.
+    #
+    # @return [Module] the Utils module
+    #
     def utils
       MixinBot::Utils
     end
 
+    ##
+    # Returns the client ID (same as app_id).
+    #
+    # @return [String] the client ID
+    #
     def client_id
       config.app_id
     end
 
+    ##
+    # Generates an access token for API authentication.
+    #
+    # Creates a JWT token signed with the bot's private key for authenticating
+    # API requests. The token includes request details and has a limited lifetime.
+    #
+    # @param method [String] the HTTP method (GET, POST, etc.)
+    # @param uri [String] the request URI path
+    # @param body [String] the request body
+    # @param kwargs [Hash] additional options
+    # @option kwargs [Integer] :exp_in (600) token expiration time in seconds
+    # @option kwargs [String] :scp ('FULL') token scope
+    #
+    # @return [String] the JWT access token
+    #
+    # @example
+    #   token = api.access_token('GET', '/me', '')
+    #
     def access_token(method, uri, body, **kwargs)
       utils.access_token(
         method,
@@ -68,19 +225,67 @@ module MixinBot
       )
     end
 
+    ##
+    # Encodes a transaction hash to raw transaction format.
+    #
+    # @param txn [Hash] the transaction hash with keys: version, asset, inputs, outputs, extra
+    # @return [String] the hex-encoded raw transaction
+    #
+    # @example
+    #   raw = api.encode_raw_transaction(
+    #     version: 5,
+    #     asset: 'asset-id',
+    #     inputs: [...],
+    #     outputs: [...],
+    #     extra: 'memo'
+    #   )
+    #
     def encode_raw_transaction(txn)
       utils.encode_raw_transaction txn
     end
 
+    ##
+    # Decodes a raw transaction to a hash.
+    #
+    # @param raw [String] the hex-encoded raw transaction
+    # @return [Hash] the decoded transaction
+    #
+    # @example
+    #   txn = api.decode_raw_transaction(raw_hex)
+    #   puts txn['asset']
+    #   puts txn['inputs']
+    #
     def decode_raw_transaction(raw)
       utils.decode_raw_transaction raw
     end
 
+    ##
+    # Generates a trace ID from a transaction hash.
+    #
+    # Creates a deterministic UUID trace ID from a transaction hash,
+    # useful for tracking outputs from a transaction.
+    #
+    # @param hash [String] the transaction hash
+    # @param output_index [Integer] the output index (default: 0)
+    # @return [String] the generated trace UUID
+    #
+    # @example
+    #   trace_id = api.generate_trace_from_hash(tx_hash, 0)
+    #
     def generate_trace_from_hash(hash, output_index = 0)
       utils.generate_trace_from_hash hash, output_index
     end
 
-    # Use a mixin software to implement transaction build
+    ##
+    # Encodes a raw transaction using native mixin command-line tool.
+    #
+    # Requires the 'mixin' command to be installed and available in PATH.
+    # This is an alternative to the Ruby implementation.
+    #
+    # @param json [String] the transaction JSON
+    # @return [String] the encoded raw transaction
+    # @raise [RuntimeError] if mixin command is not available
+    #
     def encode_raw_transaction_native(json)
       ensure_mixin_command_exist
       command = format("mixin signrawtransaction --raw '%<arg>s'", arg: json)
@@ -91,7 +296,16 @@ module MixinBot
       output.chomp
     end
 
-    # Use a mixin software to implement transaction build
+    ##
+    # Decodes a raw transaction using native mixin command-line tool.
+    #
+    # Requires the 'mixin' command to be installed and available in PATH.
+    # This is an alternative to the Ruby implementation.
+    #
+    # @param raw [String] the hex-encoded raw transaction
+    # @return [Hash] the decoded transaction
+    # @raise [RuntimeError] if mixin command is not available
+    #
     def decode_raw_transaction_native(raw)
       ensure_mixin_command_exist
       command = format("mixin decoderawtransaction --raw '%<arg>s'", arg: raw)

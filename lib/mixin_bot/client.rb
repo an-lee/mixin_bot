@@ -1,11 +1,62 @@
 # frozen_string_literal: true
 
 module MixinBot
+  ##
+  # HTTP client for making requests to the Mixin Network API.
+  #
+  # The Client handles:
+  # - HTTP connection management
+  # - Request authentication via JWT tokens
+  # - JSON encoding/decoding
+  # - Error handling and response parsing
+  # - Automatic retry logic
+  #
+  # == Usage
+  #
+  # The Client is typically created automatically by the API class,
+  # but can be instantiated directly if needed:
+  #
+  #   config = MixinBot::Configuration.new(...)
+  #   client = MixinBot::Client.new(config)
+  #   response = client.get('/me')
+  #
+  # == Error Handling
+  #
+  # The client automatically raises appropriate exceptions based on
+  # API error responses:
+  # - UnauthorizedError (401, 20121)
+  # - ForbiddenError (403, 20116, 10002, 429)
+  # - NotFoundError (404)
+  # - UserNotFoundError (10404)
+  # - InsufficientBalanceError (20117)
+  # - PinError (20118, 20119)
+  # - InsufficientPoolError (30103)
+  # - ResponseError (other errors)
+  #
   class Client
+    ##
+    # The HTTPS scheme used for API requests.
     SERVER_SCHEME = 'https'
 
-    attr_reader :config, :conn
+    ##
+    # @return [MixinBot::Configuration] the configuration
+    attr_reader :config
 
+    ##
+    # @return [Faraday::Connection] the HTTP connection
+    attr_reader :conn
+
+    ##
+    # Initializes a new Client instance.
+    #
+    # Sets up the HTTP connection with:
+    # - JSON request/response handling
+    # - Automatic retry on failures
+    # - Custom User-Agent header
+    # - Optional debug logging
+    #
+    # @param config [MixinBot::Configuration] the configuration (defaults to global config)
+    #
     def initialize(config)
       @config = config || MixinBot.config
       @conn = Faraday.new(
@@ -22,10 +73,28 @@ module MixinBot
       end
     end
 
+    ##
+    # Performs a GET request to the Mixin API.
+    #
+    # @param path [String] the API endpoint path
+    # @param args [Array] positional arguments
+    # @param kwargs [Hash] keyword arguments including query parameters
+    # @return [Hash] the parsed response
+    # @raise [MixinBot::Error] on API errors
+    #
     def get(path, *, **)
       request(:get, path, *, **)
     end
 
+    ##
+    # Performs a POST request to the Mixin API.
+    #
+    # @param path [String] the API endpoint path
+    # @param args [Array] positional arguments
+    # @param kwargs [Hash] keyword arguments for request body
+    # @return [Hash] the parsed response
+    # @raise [MixinBot::Error] on API errors
+    #
     def post(path, *, **)
       request(:post, path, *, **)
     end

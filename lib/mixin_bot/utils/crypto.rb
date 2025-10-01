@@ -2,7 +2,65 @@
 
 module MixinBot
   module Utils
+    ##
+    # Cryptographic utility methods for Mixin Network operations.
+    #
+    # This module provides essential cryptographic functions including:
+    # - JWT token generation for API authentication
+    # - Ed25519 and RSA key generation
+    # - PIN encryption/decryption
+    # - Transaction signing
+    # - UUID generation and derivation
+    # - Ghost key derivation for Safe API
+    #
+    # == Key Types
+    #
+    # Mixin Network uses several types of cryptographic keys:
+    #
+    # [Session Key] Ed25519 or RSA key for API authentication
+    # [Spend Key] Ed25519 key for signing transactions (Safe API)
+    # [View Key] Ed25519 key for viewing transactions
+    # [PIN Key] For legacy PIN operations
+    #
+    # == Signature Algorithm
+    #
+    # Safe API uses Ed25519 with Blake3 hashing for transaction signing.
+    # This provides quantum-resistant security with compact signatures.
+    #
     module Crypto
+      ##
+      # Generates a JWT access token for API authentication.
+      #
+      # Creates a signed JWT token containing request details and credentials.
+      # The token is used in the Authorization header for API requests.
+      #
+      # Token payload includes:
+      # - uid: user/bot ID
+      # - sid: session ID
+      # - iat: issued at timestamp
+      # - exp: expiration timestamp
+      # - jti: unique token ID
+      # - sig: SHA-256 hash of request (method + uri + body)
+      # - scp: scope (usually 'FULL')
+      #
+      # @param method [String] HTTP method (GET, POST, etc.)
+      # @param uri [String] request URI path
+      # @param body [String] request body (empty for GET)
+      # @param kwargs [Hash] additional options
+      # @option kwargs [Integer] :exp_in (600) token lifetime in seconds
+      # @option kwargs [String] :scp ('FULL') token scope
+      # @option kwargs [String] :app_id bot application ID
+      # @option kwargs [String] :session_id session ID
+      # @option kwargs [String] :private_key session private key
+      #
+      # @return [String] JWT token
+      #
+      # @raise [ConfigurationNotValidError] if private_key is missing
+      #
+      # @example
+      #   token = MixinBot.utils.access_token('GET', '/me', '')
+      #   # Use in request: Authorization: Bearer #{token}
+      #
       def access_token(method, uri, body = '', **kwargs)
         sig = Digest::SHA256.hexdigest(method + uri + body.to_s)
         iat = Time.now.utc.to_i
@@ -37,6 +95,19 @@ module MixinBot
         JOSE::JWT.sign(jwk, jws, jwt).compact
       end
 
+      ##
+      # Generates a new Ed25519 keypair.
+      #
+      # Ed25519 is the recommended key type for Mixin Network.
+      # It provides strong security with compact keys and signatures.
+      #
+      # @return [Hash] hash containing :private_key and :public_key (Base64-encoded)
+      #
+      # @example
+      #   keys = MixinBot.utils.generate_ed25519_key
+      #   puts "Private: #{keys[:private_key]}"
+      #   puts "Public: #{keys[:public_key]}"
+      #
       def generate_ed25519_key
         ed25519_key = JOSE::JWA::Ed25519.keypair
         {
@@ -45,6 +116,18 @@ module MixinBot
         }
       end
 
+      ##
+      # Generates a new RSA keypair.
+      #
+      # RSA keys are supported for backward compatibility but
+      # Ed25519 is recommended for new applications.
+      #
+      # @return [Hash] hash containing :private_key and :public_key (PEM format)
+      #
+      # @example
+      #   keys = MixinBot.utils.generate_rsa_key
+      #   puts keys[:private_key]
+      #
       def generate_rsa_key
         rsa_key = OpenSSL::PKey::RSA.new 1024
         {
@@ -53,10 +136,26 @@ module MixinBot
         }
       end
 
+      ##
+      # Derives a public key from a private key.
+      #
+      # Used internally for cryptographic operations.
+      #
+      # @param key [String] the private key (64 bytes)
+      # @return [String] the derived public key
+      #
       def shared_public_key(key)
         (JOSE::JWA::Edwards25519Point.stdbase * scalar_from_bytes(key[...64]).x.to_i).encode
       end
 
+      ##
+      # Converts raw bytes to a scalar for Ed25519 operations.
+      #
+      # Used internally for cryptographic calculations.
+      #
+      # @param raw [String] raw bytes
+      # @return [JOSE::JWA::FieldElement] the scalar value
+      #
       def scalar_from_bytes(raw)
         JOSE::JWA::FieldElement.new(
           # https://github.com/potatosalad/ruby-jose/blob/e1be589b889f1e59ac233a5d19a3fa13f1e4b8a0/lib/jose/jwa/x25519.rb#L122C14-L122C48
@@ -100,6 +199,29 @@ module MixinBot
         MixinBot::UUID.new(raw: cipher).unpacked
       end
 
+      ##
+      # Generates a unique UUID from multiple UUIDs.
+      #
+      # Creates a deterministic UUID by combining multiple UUIDs.
+      # The result is always the same for the same set of input UUIDs,
+      # regardless of order (after sorting).
+      #
+      # This is used for:
+      # - Creating conversation IDs
+      # - Generating multisig addresses
+      # - Creating deterministic identifiers
+      #
+      # @param uuids [Array<String>] array of UUIDs to combine
+      # @return [String] the unique combined UUID
+      #
+      # @example
+      #   uuid = MixinBot.utils.unique_uuid(
+      #     'user1-uuid',
+      #     'user2-uuid',
+      #     'user3-uuid'
+      #   )
+      #   puts uuid  # Always the same for these inputs
+      #
       def unique_uuid(*uuids)
         uuids = uuids.flatten.compact
         uuids.sort
@@ -111,6 +233,28 @@ module MixinBot
         r
       end
 
+      ##
+      # Generates a group conversation ID.
+      #
+      # Creates a deterministic conversation ID for a group based on:
+      # - Owner ID
+      # - Group name
+      # - Participant IDs
+      # - Random ID (optional, for creating different groups with same members)
+      #
+      # @param user_ids [Array<String>] array of participant user IDs
+      # @param name [String] the group name
+      # @param owner_id [String] the group owner's user ID
+      # @param random_id [String, nil] optional random ID for uniqueness
+      # @return [String] the conversation UUID
+      #
+      # @example
+      #   conv_id = MixinBot.utils.generate_group_conversation_id(
+      #     user_ids: ['user1', 'user2', 'user3'],
+      #     name: 'My Group',
+      #     owner_id: 'owner-id'
+      #   )
+      #
       def generate_group_conversation_id(user_ids:, name:, owner_id:, random_id: nil)
         random_id ||= SecureRandom.uuid
 

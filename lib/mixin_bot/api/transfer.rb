@@ -2,18 +2,85 @@
 
 module MixinBot
   class API
+    ##
+    # API methods for creating transfers using the Safe API.
+    #
+    # The Safe API is the recommended way to transfer assets on Mixin Network.
+    # It provides better security, lower fees, and more flexibility than legacy transfers.
+    #
+    # == Transfer Process
+    #
+    # A Safe transfer involves several steps:
+    # 1. Select UTXOs (unspent transaction outputs) as inputs
+    # 2. Build the transaction with outputs
+    # 3. Sign the transaction with spend key
+    # 4. Submit the signed transaction
+    #
+    # This module handles all these steps automatically.
+    #
+    # == Usage
+    #
+    #   # Simple transfer to a single user
+    #   api.create_transfer(
+    #     members: 'user-uuid',
+    #     asset_id: 'asset-uuid',
+    #     amount: '0.01',
+    #     memo: 'Payment'
+    #   )
+    #
+    #   # Multisig transfer
+    #   api.create_transfer(
+    #     members: ['user1-uuid', 'user2-uuid', 'user3-uuid'],
+    #     threshold: 2,
+    #     asset_id: 'asset-uuid',
+    #     amount: '0.01'
+    #   )
+    #
     module Transfer
-      # kwargs:
-      # {
-      #  members: uuid | [ uuid ],
-      #  threshold: integer / nil,
-      #  asset_id: uuid,
-      #  amount: string / float,
-      #  trace_id: uuid / nil,
-      #  request_id: uuid / nil,
-      #  memo: string,
-      #  spend_key: string / nil,
-      # }
+      ##
+      # Creates a Safe API transfer.
+      #
+      # This is the main method for sending assets on Mixin Network.
+      # It handles the complete transfer process including UTXO selection,
+      # transaction building, signing, and submission.
+      #
+      # @param kwargs [Hash] transfer options
+      # @option kwargs [String, Array<String>] :members recipient user ID(s)
+      # @option kwargs [Integer] :threshold multisig threshold (defaults to members.length)
+      # @option kwargs [String] :asset_id the asset UUID to transfer
+      # @option kwargs [String, Float] :amount the amount to transfer
+      # @option kwargs [String] :trace_id unique trace ID (defaults to random UUID)
+      # @option kwargs [String] :request_id alias for trace_id
+      # @option kwargs [String] :memo transaction memo (max 140 characters)
+      # @option kwargs [String] :spend_key spend private key (defaults to config.spend_key)
+      # @option kwargs [Array<Hash>] :utxos specific UTXOs to use (optional, will auto-select if not provided)
+      #
+      # @return [Hash] the transfer result including transaction hash and status
+      #
+      # @raise [ArgumentError] if required parameters are missing or invalid
+      # @raise [InsufficientBalanceError] if balance is insufficient
+      #
+      # @example Simple transfer
+      #   result = api.create_transfer(
+      #     members: '6ae1c7ae-1df1-498e-8f21-d48cb6d129b5',
+      #     asset_id: '965e5c6e-434c-3fa9-b780-c50f43cd955c',
+      #     amount: '0.01',
+      #     memo: 'Test payment'
+      #   )
+      #   puts result['snapshot_id']
+      #
+      # @example Multisig transfer (2-of-3)
+      #   result = api.create_transfer(
+      #     members: [
+      #       '6ae1c7ae-1df1-498e-8f21-d48cb6d129b5',
+      #       '8017d200-7870-4b82-b53f-74bae1d2dad7',
+      #       'e8e8cd79-cd40-4796-8c54-3a13cfe50115'
+      #     ],
+      #     threshold: 2,
+      #     asset_id: '965e5c6e-434c-3fa9-b780-c50f43cd955c',
+      #     amount: '0.01'
+      #   )
+      #
       def create_safe_transfer(**kwargs)
         utxos = kwargs[:utxos]
         raise ArgumentError, 'utxos must be array' if utxos.present? && !utxos.is_a?(Array)
@@ -70,8 +137,41 @@ module MixinBot
           signed_raw
         )
       end
+
+      ##
+      # Alias for create_safe_transfer.
+      #
+      # @see #create_safe_transfer
+      #
       alias create_transfer create_safe_transfer
 
+      ##
+      # Builds a UTXO set for a transfer.
+      #
+      # Selects unspent outputs (UTXOs) from the bot's wallet that sum up
+      # to at least the requested amount. This is used internally by
+      # create_safe_transfer but can be called directly if needed.
+      #
+      # The method:
+      # - Fetches unspent outputs for the asset
+      # - Sorts them by amount (smallest first)
+      # - Selects outputs until the amount is reached
+      # - Limits to 256 UTXOs maximum
+      #
+      # @param asset_id [String] the asset UUID
+      # @param amount [String, Float, BigDecimal] the amount needed
+      # @return [Array<Hash>] array of selected UTXOs
+      #
+      # @raise [InsufficientBalanceError] if balance is insufficient
+      #
+      # @example
+      #   utxos = api.build_utxos(
+      #     asset_id: '965e5c6e-434c-3fa9-b780-c50f43cd955c',
+      #     amount: '0.01'
+      #   )
+      #   puts "Selected #{utxos.length} UTXOs"
+      #   puts "Total: #{utxos.sum { |u| u['amount'].to_d }}"
+      #
       def build_utxos(asset_id:, amount:)
         outputs = safe_outputs(state: 'unspent', asset: asset_id, limit: 500)['data'].sort_by { |o| o['amount'].to_d }
 
