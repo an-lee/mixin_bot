@@ -48,3 +48,23 @@ desc 'clean built gems'
 task :clean do
   system 'rm *.gem'
 end
+
+desc 'Generate RDoc documentation'
+task :rdoc do
+  require 'rdoc/task'
+  
+  RDoc::Task.new do |rdoc|
+    rdoc.main = 'README.md'
+    rdoc.rdoc_dir = 'doc'
+    rdoc.title = 'MixinBot - Ruby SDK for Mixin Network'
+    rdoc.options << '--line-numbers'
+    rdoc.options << '--charset=UTF-8'
+    rdoc.rdoc_files.include('README.md', 'MIT-LICENSE', 'DOCUMENTATION.md')
+    rdoc.rdoc_files.include('lib/**/*.rb')
+  end
+  
+  Rake::Task['rdoc'].invoke
+end
+
+desc 'Generate documentation (alias for rdoc)'
+task doc: :rdoc

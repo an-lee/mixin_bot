@@ -1,0 +1,28 @@
+# RDoc Configuration for MixinBot Gem
+
+# Main documentation entry point
+--main README.md
+
+# Output directory
+--op doc
+
+# Document title
+--title "MixinBot - Ruby SDK for Mixin Network"
+
+# Include line numbers in source code
+--line-numbers
+
+# Character encoding
+--charset UTF-8
+
+# Include all documentation
+--all
+
+# Additional files to include
+README.md
+MIT-LICENSE
+DOCUMENTATION.md
+RDOC_GUIDE.md
+
+# Source files
+lib/**/*.rb

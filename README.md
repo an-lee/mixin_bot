@@ -149,6 +149,31 @@ bot1_api.me
 bot2_api.me
 ```
 
+## Documentation
+
+Comprehensive RDoc documentation is available for the entire gem.
+
+### Generate Documentation
+
+```bash
+# Using Rake
+rake rdoc
+
+# Or using RDoc directly
+rdoc
+```
+
+Then open `doc/index.html` in your browser.
+
+### Online Documentation
+
+Documentation is also available online at [RubyDoc.info](https://www.rubydoc.info/gems/mixin_bot).
+
+### Documentation Guides
+
+- [DOCUMENTATION.md](DOCUMENTATION.md) - Complete documentation guide
+- [RDOC_GUIDE.md](RDOC_GUIDE.md) - RDoc formatting and style guide
+
 ## More Example
 
 See in the `Spec` files.
