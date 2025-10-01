@@ -3,6 +3,9 @@
 require 'bundler'
 require 'bundler/gem_tasks'
 require 'rake/testtask'
+require 'rdoc/task'
+
+require_relative 'lib/mixin_bot/version'
 
 Rake::TestTask.new(:test) do |t|
   t.libs << 'test'
@@ -20,6 +23,15 @@ require 'rubocop/rake_task'
 RuboCop::RakeTask.new
 
 task default: %i[test rubocop]
+
+desc 'Generate RDoc documentation'
+RDoc::Task.new(:rdoc) do |rdoc|
+  rdoc.rdoc_dir = 'doc'
+  rdoc.main = 'README.md'
+  rdoc.title = 'MixinBot Ruby SDK'
+  rdoc.rdoc_files.include('README.md', 'MIT-LICENSE', 'lib/**/*.rb')
+  rdoc.options << '--markup' << 'markdown'
+end
 
 GEM_NAME = 'mixin_bot'
 GEM_VERSION = MixinBot::VERSION

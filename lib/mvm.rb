@@ -9,6 +9,15 @@ require_relative 'mvm/nft'
 require_relative 'mvm/registry'
 require_relative 'mvm/scan'
 
+##
+# MVM
+#
+# Minimal helpers for interacting with the Mixin Virtual Machine (MVM) sidechain
+# and smart contracts via ETH JSON-RPC.
+#
+# Provides convenience constructors for `MVM::Bridge`, `MVM::Nft`,
+# `MVM::Registry`, and `MVM::Scan`.
+#
 module MVM
   RPC_URL = 'https://geth.mvm.dev'
   MIRROR_ADDRESS = '0xC193486e6Bf3E8461cb8fcdF178676a5D75c066A'
