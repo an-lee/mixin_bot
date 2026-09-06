@@ -8,6 +8,7 @@ require_relative 'api/asset'
 require_relative 'api/attachment'
 require_relative 'api/auth'
 require_relative 'api/blaze'
+require_relative 'api/blaze_async'
 require_relative 'api/chain'
 require_relative 'api/code'
 require_relative 'api/circle'
@@ -338,6 +339,7 @@ module MixinBot
     include MixinBot::API::Attachment
     include MixinBot::API::Auth
     include MixinBot::API::Blaze
+    include MixinBot::API::BlazeAsync
     include MixinBot::API::Chain
     include MixinBot::API::Code
     include MixinBot::API::Circle

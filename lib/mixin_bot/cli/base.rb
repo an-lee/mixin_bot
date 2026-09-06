@@ -28,6 +28,7 @@ module MixinBot
     INTERACTIVE_API_METHODS = %i[
       start_blaze_connect
       blaze
+      blaze_async
       upload_attachment
     ].freeze
 
