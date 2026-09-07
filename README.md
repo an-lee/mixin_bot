@@ -257,6 +257,39 @@ end
 
 For outbound messages over an open socket, use `blaze_send_plain_text`, `blaze_send_contact`, `blaze_send_app_card`, and related helpers (parity with Go `BlazeClient`).
 
+### Without EventMachine: `blaze_async`
+
+`blaze_async` returns the connected `async-websocket` connection instead of a `Faye::WebSocket::Client` — same URL, `Mixin-Blaze-1` subprotocol, and frame codec; the caller drives the loop in an `Async` reactor. Wire notes: wrap `write_ws_message` byte arrays in `Protocol::WebSocket::BinaryMessage`, feed `message.to_str` into `ws_message`, and own the keepalive ping (see `examples/blaze_async.rb`).
+
+```ruby
+require 'async'
+require 'mixin_bot'
+
+Async do |task|
+  connection = MixinBot.api.blaze_async
+
+  task.async do # keepalive is the caller's job
+    loop do
+      sleep 30
+      connection.send_ping
+    end
+  end
+
+  connection.write Protocol::WebSocket::BinaryMessage.new(MixinBot.api.list_pending_message.pack('C*'))
+  while (message = connection.read)
+    raw = JSON.parse MixinBot.api.ws_message(message.to_str)
+    # data is a Hash for message envelopes, an Array in LIST_PENDING_MESSAGES replies
+    data = raw['data'].is_a?(Hash) ? raw['data'] : {}
+    next unless (message_id = data['message_id'])
+
+    bytes = MixinBot.api.acknowledge_message_receipt(message_id)
+    connection.write Protocol::WebSocket::BinaryMessage.new(bytes.pack('C*'))
+  end
+ensure
+  connection&.close
+end
+```
+
 ## Deep links and bot auth
 
 ```ruby
