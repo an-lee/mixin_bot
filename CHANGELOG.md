@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.0] - 2026-09-07
+
 ### Added
 
 - **`API#blaze_async`** — fiber-based sibling of `blaze`: returns a connected `async-websocket` client (same `wss://<blaze_host>/` URL, `Mixin-Blaze-1` subprotocol, Bearer JWT, User-Agent, and shared frame codec) for hosts driving Blaze outside EventMachine. `handler:` is yield-through for caller-supplied `Async::WebSocket::Connection` subclasses; `endpoint_options:` forwards to `Async::HTTP::Endpoint.parse`. Forces the HTTP/1 upgrade path via ALPN. Caller-side wire notes: send `write_ws_message` byte arrays as `BinaryMessage.new(ary.pack('C*'))`, feed `message.to_str` into `ws_message`, and own the keepalive ping (server pings are auto-replied).
