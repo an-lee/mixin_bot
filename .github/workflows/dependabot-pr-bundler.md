@@ -48,7 +48,7 @@ safe-outputs:
 
 tools:
   github:
-    toolsets: [all]
+    toolsets: [all, dependabot]
   bash: true
 
 timeout-minutes: 15

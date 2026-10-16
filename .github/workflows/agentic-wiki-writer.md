@@ -13,6 +13,9 @@ on:
         default: false
   schedule: weekly on tuesday around 3:00 utc+8
 
+concurrency:
+  job-discriminator: ${{ github.run_id }}
+
 imports:
 - shared/engine-minimax.md
 
@@ -37,6 +40,7 @@ tools:
     - "wc *"
     - "ls"
     - "cat *"
+    - "cat /tmp/gh-aw/event.json"
     - "head *"
   edit:
   repo-memory:

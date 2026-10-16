@@ -23,6 +23,8 @@ on:
         description: "Optional command-mode instruction (for example: Run Task 9)"
         required: false
         type: string
+concurrency:
+  job-discriminator: ${{ github.run_id }}
 permissions: read-all
 if: needs.pre_activation.outputs.check_result == 'success'
 network:
