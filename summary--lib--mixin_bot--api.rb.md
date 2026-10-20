@@ -1,2 +1,2 @@
-hash: wc:11981
-MixinBot::API owns config/client, signs access tokens, wraps transaction encoding, and includes all Safe, legacy, messaging, asset, auth, RPC, and withdrawal domain modules.
+hash: wc:12054
+`MixinBot::API` owns config/client, signs access tokens (`access_token` and aliases), wraps transaction encoding (`encode_raw_transaction`, `decode_raw_transaction`, native `mixin` CLI variants, `generate_trace_from_hash`), and `include`s ~43 domain modules: Address, App, Asset, Attachment, Auth, Blaze, BlazeAsync, Chain, Code, Circle, ComputerApi, Conversation, Deposit, EncryptedMessage, External, Fiat, Inscription, Legacy*, Me, Message, Multisig, Network, NetworkAsset, Output, Payment, Pin, PinPayload, Rpc, Session, Snapshot, Tip, Transaction, Transfer, Turn, User, Withdraw.

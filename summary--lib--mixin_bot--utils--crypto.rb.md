@@ -1,3 +1,3 @@
 # Summary: lib/mixin_bot/utils/crypto.rb
-`size: 13432`
-Crypto helpers: `access_token` (JWT EdDSA/RS512), `generate_ed25519_key`, `generate_rsa_key`, `shared_public_key`, `scalar_from_bytes`, `sign` (Blake3+Ed25519), `generate_unique_uuid`, `unique_uuid`, `generate_group_conversation_id`, `generate_user_checksum`, `chunked`, `make_unique_string_slice`, `unique_object_id`, `generate_trace_from_hash`, `decrypt_pin`, `encrypt_pin` (AES-256-CBC), `tip_public_key`, `hash_scalar`, `multiply_keys`, `derive_ghost_public_key`, `derive_ghost_private_key`.
+`size: 13898`
+Crypto helpers: `access_token` (JWT EdDSA/RS512), `oauth_code_challenge` (PKCE S256), `generate_ed25519_key`, `generate_rsa_key`, `shared_public_key`, `scalar_from_bytes`, `sign` (Blake3+Ed25519), `generate_unique_uuid`, `unique_uuid`, `generate_group_conversation_id`, `generate_user_checksum`, `chunked`, `make_unique_string_slice`, `unique_object_id`, `generate_trace_from_hash`, `decrypt_pin`, `encrypt_pin` (AES-256-CBC), `tip_public_key`, `hash_scalar`, `multiply_keys`, `derive_ghost_public_key`, `derive_ghost_private_key`.
