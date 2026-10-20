@@ -4,11 +4,11 @@
 
 ## Project overview
 
-*{ Summarize the gem, its scope (REST SDK + CLI + optional MVM), the SDKs it parallels (bot-api-go-client, bot-api-nodejs-client), and the Ruby/runtime requirements (Ruby >= 4.0, Bundler 2.6+). }*
+*{ Summarize the gem, its scope (REST SDK + CLI + optional Rails layer + optional MVM), the SDKs it parallels (bot-api-go-client, bot-api-nodejs-client), and the Ruby/runtime requirements (Ruby >= 4.0, Bundler 2.6+). }*
 
 ## Quick links
 
-*[Project README](https://github.com/baizhiheizi/mixin_bot/blob/main/README.md) covers installation and basic usage. [[Getting Started|Getting-Started]] walks through configuration and your first call. [[Architecture|Architecture]] explains how the modules compose. [[API Reference|API-Reference]] documents each domain.*
+*[Project README](https://github.com/baizhiheizi/mixin_bot/blob/main/README.md) covers installation and basic usage. [[Getting Started|Getting-Started]] walks through configuration and your first call. [[Architecture|Architecture]] explains how the modules compose. [[API Reference|API-Reference]] documents each domain. [[Rails Integration|Rails-Integration]] covers the optional Rails layer.*
 
 # Getting Started
 
@@ -30,19 +30,19 @@
 
 ## Configuration object
 
-*{ Explain `MixinBot::Configuration` and its attribute list (app_id, client_secret, session_id, session_private_key, server_public_key, spend_key, pin, api_host, blaze_host, debug). Cover key aliasing (`client_id` -> `app_id`, `private_key` -> `session_private_key`, `pin_token` -> `server_public_key`) and automatic Ed25519/Curve25519 format conversions. }*
+*{ Explain `MixinBot::Configuration` and its attribute list (app_id, client_secret, session_id, session_private_key, server_public_key, spend_key, pin, api_host, blaze_host, http_timeout, debug, blaze_handler, blaze_ack_policy). Cover key aliasing (`client_id` -> `app_id`, `private_key` -> `session_private_key`, `pin_token` -> `server_public_key`) and automatic Ed25519/Curve25519 format conversions. }*
 
 ####+ Keystores
 *{ Describe the JSON keystore consumed by the CLI via `-k`/`--keystore` and the `setup_api_instance!` flow that turns it into an `API` instance. }*
 
 ####+ Multiple bots
-*{ Show creating dedicated `MixinBot::API.new(...)` instances per bot, in contrast to the global singleton via `MixinBot.api`. }*
+*{ Show creating dedicated `MixinBot::API.new(...)` instances per bot, in contrast to the global singleton via `MixinBot.api`, and the named `MixinBot.register_bot` registry. }*
 
 # Architecture
 
 ## Module composition
 
-*{ Explain that `MixinBot::API` (in `lib/mixin_bot/api.rb`) composes ~30 domain modules through Ruby `include`. List the modules: Me, User, Session, Asset, NetworkAsset, Network, Transfer, Transaction, Output, Snapshot, Payment, Multisig, Message, Blaze, Pin, Auth, App, Code, Rpc, ComputerApi, etc. }*
+*{ Explain that `MixinBot::API` (in `lib/mixin_bot/api.rb`) composes ~40 domain modules through Ruby `include`. List the modules: Me, User, Session, Asset, NetworkAsset, Network, Chain, Fiat, Transfer, Transaction, Output, Deposit, Address, Snapshot, Payment, Multisig, Message, EncryptedMessage, Blaze, BlazeAsync, Conversation, Circle, Attachment, App, Auth, Code, Turn, Rpc, ComputerApi, External, Inscription, Withdraw, and the `legacy_*` modules. }*
 
 ```mermaid
 flowchart LR
@@ -80,37 +80,37 @@ sequenceDiagram
 *{ Overview of the public API surface: every `MixinBot::API` instance method falls into one of the domain modules. Methods prefixed `safe_*` use the Safe UTXO pipeline; methods prefixed `legacy_*` are deprecated and emit a deprecation warning once. Interactive WebSocket flows (Blaze connect, upload) are not callable from the CLI. }*
 
 ####+ Profile & Users
-*{ `me`, `safe_me`, `update_me`, `read_user`, `read_users`, `search_user`, `fetch_users`, `friends`. Explain how to retrieve the bot profile and look up counterparties. }*
+*{ `me`, `safe_me`, `update_me`, `user`, `fetch_users`, `search_user`, `create_user`, `safe_register`, `migrate_to_safe`, `friends`. Explain how to retrieve the bot profile and look up counterparties. }*
 
 ####+ Assets & Network
-*{ `assets`, `asset`, `network_assets`, `network_asset`, `ticker`, `safe_assets`. Distinguish the bot-scoped asset catalog from the public network catalog. }*
+*{ `assets`, `asset`, `network_assets`, `network_asset`, `network_ticker`, `ticker`, `fiats`, `network_chain`, `network_chains`, `safe_fees`, `asset_balance`. Distinguish the bot-scoped asset catalog from the public network catalog. }*
 
 ####+ Transfers (Safe pipeline)
-*{ `create_transfer`, `create_safe_transfer`, `safe_outputs`, `build_safe_transaction`, `verify_raw_transaction`, `sign_safe_transaction`, `send_safe_transaction`, `safe_ghost_keys`. Walk through the UTXO select -> build -> verify -> sign -> submit sequence. }*
+*{ `create_transfer`, `create_safe_transfer`, `safe_outputs`, `build_safe_transaction`, `verify_raw_transaction`, `sign_safe_transaction`, `send_safe_transaction`. Walk through the UTXO select -> build -> verify -> sign -> submit sequence. }*
 
 ####+ Transactions
-*{ `transactions`, `transaction`, `safe_transaction`, `verify_transaction`, `safe_register_hashes`. Reference `MixinBot::Transaction` (`version 0x05` SAFE_TX_VERSION) for the underlying envelope. }*
+*{ `transactions`, `safe_transaction`, `verify_transaction`, `create_safe_keys`, `build_object_transaction`, `build_inscribe_transaction`, `create_object_storage_transaction`. Reference `MixinBot::Transaction` (`SAFE_TX_VERSION = 0x05`) for the underlying envelope. }*
 
 ####+ Multisig
 *{ `safe_multisig_*` operations and `MixinBot::API::Multisig`: registering member hashes, ghost-key derivation, threshold configuration. }*
 
 ####+ Messaging & Blaze
-*{ `start_blaze_connect`, `blaze_send_plain_text`, `blaze_send_recall_message`, `send_message`, `send_encrypted_messages`, `conversations`, `create_conversation`. Note the EventMachine/Faye WebSocket lifecycle and `MixinBot::API::Blaze`. }*
+*{ `start_blaze_connect`, `blaze_async`, `blaze_send_plain_text`, `blaze_send_recall_message`, `send_message`, `send_encrypted_messages`, `conversations`, `create_conversation`. Note the EventMachine/Faye WebSocket lifecycle and `MixinBot::API::Blaze`. }*
 
 ####+ Snapshots & Outputs
-*{ `snapshots`, `safe_snapshots`, `outputs`, `safe_outputs`, mix-address deposit operations. }*
+*{ `safe_snapshots`, `safe_snapshot`, `safe_snapshot_by_trace`, `create_safe_snapshot_notification`, `safe_outputs`, `pending_safe_deposits`, `safe_deposit_entries`. }*
 
 ####+ NFTs & Inscriptions
-*{ `create_collectible_request`, `read_collectibles`, `mint`, `inscriptions`, `inscription`. Cross-reference the MVM NFT helpers. }*
+*{ `collection`, `collectible`, `collectibles`, `create_collectible_transfer`, `create_collectible_request`, `mint`, `inscriptions`, `inscription`. Cross-reference the MVM NFT helpers. }*
 
 ####+ Auth & Sessions
-*{ `app`, `update_app`, `code`, `session`, `oauth`, `get_access_token`, `util_get_token`. }*
+*{ `app`, `update_app`, `update_app_security`, `code`, `oauth_token`, `request_oauth`, `authorize_code`, `sign_oauth_access_token`, `fetch_user_sessions`. }*
 
 ####+ Pin & Tip
-*{ `verify_pin`, `create_pin`, `update_pin`, `tip_refresh_token`, `tip_authorize`, `tip_access_token`. }*
+*{ `verify_pin`, `create_pin`, `update_pin`, `update_tip_pin`, `encrypt_tip_pin`, `get_tip_node`, `tip_body_for_*`. }*
 
 ####+ Withdrawals & Deposits
-*{ `create_withdrawal`, `withdrawal`, `withdrawals`, `safe_withdrawals`, deposit addresses and `MixinBot::Address`/`MixinBot::URLScheme`. }*
+*{ `create_withdrawal`, `withdrawal`, `withdrawals`, `safe_withdraw_addresses`, `create_withdraw_address`, `check_address`, deposit addresses and `MixinBot::MixAddress`/`MixinBot::URLScheme`. }*
 
 ####+ Legacy APIs (deprecated)
 *{ Briefly enumerate the `legacy_*` modules and explain the deprecation policy: warn once via `MixinBot.deprecator`, slated for removal in 3.0.0. }*
@@ -157,7 +157,7 @@ flowchart LR
 
 # Utils & Crypto
 
-*{ Explain `MixinBot::Utils` as a composition of four sub-modules: Address, Crypto, Decoder, Encoder. Show access via `MixinBot.utils` or `api.utils`. }*
+*{ Explain `MixinBot::Utils` as a composition of five sub-modules: Address, Amount, Crypto, Decoder, Encoder. Show access via `MixinBot.utils` or `api.utils`. }*
 
 ####+ Crypto helpers
 *{ `access_token` (JWT signing), `generate_ed25519_key`, `encrypt_pin`, `decode_key`, `unique_uuid`. }*
@@ -191,6 +191,25 @@ flowchart LR
 
 *{ Describe `lib/mixin_bot/models/` (asset, user, output, api_envelope, address, safe_multisig_request, ghost_keys, sequencer_transaction_request) and how the HTTP client wraps responses in `MixinBot::Models::ApiEnvelope`. }*
 
+# Rails Integration
+
+*{ Explain that `require 'mixin_bot'` never loads Rails; `require 'mixin_bot/rails'` loads the integration layer, and the railtie is `MixinBot::Railtie` (never `MixinBot::Rails`, which would shadow `::Rails`). Describe the `app/mixin` Zeitwerk root, the `mixin_bot:poller` rake task, and the components the layer provides. }*
+
+## Multi-bot registry
+*{ `MixinBot.register_bot`, `MixinBot.bot(name)`, `MixinBot.bot_by_app_id(app_id)`, and how the router, poller, transfers and notifications accept a bot name. }*
+
+## Blaze router
+*{ `MixinBot::Blaze::Router`, the `on` DSL (category aliases and condition hashes), `Router::Base` handlers in `app/mixin/handlers`, and the `Router::Message#reply` helper. }*
+
+## Outputs poller
+*{ `MixinBot::Outputs::Poller`, `Processor`, `Processors.discover`, `Envelope` snapshot bridging, the `ReceiptModel` concern, the receipt-derived resume cursor, and the `mixin_bot:poller` task. }*
+
+## Transfers and notifications
+*{ `MixinBot::Transfers::Model` state machine, `Performer`, `Reconcile`, and `MixinBot::Notifications::MixinChannel` for the Noticed gem. }*
+
+## Generators
+*{ Enumerate the Rails generators under `mixin_bot:` — authentication, blaze, outputs, transfers, notifications, install — and the `--skip-<component>` flags of the install generator. }*
+
 # Development
 
 ## Running tests
@@ -202,7 +221,7 @@ flowchart LR
 *{ Cover RuboCop (`rake rubocop`) and the parity task `rake mixin_bot:api_coverage` that checks the Ruby SDK against the official Go SDK endpoint catalog. }*
 
 ####+ OpenSpec workflow
-*{ Describe the OpenSpec-driven change workflow: `opsx propose`, `opsx apply`, `opsx archive`, `opsx explore`. Point to the specs under `openspec/specs/` (api-coverage-gate, api-error-code-catalog, ci-pipeline, dependency-updates, release-publish, create-user-billing-gate). }*
+*{ Describe the OpenSpec-driven change workflow: `opsx propose`, `opsx apply`, `opsx archive`, `opsx explore`. Point to the specs under `openspec/specs/` (api-coverage-gate, api-error-code-catalog, blaze-message-router, blaze-puma-plugin, ci-pipeline, create-user-billing-gate, dependency-updates, mixin-notifications, outbound-transfers, outputs-poller, rails-generators, rails-integration, release-publish, upstream-parity). }*
 
 ####+ Docs & RDoc
 *{ Document `rake rdoc` (output in `doc/`), `docs/agent/cli.md` and `docs/agent/cookbook.md`, and the maintenance workflows under `.github/workflows/`. }*
@@ -217,7 +236,7 @@ You can add this to your repository root as `AGENTS.md` to give AI coding agents
 
 ```
 # MixinBot
-> Ruby SDK (gem 3.0.0) and CLI for Mixin Network: Safe UTXO transfers, Blaze messaging, MVM helpers.
+> Ruby SDK (gem 3.0.2) and CLI for Mixin Network: Safe UTXO transfers, Blaze messaging, Rails integration, MVM helpers.
 Wiki: https://github.com/baizhiheizi/mixin_bot/wiki
 To read any page: https://github.com/baizhiheizi/mixin_bot/wiki/{slug}
 Section: https://github.com/baizhiheizi/mixin_bot/wiki/{slug}#{anchor}
@@ -225,39 +244,45 @@ Section: https://github.com/baizhiheizi/mixin_bot/wiki/{slug}#{anchor}
 ## Page Index
 |Home: Project overview and quick links
 |Getting-Started: Install, configure, first call
-|  Getting-Started#Prerequisites: Ruby/Bundler/mixin CLI requirements
-|  Getting-Started#Common-commands: rake tasks
+|  Getting-Started#prerequisites: Ruby/Bundler/mixin CLI requirements
+|  Getting-Started#common-commands: rake tasks
 |Configuration: Configuration object, key conversion, keystores
-|  Configuration#Keystores: JSON keystore flow
-|  Configuration#Multiple-bots: per-instance API
+|  Configuration#keystores: JSON keystore flow
+|  Configuration#multiple-bots: per-instance API and registry
 |Architecture: Module composition, HTTP client, request lifecycle
 |API-Reference: Public API surface by domain
-|  API-Reference#Profile-&-Users: me, safe_me, read_user, friends
-|  API-Reference#Assets-&-Network: assets, network_assets, ticker
-|  API-Reference#Transfers-(Safe-pipeline): create_transfer, build_safe_transaction, ...
-|  API-Reference#Transactions: safe_transaction, verify_transaction
-|  API-Reference#Multisig: safe_multisig_*, member hashes
-|  API-Reference#Messaging-&-Blaze: start_blaze_connect, send_message
-|  API-Reference#Snapshots-&-Outputs: snapshots, outputs, deposits
-|  API-Reference#NFTs-&-Inscriptions: collectibles, inscriptions
-|  API-Reference#Auth-&-Sessions: app, session, oauth
-|  API-Reference#Pin-&-Tip: verify_pin, tip_*
-|  API-Reference#Withdrawals-&-Deposits: create_withdrawal, deposits
-|  API-Reference#Legacy-APIs-(deprecated): legacy_* deprecations
+|  API-Reference#profile--users: me, safe_me, user, friends
+|  API-Reference#assets--network: assets, network_assets, ticker, chains
+|  API-Reference#transfers-safe-pipeline: create_transfer, build_safe_transaction, ...
+|  API-Reference#transactions: safe_transaction, verify_raw_transaction
+|  API-Reference#multisig: safe_multisig_*, member hashes
+|  API-Reference#messaging--blaze: start_blaze_connect, send_message
+|  API-Reference#snapshots--outputs: safe_snapshots, safe_outputs, deposits
+|  API-Reference#nfts--inscriptions: collectibles, inscriptions
+|  API-Reference#auth--sessions: app, session, oauth
+|  API-Reference#pin--tip: verify_pin, tip_*
+|  API-Reference#withdrawals--deposits: create_withdraw_address, deposits
+|  API-Reference#legacy-apis-deprecated: legacy_* deprecations
 |Safe-Pipeline: Safe UTXO pipeline stages and example
 |CLI: mixinbot call/list/schema and output formats
 |Transactions: Transaction envelope and encoder/decoder
-|Utils-&-Crypto: Address, Crypto, Decoder, Encoder
-|  Utils-&-Crypto#Crypto-helpers: access_token, generate_ed25519_key, encrypt_pin
-|  Utils-&-Crypto#Address-helpers: main address, ghost keys
+|Utils-Crypto: Address, Amount, Crypto, Decoder, Encoder
+|  Utils-Crypto#crypto-helpers: access_token, generate_ed25519_key, encrypt_pin
+|  Utils-Crypto#address-helpers: main address, ghost keys
 |MVM: Bridge, Nft, Registry, Scan (Mixin Virtual Machine)
-|Errors-&-Error-Handling: APIError hierarchy, retry/throttle
-|  Errors-&-Error-Handling#Retries-&-throttling: retryable? / throttle?
-|  Errors-&-Error-Handling#Local-validation-errors: ArgumentError, ConfigurationNotValidError
+|Errors-Error-Handling: APIError hierarchy, retry/throttle
+|  Errors-Error-Handling#retries--throttling: retryable? / throttle?
+|  Errors-Error-Handling#local-validation-errors: ArgumentError, ConfigurationNotValidError
 |Models: ApiEnvelope and domain models
+|Rails-Integration: Opting in, railtie, app/mixin autoload root
+|  Multi-bot-registry: register_bot, bot, bot_by_app_id
+|  Blaze-Router: Router, on DSL, handlers, Router::Message
+|  Outputs-Poller: Poller, Processor, Envelope, ReceiptModel, receipt cursor
+|  Transfers-and-Notifications: Transfers::Model, Performer, Reconcile, MixinChannel
+|  Generators: mixin_bot:* generators and install flags
 |Development: Tests, RuboCop, coverage, OpenSpec, RDoc
-|  Development#OpenSpec-workflow: opsx propose/apply/archive/explore
-|  Development#Docs-&-RDoc: rake rdoc and docs/agent/
+|  Development#openspec-workflow: opsx propose/apply/archive/explore
+|  Development#docs--rdoc: rake rdoc and docs/agent/
 ```
 
 ## llms.txt
@@ -266,7 +291,7 @@ You can serve this at `yoursite.com/llms.txt` or include it in your repository t
 
 ```
 # MixinBot
-> Ruby SDK and CLI for Mixin Network (gem 3.0.0) with Safe UTXO transfers, Blaze messaging, and MVM helpers.
+> Ruby SDK and CLI for Mixin Network (gem 3.0.2) with Safe UTXO transfers, Blaze messaging, a Rails integration layer, and MVM helpers.
 
 ## Wiki Pages
 - [Home](https://github.com/baizhiheizi/mixin_bot/wiki/Home): Project overview and quick links
@@ -277,9 +302,15 @@ You can serve this at `yoursite.com/llms.txt` or include it in your repository t
 - [Safe Pipeline](https://github.com/baizhiheizi/mixin_bot/wiki/Safe-Pipeline): UTXO select -> build -> sign -> submit
 - [CLI](https://github.com/baizhiheizi/mixin_bot/wiki/CLI): mixinbot call/list/schema
 - [Transactions](https://github.com/baizhiheizi/mixin_bot/wiki/Transactions): Transaction envelope and encoding
-- [Utils & Crypto](https://github.com/baizhiheizi/mixin_bot/wiki/Utils-Crypto): Address, Crypto, Decoder, Encoder helpers
+- [Utils & Crypto](https://github.com/baizhiheizi/mixin_bot/wiki/Utils-Crypto): Address, Amount, Crypto, Decoder, Encoder helpers
 - [MVM](https://github.com/baizhiheizi/mixin_bot/wiki/MVM): Mixin Virtual Machine helpers
 - [Errors & Error Handling](https://github.com/baizhiheizi/mixin_bot/wiki/Errors-Error-Handling): APIError hierarchy and retry semantics
 - [Models](https://github.com/baizhiheizi/mixin_bot/wiki/Models): ApiEnvelope and domain models
+- [Rails Integration](https://github.com/baizhiheizi/mixin_bot/wiki/Rails-Integration): Opting in, railtie, app/mixin autoload root
+- [Multi-bot registry](https://github.com/baizhiheizi/mixin_bot/wiki/Multi-bot-registry): Registering and resolving named bots
+- [Blaze Router](https://github.com/baizhiheizi/mixin_bot/wiki/Blaze-Router): Message routing DSL and handlers
+- [Outputs Poller](https://github.com/baizhiheizi/mixin_bot/wiki/Outputs-Poller): Output polling, receipts and processors
+- [Transfers and Notifications](https://github.com/baizhiheizi/mixin_bot/wiki/Transfers-and-Notifications): Transfer ledger state machine and Noticed channel
+- [Generators](https://github.com/baizhiheizi/mixin_bot/wiki/Generators): Rails generators under the mixin_bot: namespace
 - [Development](https://github.com/baizhiheizi/mixin_bot/wiki/Development): Tests, RuboCop, coverage, OpenSpec workflow
 ```
