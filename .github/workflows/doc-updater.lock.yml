@@ -1053,7 +1053,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           ANTHROPIC_BASE_URL: https://api.minimaxi.com/anthropic
-          ANTHROPIC_MODEL: MiniMax-M3.1-Flash-Preview
+          ANTHROPIC_MODEL: MiniMax-M3.1-Flash
           API_TIMEOUT_MS: 3000000
           BASH_DEFAULT_TIMEOUT_MS: 60000
           BASH_MAX_TIMEOUT_MS: 60000
@@ -1798,7 +1798,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           ANTHROPIC_BASE_URL: https://api.minimaxi.com/anthropic
-          ANTHROPIC_MODEL: MiniMax-M3.1-Flash-Preview
+          ANTHROPIC_MODEL: MiniMax-M3.1-Flash
           API_TIMEOUT_MS: 3000000
           BASH_DEFAULT_TIMEOUT_MS: 60000
           BASH_MAX_TIMEOUT_MS: 60000
